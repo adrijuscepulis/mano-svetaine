@@ -320,28 +320,43 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 // -------------------------------------------------------------
-// 3. Siuntimas tiesioginiu serverio PHP mail()
+// 3. Siuntimas tiesioginiu serverio PHP mail() su anti-spam apsauga
 // -------------------------------------------------------------
 $serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
 $fromEmail = "noreply@" . $serverHost;
+$dateHeader = date('r');
+$adminMsgId = "<th-admin-" . $reservationId . "-" . time() . "@" . $serverHost . ">";
+$clientMsgId = "<th-client-" . $reservationId . "-" . time() . "@" . $serverHost . ">";
+
+// Base64 kodavimas temai (pašalina Gmail SUBJECT_NEEDS_ENCODING spam klaidą)
+$subAdmin = "=?UTF-8?B?" . base64_encode("Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)") . "?=";
+$subClient = "=?UTF-8?B?" . base64_encode("Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]") . "?=";
 
 // A. Administratoriaus modernus HTML pranešimas
 $headersAdminHtml = "MIME-Version: 1.0\r\n"
+    . "Date: $dateHeader\r\n"
+    . "Message-ID: $adminMsgId\r\n"
     . "From: ThrowHouse Sistema <$fromEmail>\r\n"
     . "Reply-To: $email\r\n"
-    . "X-Mailer: PHP/" . phpversion() . "\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n";
+    . "Auto-Submitted: auto-generated\r\n"
+    . "X-Mailer: ThrowHouse Engine\r\n"
+    . "Content-Type: text/html; charset=UTF-8\r\n"
+    . "Content-Transfer-Encoding: 8bit\r\n";
 
-@mail("throwhousee@gmail.com", "🎯 Nauja rezervacija [$reservationId] - $name ($date $time)", $adminHtmlBody, $headersAdminHtml, "-f" . $fromEmail);
+@mail("throwhousee@gmail.com", $subAdmin, $adminHtmlBody, $headersAdminHtml, "-f" . $fromEmail);
 
 // B. Kliento išsamus HTML laiškas
 $headersClientHtml = "MIME-Version: 1.0\r\n"
+    . "Date: $dateHeader\r\n"
+    . "Message-ID: $clientMsgId\r\n"
     . "From: ThrowHouse Šiauliai <$fromEmail>\r\n"
     . "Reply-To: throwhousee@gmail.com\r\n"
-    . "X-Mailer: PHP/" . phpversion() . "\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n";
+    . "Auto-Submitted: auto-generated\r\n"
+    . "X-Mailer: ThrowHouse Engine\r\n"
+    . "Content-Type: text/html; charset=UTF-8\r\n"
+    . "Content-Transfer-Encoding: 8bit\r\n";
 
-@mail($email, "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]", $clientHtmlBody, $headersClientHtml, "-f" . $fromEmail);
+@mail($email, $subClient, $clientHtmlBody, $headersClientHtml, "-f" . $fromEmail);
 
 // Žurnalas diagnostikai
 $logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Tel: $phone | FS_Code: $httpCode | FS_Resp: $fsResp\n";
