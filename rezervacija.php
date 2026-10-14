@@ -185,10 +185,106 @@ $clientHtmlBody = '<!DOCTYPE html>
 </html>';
 
 // -------------------------------------------------------------
+// B. Gražus, tvarkingas HTML laiškas administratoriui
+// -------------------------------------------------------------
+$adminHtmlBody = '<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #0b0f19; margin: 0; padding: 20px; color: #1e293b; }
+  .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.35); border: 1px solid #e2e8f0; }
+  .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #f59e0b; }
+  .header h1 { margin: 0 0 6px 0; font-size: 20px; color: #f59e0b; letter-spacing: 1px; }
+  .header p { margin: 0; font-size: 13px; color: #94a3b8; }
+  .badge-id { display: inline-block; background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.4); padding: 5px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; margin-top: 10px; }
+  .content { padding: 24px; font-size: 14px; line-height: 1.6; color: #334155; }
+  .section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin: 18px 0 8px 0; display: block; }
+  .client-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .client-name { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+  .contact-btn-row { margin-top: 12px; }
+  .contact-btn { display: inline-block; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; text-decoration: none; margin-right: 8px; margin-bottom: 6px; }
+  .btn-tel { background: #10b981; color: #ffffff !important; }
+  .btn-mail { background: #6366f1; color: #ffffff !important; }
+  .order-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  .order-table td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+  .order-table tr:last-child td { border-bottom: none; }
+  .order-table td.label { color: #64748b; width: 38%; font-weight: 500; }
+  .order-table td.val { color: #0f172a; font-weight: 700; }
+  .time-highlight { background: #fffbeb; color: #b45309; padding: 4px 10px; border-radius: 6px; border: 1px solid #fde68a; display: inline-block; font-weight: 800; }
+  .price-highlight { color: #059669; font-size: 16px; }
+  .admin-action { text-align: center; margin: 24px 0 10px 0; }
+  .btn-dashboard { display: inline-block; background: #0f172a; color: #ffffff !important; font-weight: 700; text-decoration: none; padding: 12px 24px; border-radius: 8px; border: 1px solid #334155; font-size: 14px; }
+  .footer { background: #f8fafc; padding: 14px 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>THROW HOUSE ŠIAULIAI</h1>
+      <p>🎯 Gauta nauja rezervacija sistemoje</p>
+      <span class="badge-id">Užsakymo Nr. ' . $reservationId . '</span>
+    </div>
+    <div class="content">
+      <span class="section-title">👤 Kliento kontaktai:</span>
+      <div class="client-box">
+        <div class="client-name">' . $name . '</div>
+        <div style="color: #475569; margin-bottom: 10px; line-height: 1.8;">
+          📞 Tel.: <strong>' . $phone . '</strong><br>
+          ✉️ El. paštas: <strong>' . $email . '</strong>
+        </div>
+        <div class="contact-btn-row">
+          <a href="tel:' . $phone . '" class="contact-btn btn-tel">📞 Skambinti klientui</a>
+          <a href="mailto:' . $email . '" class="contact-btn btn-mail">✉️ Rašyti laišką</a>
+        </div>
+      </div>
+
+      <span class="section-title">📋 Užsakymo parametrai:</span>
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin-bottom: 16px;">
+        <table class="order-table">
+          <tr>
+            <td class="label">Pramoga:</td>
+            <td class="val">' . $activity . ($lane ? " ($lane)" : "") . '</td>
+          </tr>
+          <tr>
+            <td class="label">Dalyviai:</td>
+            <td class="val">' . $count . ' asm. (1 val. sesija)</td>
+          </tr>
+          <tr>
+            <td class="label">Data:</td>
+            <td class="val">' . $date . '</td>
+          </tr>
+          <tr>
+            <td class="label">Laikas:</td>
+            <td class="val"><span class="time-highlight">🕒 ' . $time . ' val.</span></td>
+          </tr>
+          <tr>
+            <td class="label">Mokėtina suma:</td>
+            <td class="val price-highlight">' . $price . ' <span style="font-size:12px; font-weight:normal; color:#64748b;">(vietoje)</span></td>
+          </tr>
+          <tr>
+            <td class="label">Būsena:</td>
+            <td class="val" style="color: #d97706;">Gauta (laukiama atvykimo)</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="admin-action">
+        <a href="https://violet-dove-675017.hostingersite.com/admin.php?tab=rezervacijos" class="btn-dashboard" target="_blank">
+          ⚙️ Atidaryti valdymo pultą (admin.php) ➔
+        </a>
+      </div>
+    </div>
+    <div class="footer">
+      ThrowHouse Šiauliai · Automatinis pranešimas administratoriams · ' . date('Y-m-d H:i') . '
+    </div>
+  </div>
+</body>
+</html>';
+
+// -------------------------------------------------------------
 // 2. Siuntimas administratoriui per FormSubmit (be _cc klientui!)
 // -------------------------------------------------------------
-// Suteikiame administratoriui aiškią lentelę su visais kontaktais,
-// o klientas gauna TIK mandagų _autoresponse laišką (be techninių lentelių).
 $formSubmitData = [
     'Užsakymo_ID' => $reservationId,
     'Kliento_Vardas' => $name,
@@ -201,7 +297,7 @@ $formSubmitData = [
     'Data' => $date,
     'Laikas' => $time . " val.",
     'Moketina_suma' => $price . " (mokama vietoje)",
-    '_subject' => "Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
+    '_subject' => "🎯 Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
     '_template' => "table",
     '_autoresponse' => $clientTextBody
 ];
@@ -229,25 +325,14 @@ curl_close($ch);
 $serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
 $fromEmail = "noreply@" . $serverHost;
 
-// A. Administratoriaus pranešimas
-$adminNoticeText = "ThrowHouse Šiauliai | GAUTA NAUJA REZERVACIJA\n\n"
-    . "Užsakymo ID: $reservationId\n"
-    . "Klientas: $name\n"
-    . "Telefonas: $phone\n"
-    . "El. paštas: $email\n\n"
-    . "Pramoga: $activity " . ($lane ? "($lane)" : "") . "\n"
-    . "Dalyviai: $count asm.\n"
-    . "Data: $date\n"
-    . "Laikas: $time val.\n"
-    . "Mokėtina suma: $price\n"
-    . "Statusas: Gauta (mokėjimas vietoje)\n";
-
-$headersAdmin = "From: ThrowHouse Rezervacijos <$fromEmail>\r\n"
+// A. Administratoriaus modernus HTML pranešimas
+$headersAdminHtml = "MIME-Version: 1.0\r\n"
+    . "From: ThrowHouse Sistema <$fromEmail>\r\n"
     . "Reply-To: $email\r\n"
     . "X-Mailer: PHP/" . phpversion() . "\r\n"
-    . "Content-Type: text/plain; charset=UTF-8\r\n";
+    . "Content-Type: text/html; charset=UTF-8\r\n";
 
-@mail("throwhousee@gmail.com", "Nauja rezervacija [$reservationId] - $name ($date $time)", $adminNoticeText, $headersAdmin, "-f" . $fromEmail);
+@mail("throwhousee@gmail.com", "🎯 Nauja rezervacija [$reservationId] - $name ($date $time)", $adminHtmlBody, $headersAdminHtml, "-f" . $fromEmail);
 
 // B. Kliento išsamus HTML laiškas
 $headersClientHtml = "MIME-Version: 1.0\r\n"
