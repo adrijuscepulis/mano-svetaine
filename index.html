@@ -1371,13 +1371,17 @@
               <input type="email" id="resEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
             </div>
 
-            <!-- APMOKĖJIMAS INTERNETU -->
+            <!-- APMOKĖJIMAS -->
             <div class="f-group">
-              <label class="f-label">Apmokėjimo būdas (tik internetu):</label>
+              <label class="f-label">Apmokėjimo būdas:</label>
               <div class="pay-methods">
                 <label class="pay-lbl">
-                  <input type="radio" name="resPay" value="online" checked>
-                  <span>💳 Apmokėjimas internetu (El. bankininkystė / Visa / Mastercard)</span>
+                  <input type="radio" name="resPay" value="onsite" checked>
+                  <span>💵 Mokėti atvykus vietoje (Kortele arba išankstinis pavedimas)</span>
+                </label>
+                <label class="pay-lbl">
+                  <input type="radio" name="resPay" value="online">
+                  <span>💳 Mokėti internetu (Banklink / Visa / Mastercard)</span>
                 </label>
               </div>
             </div>
@@ -1385,14 +1389,14 @@
             <!-- KAINA IR MYGTUKAS -->
             <div class="calc-box">
               <div>
-                <strong>Bendra suma apmokėjimui:</strong>
+                <strong>Bendra suma:</strong>
                 <span class="calc-note" id="calcBreakdown">Bazinė kaina (25 €) + 30 indų įskaičiuota</span>
               </div>
               <div class="calc-price" id="calcPrice">25 €</div>
             </div>
 
             <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
-              Patvirtinti ir pereiti prie apmokėjimo ➔
+              Patvirtinti rezervaciją dabar ➔
             </button>
           </form>
 
