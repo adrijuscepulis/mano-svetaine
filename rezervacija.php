@@ -94,6 +94,7 @@ $formSubmitData = [
     'Patekimas_i_patalpas' => 'Pramonės g. 15 (2 a.). Įėjimas pro duris „Floristika“, 1-os durys kairėje ir laiptais į viršų.',
     '_subject' => "Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
     '_template' => "table",
+    '_cc' => $email,
     '_autoresponse' => $clientBody
 ];
 
@@ -115,7 +116,7 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 // 3. Papildomas standartinis PHP mail() siuntimas (atsargai)
-$serverHost = $_SERVER['SERVER_NAME'] ?? 'throwhouse.lt';
+$serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
 $fromEmail = "noreply@" . $serverHost;
 
 $bodyAdminText = "Nauja rezervacija ThrowHouse Šiauliai!\n\n"
@@ -131,15 +132,17 @@ $bodyAdminText = "Nauja rezervacija ThrowHouse Šiauliai!\n\n"
 
 $headersAdmin = "From: ThrowHouse Rezervacijos <$fromEmail>\r\n"
     . "Reply-To: $email\r\n"
+    . "X-Mailer: PHP/" . phpversion() . "\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-@mail("throwhousee@gmail.com", "Nauja rezervacija [$reservationId] - $name ($date $time)", $bodyAdminText, $headersAdmin);
+@mail("throwhousee@gmail.com", "Nauja rezervacija [$reservationId] - $name ($date $time)", $bodyAdminText, $headersAdmin, "-f" . $fromEmail);
 
-$headersClient = "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
+$headersClient = "From: ThrowHouse Šiauliai <$fromEmail>\r\n"
     . "Reply-To: throwhousee@gmail.com\r\n"
+    . "X-Mailer: PHP/" . phpversion() . "\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-@mail($email, "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]", $clientBody, $headersClient);
+@mail($email, "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]", $clientBody, $headersClient, "-f" . $fromEmail);
 
 // Žurnalas diagnostikai
 $logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Tel: $phone | FS_Code: $httpCode | FS_Resp: $fsResp\n";

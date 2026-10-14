@@ -1405,13 +1405,6 @@
             <h4>✓ Rezervacija sėkmingai priimta!</h4>
             <div id="resSummary"></div>
             
-            <div style="background: rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; text-align: left;">
-              <strong style="color:var(--accent); font-size:1.05rem; display:block; margin-bottom:0.4rem;">📍 Vieta ir atvykimas:</strong>
-              <p style="margin:0; font-size:0.95rem; color:#fff; line-height:1.6;">
-                Adresas: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong><br>
-                Tikslią atvykimo bei patekimo į patalpas informaciją išsiuntėme Jums el. paštu kartu su rezervacijos patvirtinimu.
-              </p>
-            </div>
 
             <button class="btn btn-secondary btn-sm" onclick="newBooking()">Atlikti naują rezervaciją</button>
           </div>
@@ -1909,6 +1902,7 @@
             'El_pastas': email,
             'email': email,
             '_replyto': email,
+            '_cc': email,
             'Pramoga': act + (lane ? ' (' + lane + ')' : '') + (extraDishes > 0 ? ' (+' + extraDishes + ' indų)' : ''),
             'Dalyviai': cnt + ' asm.',
             'Data': dateText,
@@ -1926,7 +1920,7 @@
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
           <strong>Data ir laikas:</strong> ${dateText}, ${time} val.<br>
           <strong>Mokėtina suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong><br><br>
-          <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas su atvykimo instrukcija išsiųstas į <strong>${email}</strong>!</span>
+          <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas sėkmingai išsiųstas į <strong>${email}</strong>!</span>
         `;
         box.scrollIntoView({ behavior: 'smooth' });
 
