@@ -1891,27 +1891,6 @@
 
         const orderId = data.reservation_id || ('TH-' + Math.floor(100000 + Math.random() * 900000));
 
-        // Papildomas lygiagretus siuntimas tiesiai iš naršyklės (užtikrina 100% pristatymą į Gmail)
-        fetch('https://formsubmit.co/ajax/throwhousee@gmail.com', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            'Užsakymo_ID': orderId,
-            'Klientas': name,
-            'Telefonas': phone,
-            'El_pastas': email,
-            'email': email,
-            '_replyto': email,
-            '_cc': email,
-            'Pramoga': act + (lane ? ' (' + lane + ')' : '') + (extraDishes > 0 ? ' (+' + extraDishes + ' indų)' : ''),
-            'Dalyviai': cnt + ' asm.',
-            'Data': dateText,
-            'Laikas': time + ' val.',
-            'Mokėtina_suma': prc,
-            '_subject': 'Nauja ThrowHouse rezervacija [' + orderId + ']: ' + name + ' (' + dateText + ' ' + time + ')',
-            '_template': 'table'
-          })
-        }).catch(e => console.log('Client-side formsubmit notice', e));
 
         sum.innerHTML = `
           <strong>Užsakymo Nr.:</strong> <span style="color:var(--accent);">${orderId}</span><br>
