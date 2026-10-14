@@ -41,7 +41,7 @@ $reservation = [
     'date' => $date,
     'time' => $time,
     'price' => $price,
-    'status' => 'Gauta (be apmokėjimo)'
+    'status' => 'Gauta (be išankstinio apmokėjimo)'
 ];
 
 $dataFile = __DIR__ . '/rezervacijos.json';
@@ -53,19 +53,48 @@ if (file_exists($dataFile)) {
 $all[] = $reservation;
 file_put_contents($dataFile, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
+// Mandagus, aiškus ir reprezentatyvus patvirtinimo tekstas klientui
+$clientBody = "Gerb. $name,\n\n"
+    . "Nuoširdžiai dėkojame už Jūsų rezervaciją „ThrowHouse Šiauliai“ pramogų erdvėje!\n"
+    . "Jūsų užsakymas yra sėkmingai gautas ir užregistruotas sistemoje.\n\n"
+    . "REZERVACIJOS DUOMENYS:\n"
+    . "• Užsakymo numeris: $reservationId\n"
+    . "• Pasirinkta pramoga: $activity" . ($lane ? " ($lane)" : "") . "\n"
+    . "• Dalyvių skaičius: $count asm. (trukmė: 1 val.)\n"
+    . "• Numatytas laikas: $date d., $time val.\n"
+    . "• Mokėtina suma: $price (atsiskaitymas atvykus vietoje)\n\n"
+    . "VIETA IR NAVIGACIJA:\n"
+    . "• Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
+    . "• Google Maps nuoroda: https://www.google.com/maps?q=55.910730,23.315700\n"
+    . "• Waze nuoroda: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
+    . "PATEKIMAS Į PATALPAS:\n"
+    . "Atvykus prie pastato, maloniai prašome užeiti pro duris, pažymėtas iškaba „Floristika“. Patekus į vidų, eikite pro pirmąsias duris kairėje pusėje ir laiptais pakilkite į antrąjį aukštą – čia Jūsų lauks „ThrowHouse“ erdvė.\n\n"
+    . "SVARBI INFORMACIJA DALYVIAMS:\n"
+    . "• Saugumo sumetimais visiems dalyviams būtina patogi, visiškai uždara avalynė (sportbačiai arba auliniai batai).\n"
+    . "• Visas apsaugos priemones (specialią aprangą, apsauginius šalmus su skydeliais ir pirštines) suteikiame vietoje nemokamai.\n"
+    . "• Rekomenduojame atvykti likus 5–10 min. iki sesijos pradžios trumpam instruktažui.\n\n"
+    . "Jei kiltų klausimų ar pasikeistų planai, susisiekite telefonu: +370 619 88009 arba el. paštu: throwhousee@gmail.com.\n\n"
+    . "Laukiame Jūsų atvykstant!\n"
+    . "Pagarbiai,\n"
+    . "„ThrowHouse Šiauliai“ komanda";
+
 // 2. Siuntimas per FormSubmit (patikimiausias būdas į Gmail be DMARC blokavimo)
 $formSubmitData = [
     'Užsakymo_ID' => $reservationId,
     'Kliento_Vardas' => $name,
     'Telefono_numeris' => $phone,
     'El_pastas' => $email,
+    'email' => $email,
+    '_replyto' => $email,
     'Pasirinkta_pramoga' => $activity . ($lane ? " ($lane)" : ""),
     'Dalyviu_skaicius' => $count . " asm.",
     'Data' => $date,
     'Laikas' => $time . " val.",
     'Moketina_suma' => $price,
-    '_subject' => "Nauja rezervacija [$reservationId]: $activity ($date $time)",
-    '_template' => "table"
+    'Patekimas_i_patalpas' => 'Pramonės g. 15 (2 a.). Įėjimas pro duris „Floristika“, 1-os durys kairėje ir laiptais į viršų.',
+    '_subject' => "Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
+    '_template' => "table",
+    '_autoresponse' => $clientBody
 ];
 
 $ch = curl_init("https://formsubmit.co/ajax/throwhousee@gmail.com");
@@ -74,55 +103,50 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($formSubmitData));
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Content-Type: application/json',
-    'Referer: https://violet-dove-675017.hostingersite.com'
+    'Accept: application/json',
+    'Origin: https://violet-dove-675017.hostingersite.com',
+    'Referer: https://violet-dove-675017.hostingersite.com/'
 ]);
-curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+curl_setopt($ch, CURLOPT_TIMEOUT, 8);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 $fsResp = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 // 3. Papildomas standartinis PHP mail() siuntimas (atsargai)
 $serverHost = $_SERVER['SERVER_NAME'] ?? 'throwhouse.lt';
 $fromEmail = "noreply@" . $serverHost;
 
-$bodyText = "Gauta nauja rezervacija!\n\n"
-    . "Užsakymo ID: $reservationId\n"
-    . "Užsakovas: $name\n"
+$bodyAdminText = "Nauja rezervacija ThrowHouse Šiauliai!\n\n"
+    . "Užsakymo numeris: $reservationId\n"
+    . "Klientas: $name\n"
     . "Telefonas: $phone\n"
     . "El. paštas: $email\n\n"
-    . "Pramoga: $activity $lane\n"
+    . "Pramoga: $activity " . ($lane ? "($lane)" : "") . "\n"
     . "Dalyviai: $count asm.\n"
     . "Data: $date\n"
     . "Laikas: $time val.\n"
-    . "Suma: $price\n";
+    . "Mokėtina suma: $price (atsiskaitymas vietoje)\n";
 
-$headers = "From: ThrowHouse <$fromEmail>\r\n"
+$headersAdmin = "From: ThrowHouse Rezervacijos <$fromEmail>\r\n"
     . "Reply-To: $email\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-@mail("throwhousee@gmail.com", "Nauja rezervacija [$reservationId]", $bodyText, $headers);
+@mail("throwhousee@gmail.com", "Nauja rezervacija [$reservationId] - $name ($date $time)", $bodyAdminText, $headersAdmin);
 
-// 4. Kliento patvirtinimo laiškas
-$clientBody = "Sveiki, $name!\n\n"
-    . "Jūsų rezervacija ThrowHouse Šiauliai sėkmingai priimta!\n\n"
-    . "REZERVACIJOS DUOMENYS:\n"
-    . "Užsakymo ID: $reservationId\n"
-    . "Pramoga: $activity $lane ($count asm.)\n"
-    . "Data ir laikas: $date d., $time val.\n"
-    . "Mokėtina suma: $price\n\n"
-    . "📍 KAIP MUS RASTI:\n"
-    . "Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
-    . "Google Maps: https://www.google.com/maps?q=55.910730,23.315700\n"
-    . "Waze: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
-    . "🚪 ĮĖJIMO INSTRUKCIJA:\n"
-    . "Atvykus prie pastato, įeikite pro duris su užrašu „FLORISTIKA“ -> iškart pirmos durys į KAIRĘ -> laiptais į 2-ą aukštą!\n\n"
-    . "⚠️ SVARBU: Būtina uždara avalynė (sportbačiai/aulinukai).\n"
-    . "Tel. pasiteiravimui: +370 619 88009\n\n"
-    . "Laukiame jūsų atvykstant!\nThrowHouse Šiauliai";
+$headersClient = "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
+    . "Reply-To: throwhousee@gmail.com\r\n"
+    . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-@mail($email, "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]", $clientBody, $headers);
+@mail($email, "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]", $clientBody, $headersClient);
+
+// Žurnalas diagnostikai
+$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Tel: $phone | FS_Code: $httpCode | FS_Resp: $fsResp\n";
+@file_put_contents(__DIR__ . '/rezervacija_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([
     'success' => true,
-    'message' => 'Rezervacija sėkmingai išsaugota ir išsiųsta!',
+    'message' => 'Rezervacija sėkmingai išsaugota ir patvirtinimas išsiųstas!',
     'reservation_id' => $reservationId
 ]);

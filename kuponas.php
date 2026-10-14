@@ -83,7 +83,8 @@ $msgClient = "Sveiki, $buyerName!\n\n"
     . "Koordinatės: 55.910730, 23.315700\n"
     . "Google Maps: https://www.google.com/maps?q=55.910730,23.315700\n"
     . "Waze: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
-    . "🚪 Įėjimo instrukcija: Įėjimas pro duris su užrašu „FLORISTIKA“ -> pirmos durys į kairę -> laiptais į viršų (2 aukštas).\n"
+    . "🚪 PATEKIMAS Į PATALPAS:\n"
+    . "Atvykus prie pastato, maloniai prašome užeiti pro duris, pažymėtas iškaba „Floristika“. Patekus į vidų, eikite pro pirmąsias duris kairėje pusėje ir pakilkite laiptais į antrąjį aukštą.\n\n"
     . "Telefonas: +370 619 88009\n\n"
     . "Smagių ir nepamirštamų akimirkų linki ThrowHouse Šiauliai komanda!";
 
