@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ThrowHouse Šiauliai | Pykčio kambarys ir Kirvių mėtymas</title>
-  <meta name="description" content="Pramogų erdvė Šiauliuose. Pykčio kambarys (Smash Room) ir kirvių mėtymas (Axe Throwing). Dovanų kuponai. Pramonės g. 15, Šiauliai. Tel. +37061988009.">
+  <meta name="description" content="Pramogų erdvė Šiauliuose. Pykčio kambarys (Smash Room) ir kirvių mėtymas (Axe Throwing). Dovanų kuponai. Pramonės g. 15, Šiauliai (2 a.). Tel. +37061988009.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -766,53 +766,83 @@
     }
     .faq-row.open .faq-content { display: block; }
 
-    /* KONTAKTAI */
+    /* KONTAKTAI IR ŽEMĖLAPIS */
     .contact-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-      align-items: center;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 2.5rem;
+      align-items: flex-start;
     }
 
     .contact-card-box {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
-      margin-top: 2rem;
+      gap: 1.15rem;
+      margin-top: 1.5rem;
     }
 
     .c-box {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 1rem;
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      padding: 1.15rem 1.4rem;
+      padding: 1.15rem 1.35rem;
       border-radius: var(--radius-md);
     }
 
-    .c-icon { font-size: 1.5rem; }
-    .c-box strong { display: block; font-size: 0.95rem; color: #fff; }
+    .c-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+    .c-box strong { display: block; font-size: 0.95rem; color: #fff; margin-bottom: 0.2rem; }
     .c-box span, .c-box a { font-size: 0.925rem; color: var(--text-gray); }
     .c-box a:hover { color: var(--accent); }
 
-    .map-frame {
+    .entrance-instruction-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .entrance-instruction-box strong {
+      display: block;
+      color: var(--accent);
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .entrance-instruction-box p {
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* REALUS GOOGLE MAPS ŽEMĖLAPIS */
+    .map-container-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      height: 380px;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(18, 22, 36, 0.95) 100%),
-                  url('https://upload.wikimedia.org/wikipedia/commons/e/e7/WATL_Targets.jpg') center/cover no-repeat;
+      gap: 1rem;
     }
 
-    .map-frame h3 { font-family: var(--font-head); font-size: 1.75rem; margin-bottom: 0.4rem; }
-    .map-frame p { color: var(--text-gray); margin-bottom: 1.5rem; }
+    .map-frame-inner {
+      width: 100%;
+      height: 380px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .map-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .map-actions .btn { flex: 1; }
 
     /* FOOTER */
     .footer {
@@ -883,7 +913,7 @@
   <section class="hero">
     <div class="container">
       <div class="hero-badge">
-        <span class="badge-dot"></span> Pramonės g. 15, Šiauliai
+        <span class="badge-dot"></span> Pramonės g. 15, Šiauliai (2-as aukštas)
       </div>
 
       <h1 class="hero-h1">
@@ -947,7 +977,7 @@
         <div class="act-card">
           <div class="act-img" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/a0/Rage_room_DodgiiDune.jpg');">
             <div class="act-img-overlay">
-              <span class="act-pill">🔨 Pykčio kambarys (Smash Room)</span>
+              <span class="act-pill">🔨 Pykčio kambarys</span>
             </div>
           </div>
           <div class="act-content">
@@ -976,7 +1006,7 @@
         <div class="act-card">
           <div class="act-img" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d2/Axe_Throwing.jpg');">
             <div class="act-img-overlay">
-              <span class="act-pill">🪓 Kirvių mėtymas (Axe Throwing)</span>
+              <span class="act-pill">🪓 Kirvių mėtymas</span>
             </div>
           </div>
           <div class="act-content">
@@ -1366,10 +1396,19 @@
             </button>
           </form>
 
-          <!-- SĖKMĖS PRANEŠIMAS -->
+          <!-- SĖKMĖS PRANEŠIMAS SU ĮĖJIMO INSTRUKCIJA -->
           <div id="resSuccess" class="success-alert" style="display:none;">
             <h4>✓ Rezervacija sėkmingai priimta!</h4>
             <div id="resSummary"></div>
+            
+            <div style="background: rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; text-align: left;">
+              <strong style="color:var(--accent); font-size:1.05rem; display:block; margin-bottom:0.4rem;">📍 Kaip mus rasti atvykus:</strong>
+              <p style="margin:0; font-size:0.9rem; color:#fff; line-height:1.6;">
+                Adresas: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong><br>
+                Durys įeiti yra grynai ten, kur užrašas <strong>„FLORISTIKA“</strong>. Įėjus pro šias duris – iškart pirmos durys į <strong>kairę</strong> ir laiptais į viršų!
+              </p>
+            </div>
+
             <button class="btn btn-secondary btn-sm" onclick="newBooking()">Atlikti naują rezervaciją</button>
           </div>
         </div>
@@ -1387,6 +1426,16 @@
       </div>
 
       <div class="faq-container">
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
+            <span>Kaip tiksliai rasti įėjimą į ThrowHouse patalpas?</span>
+            <span class="faq-symbol">+</span>
+          </button>
+          <div class="faq-content">
+            Esame įsikūrę <strong>Pramonės g. 15, Šiauliuose, antrame aukšte</strong>. Įėjimo durys yra pažymėtos užrašu <strong>„FLORISTIKA“</strong>. Įėję pro šias duris, sukite į pirmas duris į <strong>kairę</strong> ir kilkite laiptais į viršų tiesiai į ThrowHouse erdvę!
+          </div>
+        </div>
+
         <div class="faq-row">
           <button class="faq-btn" onclick="toggleFaq(this)">
             <span>Kiek indų suteikiama pykčio kambaryje ir ar galima dasipirkti?</span>
@@ -1440,30 +1489,30 @@
     </div>
   </section>
 
-  <!-- KONTAKTAI IR DARBO LAIKAS -->
+  <!-- KONTAKTAI IR ŽEMĖLAPIS -->
   <section class="section" id="kontaktai">
     <div class="container">
       <div class="contact-row">
         <div>
-          <span class="tag">Kontaktai</span>
-          <h2 class="title">Susisiekite su mumis</h2>
-          <p class="subtitle" style="text-align: left; margin: 0 0 1.5rem 0;">
-            Klausimai, švenčių derinimas ar individualūs užsakymai – susisiekite nurodytais kontaktais arba atvykite nurodytu adresu.
+          <span class="tag">Kontaktai ir vieta</span>
+          <h2 class="title">Kur mus rasti Šiauliuose?</h2>
+          <p class="subtitle" style="text-align: left; margin: 0 0 1.25rem 0;">
+            Esame įsikūrę Pramonės g. 15, Šiauliai – <strong>2-ame aukšte</strong>.
           </p>
 
           <div class="contact-card-box">
             <div class="c-box">
               <span class="c-icon">📍</span>
               <div>
-                <strong>Adresas:</strong>
-                <span>Pramonės g. 15, Šiauliai, Lietuva</span>
+                <strong>Tikslus adresas:</strong>
+                <span>Pramonės g. 15, Šiauliai (2-as aukštas)</span>
               </div>
             </div>
 
             <div class="c-box">
               <span class="c-icon">📞</span>
               <div>
-                <strong>Telefonas:</strong>
+                <strong>Telefono numeris:</strong>
                 <a href="tel:+37061988009"><strong>+370 619 88009</strong></a>
               </div>
             </div>
@@ -1485,14 +1534,39 @@
               </div>
             </div>
           </div>
+
+          <!-- TIKSLI ĮĖJIMO INSTRUKCIJA -->
+          <div class="entrance-instruction-box">
+            <strong>🚪 Kaip užeiti į patalpas:</strong>
+            <p>
+              Atvykus prie pastato (Pramonės g. 15), durys įeiti yra grynai ten, kur užrašas <strong>„FLORISTIKA“</strong>.<br>
+              Užėjus pro šias duris – iškart pirmos durys į <strong>kairę</strong> ir kilkite laiptais į viršų (<strong>antras aukštas</strong>)!
+            </p>
+          </div>
         </div>
 
-        <div class="map-frame">
-          <h3>ThrowHouse Šiauliai</h3>
-          <p>Pramonės g. 15, Šiauliai</p>
-          <a href="https://maps.google.com/?q=Pramonės+g.+15,+Šiauliai" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
-            Atidaryti Google Maps ↗
-          </a>
+        <!-- REALUS INTERAKTYVUS GOOGLE MAPS ŽEMĖLAPIS SU PIN -->
+        <div class="map-container-card">
+          <div class="map-frame-inner">
+            <iframe
+              src="https://maps.google.com/maps?q=55.910730,23.315700&hl=lt&z=17&output=embed"
+              width="100%"
+              height="100%"
+              style="border:0;"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+
+          <div class="map-actions">
+            <a href="https://www.google.com/maps?q=55.910730,23.315700" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+              📍 Google Maps navigacija (55.91073, 23.31570) ↗
+            </a>
+            <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+              🚗 Waze navigacija ↗
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -1511,7 +1585,7 @@
         <a href="#kontaktai">Kontaktai</a>
         <a href="admin.php" target="_blank" style="color: var(--accent); font-weight: 700;">🔒 Administratoriaus pultas</a>
       </div>
-      <p>© 2026 ThrowHouse Šiauliai. Visos teisės saugomos. Pramonės g. 15, Šiauliai | Tel. +370 619 88009</p>
+      <p>© 2026 ThrowHouse Šiauliai. Visos teisės saugomos. Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
     </div>
   </footer>
 
@@ -1540,12 +1614,10 @@
       const laneBox = document.getElementById('laneSelector');
       const extraBox = document.getElementById('extraDishesBox');
       
-      // Takelis rodomas tik kirviams
       if (laneBox) {
         laneBox.style.display = act.includes('Kirvių') ? 'block' : 'none';
       }
 
-      // Papildomi indai rodomi tik Pykčio kambariui ir KOMBO
       if (extraBox) {
         extraBox.style.display = act.includes('Kirvių mėtymas') ? 'none' : 'block';
       }
@@ -1596,9 +1668,7 @@
       onActivityChange();
     }
 
-    /* ========================================================
-       DOVANŲ KUPONŲ PIRKIMO MODALAS IR SIUNTIMAS
-    ======================================================== */
+    /* DOVANŲ KUPONAI */
     function openGiftModal(amount, title) {
       const modal = document.getElementById('giftModal');
       document.getElementById('giftAmount').value = amount;
@@ -1664,9 +1734,7 @@
       }
     }
 
-    /* ========================================================
-       LIETUVIŠKAS INTERAKTYVUS KALENDORIUS
-    ======================================================== */
+    /* LIETUVIŠKAS KALENDORIUS */
     const LT_MONTHS = ["Sausis", "Vasaris", "Kovas", "Balandis", "Gegužė", "Birželis", "Liepa", "Rugpjūtis", "Rugsėjis", "Spalis", "Lapkritis", "Gruodis"];
     const LT_MONTHS_GENITIVE = ["sausio", "vasario", "kovo", "balandžio", "gegužės", "birželio", "liepos", "rugpjūčio", "rugsėjo", "spalio", "lapkričio", "gruodžio"];
     const LT_WEEKDAYS = ["Sekmadienis", "Pirmadienis", "Antradienis", "Trečiadienis", "Ketvirtadienis", "Penktadienis", "Šeštadienis"];
@@ -1791,9 +1859,7 @@
       }
     }
 
-    /* ========================================================
-       REZERVACIJOS SIUNTIMAS
-    ======================================================== */
+    /* REZERVACIJOS SIUNTIMAS */
     async function submitReservation(e) {
       e.preventDefault();
       const form = document.getElementById('resForm');
@@ -1852,7 +1918,7 @@
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
           <strong>Data ir laikas:</strong> ${dateText}, ${time} val.<br>
           <strong>Mokėtina suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong><br><br>
-          <span style="color:#4ade80;">✓ Informacija sėkmingai išsiųsta į el. paštą <strong>${email}</strong> bei administracijai (throwhousee@gmail.com)!</span>
+          <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas su tikslia atvykimo instrukcija išsiųstas į <strong>${email}</strong>!</span>
         `;
         box.scrollIntoView({ behavior: 'smooth' });
 

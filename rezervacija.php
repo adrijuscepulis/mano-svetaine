@@ -6,12 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Gauti JSON arba POST duomenis
 $rawInput = file_get_contents('php://input');
-$input = json_decode($rawInput, true);
-if (!$input) {
-    $input = $_POST;
-}
+$input = json_decode($rawInput, true) ?: $_POST;
 
 $name = htmlspecialchars(trim($input['name'] ?? ''));
 $phone = htmlspecialchars(trim($input['phone'] ?? ''));
@@ -31,7 +27,7 @@ if (!$name || !$phone || !$email || !$date || !$time) {
     exit;
 }
 
-// 1. Išsaugoti rezervaciją į rezervacijos.json failą serveryje
+// 1. Išsaugoti rezervaciją į failą serveryje
 $reservation = [
     'id' => 'TH-' . strtoupper(substr(uniqid(), -6)),
     'created_at' => date('Y-m-d H:i:s'),
@@ -44,7 +40,8 @@ $reservation = [
     'date' => $date,
     'time' => $time,
     'price' => $price,
-    'payment_status' => 'Laukiama apmokėjimo'
+    'payment_status' => 'Laukiama apmokėjimo',
+    'status' => 'Gauta'
 ];
 
 $dataFile = __DIR__ . '/rezervacijos.json';
@@ -56,7 +53,7 @@ if (file_exists($dataFile)) {
 $all[] = $reservation;
 file_put_contents($dataFile, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-// 2. Siunčiame pranešimą administratoriui (ThrowHouse Šiauliai)
+// 2. Siunčiame el. laišką administratoriui (ThrowHouse)
 $toAdmin = "throwhousee@gmail.com";
 $subjectAdmin = "=?UTF-8?B?" . base64_encode("Nauja rezervacija [{$reservation['id']}]: $activity ($date, $time)") . "?=";
 
@@ -80,9 +77,9 @@ $headersAdmin = "From: ThrowHouse Rezervacijos <noreply@" . ($_SERVER['SERVER_NA
     . "Content-Type: text/plain; charset=UTF-8\r\n"
     . "X-Mailer: PHP/" . phpversion();
 
-$adminSent = @mail($toAdmin, $subjectAdmin, $bodyAdmin, $headersAdmin);
+@mail($toAdmin, $subjectAdmin, $bodyAdmin, $headersAdmin);
 
-// 3. Siunčiame patvirtinimo el. laišką klientui
+// 3. Siunčiame patvirtinimo el. laišką klientui su detalia atvykimo instrukcija
 $subjectClient = "=?UTF-8?B?" . base64_encode("Jūsų rezervacija ThrowHouse Šiauliai priimta! [{$reservation['id']}]") . "?=";
 
 $bodyClient = "Sveiki, $name!\n\n"
@@ -95,14 +92,20 @@ $bodyClient = "Sveiki, $name!\n\n"
     . "Data ir laikas: $date d., $time val. (trukmė: 1 valanda)\n"
     . "Mokėtina suma: $price\n"
     . "------------------------------------\n\n"
-    . "LOKACIJA IR KONTAKTAI:\n"
-    . "Adresas: Pramonės g. 15, Šiauliai\n"
-    . "Telefonas pasiteiravimui: +370 619 88009\n"
-    . "El. paštas: throwhousee@gmail.com\n\n"
-    . "SVARBIOS SAUGUMO TAISYKLĖS:\n"
-    . "• BŪTINA uždara avalynė (sportiniai ar auliniai batai). Su šlepetėmis ar basutėmis dalyvauti draudžiama.\n"
+    . "📍 TIKSLI VIETA IR KAIP MUS RASTI:\n"
+    . "Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
+    . "Tikslios koordinatės: 55.910730, 23.315700\n"
+    . "Google Maps nuoroda: https://www.google.com/maps?q=55.910730,23.315700\n"
+    . "Waze navigacija: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
+    . "🚪 TIKSLI ĮĖJIMO INSTRUKCIJA:\n"
+    . "1. Atvykus adresu Pramonės g. 15, ieškokite durų su užrašu „FLORISTIKA“.\n"
+    . "2. Įeikite pro šias duris – iškart sukite į pirmas duris į KAIRĘ.\n"
+    . "3. Kilkite laiptais į viršų (2-as aukštas) ir atsidursite ThrowHouse erdvėje!\n\n"
+    . "⚠️ SVARBIOS SAUGUMO TAISYKLĖS:\n"
+    . "• BŪTINA uždara avalynė (sportiniai ar auliniai batai). Su šlepetėmis ar basutėmis dalyvauti griežtai draudžiama.\n"
     . "• Visą apsauginę aprangą (šalmus, skydelius, pirštines) suteikiame vietoje.\n"
     . "• Prašome atvykti 5–10 min. prieš sesijos pradžią trumpam instruktažui.\n\n"
+    . "Kilus klausimams skambinkite: +370 619 88009\n"
     . "Laukiame jūsų atvykstant!\n"
     . "ThrowHouse Šiauliai komanda";
 
@@ -112,12 +115,10 @@ $headersClient = "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n"
     . "X-Mailer: PHP/" . phpversion();
 
-$clientSent = @mail($email, $subjectClient, $bodyClient, $headersClient);
+@mail($email, $subjectClient, $bodyClient, $headersClient);
 
 echo json_encode([
     'success' => true,
     'message' => 'Rezervacija sėkmingai priimta ir išsiųsta į el. paštą!',
-    'reservation_id' => $reservation['id'],
-    'admin_notified' => $adminSent,
-    'client_notified' => $clientSent
+    'reservation_id' => $reservation['id']
 ]);

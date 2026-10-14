@@ -21,7 +21,6 @@ if (!$buyerName || !$buyerPhone || !$buyerEmail) {
     exit;
 }
 
-// Sugeneruojame unikalų kupono kodą
 $code = 'TH-KUP-' . rand(1000, 9999);
 $expiresAt = date('Y-m-d', strtotime('+12 months'));
 
@@ -45,7 +44,7 @@ if (file_exists($dataFile)) {
 $all[] = $coupon;
 file_put_contents($dataFile, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-// Siunčiame el. laišką administratoriui (ThrowHouse)
+// Siunčiame el. laišką administratoriui
 $toAdmin = "throwhousee@gmail.com";
 $subAdmin = "=?UTF-8?B?" . base64_encode("Nupirktas dovanų kuponas [$code] - $amount €") . "?=";
 $msgAdmin = "Nupirktas naujas ThrowHouse Šiauliai dovanų kuponas!\n\n"
@@ -79,9 +78,13 @@ $msgClient = "Sveiki, $buyerName!\n\n"
     . "1. Užsukite į https://violet-dove-675017.hostingersite.com\n"
     . "2. Išsirinkite norimą datą ir laiką rezervacijos formoje.\n"
     . "3. Pastabose arba atvykus nurodykite savo kupono kodą: $code.\n\n"
-    . "Adresas: Pramonės g. 15, Šiauliai\n"
-    . "Telefonas: +370 619 88009\n"
-    . "El. paštas: throwhousee@gmail.com\n\n"
+    . "📍 LOKACIJA IR ĮĖJIMAS:\n"
+    . "Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
+    . "Koordinatės: 55.910730, 23.315700\n"
+    . "Google Maps: https://www.google.com/maps?q=55.910730,23.315700\n"
+    . "Waze: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
+    . "🚪 Įėjimo instrukcija: Įėjimas pro duris su užrašu „FLORISTIKA“ -> pirmos durys į kairę -> laiptais į viršų (2 aukštas).\n"
+    . "Telefonas: +370 619 88009\n\n"
     . "Smagių ir nepamirštamų akimirkų linki ThrowHouse Šiauliai komanda!";
 
 $headersClient = "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
