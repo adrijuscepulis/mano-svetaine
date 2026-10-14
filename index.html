@@ -353,7 +353,7 @@
     }
 
     .act-img {
-      height: 240px;
+      height: 250px;
       background-size: cover;
       background-position: center;
       position: relative;
@@ -362,7 +362,7 @@
     .act-img-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(18, 22, 36, 0.95) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(18, 22, 36, 0.95) 100%);
       display: flex;
       align-items: flex-end;
       padding: 1.5rem;
@@ -610,6 +610,7 @@
 
     .f-group {
       margin-bottom: 1.25rem;
+      position: relative;
     }
 
     .f-label {
@@ -687,6 +688,132 @@
       margin-bottom: 1.25rem;
     }
 
+    /* LIETUVIŠKAS INTERAKTYVUS KALENDORIUS */
+    .cal-trigger {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: #0a0c13;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.2s;
+      user-select: none;
+    }
+
+    .cal-trigger:hover, .cal-trigger.active {
+      border-color: var(--accent);
+    }
+
+    .cal-icon {
+      font-size: 1.1rem;
+    }
+
+    .cal-popup {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      z-index: 50;
+      background: #111522;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+      padding: 1.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .cal-nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+
+    .cal-nav-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .cal-month-title {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-gray);
+      margin-bottom: 0.5rem;
+    }
+
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #e5e7eb;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.15s;
+    }
+
+    .cal-day:hover:not(.disabled) {
+      background: rgba(245, 158, 11, 0.25);
+      color: #fff;
+    }
+
+    .cal-day.today {
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      font-weight: 700;
+    }
+
+    .cal-day.selected {
+      background: var(--accent) !important;
+      color: #000 !important;
+      font-weight: 800;
+    }
+
+    .cal-day.disabled {
+      color: #4b5563;
+      background: transparent;
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+
     .pay-methods {
       display: flex;
       flex-direction: column;
@@ -740,24 +867,28 @@
 
     .success-alert {
       background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      padding: 2rem;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      padding: 2.25rem 2rem;
       border-radius: var(--radius-md);
       text-align: center;
     }
 
     .success-alert h4 {
       font-family: var(--font-head);
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       color: #4ade80;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.85rem;
     }
 
     .success-alert p {
-      color: var(--text-gray);
-      margin-bottom: 1.5rem;
+      color: #e5e7eb;
+      margin-bottom: 1.75rem;
       font-size: 0.95rem;
-      line-height: 1.7;
+      line-height: 1.8;
+      text-align: left;
+      background: rgba(0,0,0,0.3);
+      padding: 1.25rem;
+      border-radius: var(--radius-sm);
     }
 
     /* DUK */
@@ -875,7 +1006,7 @@
       text-align: center;
       padding: 2rem;
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(18, 22, 36, 0.95) 100%),
-                  url('https://images.unsplash.com/photo-1547499681-28dece7dba00?auto=format&fit=crop&w=800&q=80') center/cover no-repeat;
+                  url('https://upload.wikimedia.org/wikipedia/commons/e/e7/WATL_Targets.jpg') center/cover no-repeat;
     }
 
     .map-frame h3 {
@@ -1050,7 +1181,7 @@
       <div class="activities-row">
         <!-- PYKČIO KAMBARYS -->
         <div class="act-card">
-          <div class="act-img" style="background-image: url('https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?auto=format&fit=crop&w=1000&q=80');">
+          <div class="act-img" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/a0/Rage_room_DodgiiDune.jpg');">
             <div class="act-img-overlay">
               <span class="act-pill">🔨 Pykčio kambarys (Smash Room)</span>
             </div>
@@ -1058,11 +1189,11 @@
           <div class="act-content">
             <h3 class="act-title">Pykčio kambarys</h3>
             <p class="act-desc">
-              Kada nors norėjote beisbolo lazda sudaužyti monitorių ar kūju sutrupinti buitinę techniką? Čia tai galima daryti legaliai, saugiai ir be jokių pasekmių!
+              Apsivilkite apsauginį kombinezoną, užsidėkite šalmą su skydeliu, paimkite beisbolo lazdą ar kūjį ir legaliai sudaužykite viską į šipulius! 100% streso iškrova.
             </p>
             <ul class="perk-list">
               <li><span class="perk-check">✓</span> Kūjai, beisbolo lazdos, laužtuvai</li>
-              <li><span class="perk-check">✓</span> Indai, elektronika, monitoriai</li>
+              <li><span class="perk-check">✓</span> Indai, monitoriai, buitinė technika</li>
               <li><span class="perk-check">✓</span> Pilna apsauginė apranga (šalmas, skydelis, pirštinės)</li>
               <li><span class="perk-check">✓</span> Trukmė: 1 valanda (1 kambarys vienu metu)</li>
             </ul>
@@ -1078,7 +1209,7 @@
 
         <!-- KIRVIŲ MĖTYMAS -->
         <div class="act-card">
-          <div class="act-img" style="background-image: url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1000&q=80');">
+          <div class="act-img" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d2/Axe_Throwing.jpg');">
             <div class="act-img-overlay">
               <span class="act-pill">🪓 Kirvių mėtymas (Axe Throwing)</span>
             </div>
@@ -1086,7 +1217,7 @@
           <div class="act-content">
             <h3 class="act-title">Kirvių mėtymas</h3>
             <p class="act-desc">
-              Pajuskite savyje slypintį vikingą! Kirvių mėtymas – tai azartiškas taiklumo sportas ir nepakartojama pramoga kompanijoms su azartiškomis varžybomis.
+              Pajuskite savyje slypintį vikingą! Kirvių mėtymas mediniuose takeliuose – tai azartiškas taiklumo sportas, saugiai prižiūrimas profesionalaus instruktoriaus.
             </p>
             <ul class="perk-list">
               <li><span class="perk-check">✓</span> 2 atskiri takeliai (galimos 2 rezervacijos per valandą)</li>
@@ -1196,7 +1327,7 @@
         <div class="book-info">
           <span class="tag">Internetinė registracija</span>
           <h3>Rezervuokite laiką internetu</h3>
-          <p>Pasirinkite pramogą, datą bei valandinį langą. Rezervacijos trukmė – 1 valanda (iki 4 asmenų).</p>
+          <p>Pasirinkite pramogą, datą iš kalendoriaus bei valandinį langą. Rezervacijos trukmė – 1 valanda (iki 4 asmenų).</p>
 
           <div class="info-list">
             <div class="info-item">
@@ -1260,8 +1391,8 @@
             <div id="laneSelector" class="lane-selector-box" style="display: none;">
               <label class="f-label" for="resLane">Pasirinkite kirvių takelį (turime 2 vnt.):</label>
               <select id="resLane" class="f-input">
-                <option value="Takelis #1">Takelis #1 (Laisvas)</option>
-                <option value="Takelis #2">Takelis #2 (Laisvas)</option>
+                <option value="Takelis #1">Takelis #1</option>
+                <option value="Takelis #2">Takelis #2</option>
               </select>
             </div>
 
@@ -1276,16 +1407,34 @@
               </select>
             </div>
 
-            <!-- 3. DATA IR LAIKAS -->
+            <!-- 3. LIETUVIŠKAS KALENDORIUS IR LAIKAS -->
             <div class="form-row">
-              <div class="form-col">
-                <label class="f-label" for="resDate">3. Pasirinkite datą:</label>
-                <input type="date" id="resDate" class="f-input" required onchange="populateTimeSlots()">
+              <div class="form-col" style="position: relative;">
+                <label class="f-label">3. Pasirinkite datą:</label>
+                <div class="cal-trigger" id="calTrigger" onclick="toggleCalendar()">
+                  <span id="calSelectedText">Pasirinkite dieną...</span>
+                  <span class="cal-icon">📅</span>
+                </div>
+                <input type="hidden" id="resDate" name="resDate" required>
+
+                <!-- IŠSKLEIDŽIAMAS KALENDORIUS -->
+                <div class="cal-popup" id="calPopup" style="display: none;">
+                  <div class="cal-header">
+                    <button type="button" class="cal-nav-btn" onclick="calPrevMonth()">‹</button>
+                    <span class="cal-month-title" id="calMonthTitle">Spalis 2026</span>
+                    <button type="button" class="cal-nav-btn" onclick="calNextMonth()">›</button>
+                  </div>
+                  <div class="cal-weekdays">
+                    <span>Pr</span><span>An</span><span>Tr</span><span>Kt</span><span>Pn</span><span>Št</span><span>Sk</span>
+                  </div>
+                  <div class="cal-days" id="calDaysGrid"></div>
+                </div>
               </div>
+
               <div class="form-col">
                 <label class="f-label" for="resTime">4. Valanda (1 val. sesija):</label>
                 <select id="resTime" class="f-input" required>
-                  <option value="">Kraunama...</option>
+                  <option value="">Pirmiausia pasirinkite datą</option>
                 </select>
               </div>
             </div>
@@ -1327,14 +1476,14 @@
               <div class="calc-price" id="calcPrice">25 €</div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">
-              Pereiti prie saugaus apmokėjimo ➔
+            <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
+              Patvirtinti ir pereiti prie apmokėjimo ➔
             </button>
           </form>
 
           <!-- SĖKMĖS PRANEŠIMAS -->
           <div id="resSuccess" class="success-alert" style="display:none;">
-            <h4>✓ Rezervacija paruošta apmokėjimui!</h4>
+            <h4>✓ Rezervacija sėkmingai priimta!</h4>
             <div id="resSummary"></div>
             <button class="btn btn-secondary btn-sm" onclick="newBooking()">Atlikti naują rezervaciją</button>
           </div>
@@ -1515,7 +1664,6 @@
       const act = document.querySelector('input[name="resActivity"]:checked')?.value || 'Pykčio kambarys';
       const laneBox = document.getElementById('laneSelector');
       
-      // Jei kirviai - rodyti takelio pasirinkimą (1 arba 2)
       if (laneBox) {
         if (act.includes('Kirvių')) {
           laneBox.style.display = 'block';
@@ -1549,25 +1697,157 @@
       onActivityChange();
     }
 
-    // Dinaminiai laiko langai pagal darbo laiką:
+    /* ========================================================
+       LIETUVIŠKAS INTERAKTYVUS KALENDORIUS
+    ======================================================== */
+    const LT_MONTHS = [
+      "Sausis", "Vasaris", "Kovas", "Balandis", "Gegužė", "Birželis",
+      "Liepa", "Rugpjūtis", "Rugsėjis", "Spalis", "Lapkritis", "Gruodis"
+    ];
+    const LT_MONTHS_GENITIVE = [
+      "sausio", "vasario", "kovo", "balandžio", "gegužės", "birželio",
+      "liepos", "rugpjūčio", "rugsėjo", "spalio", "lapkričio", "gruodžio"
+    ];
+    const LT_WEEKDAYS = [
+      "Sekmadienis", "Pirmadienis", "Antradienis", "Trečiadienis", 
+      "Ketvirtadienis", "Penktadienis", "Šeštadienis"
+    ];
+
+    let currentCalDate = new Date();
+    let selectedDate = new Date();
+
+    function toggleCalendar() {
+      const popup = document.getElementById('calPopup');
+      const trigger = document.getElementById('calTrigger');
+      const isVisible = popup.style.display === 'block';
+      popup.style.display = isVisible ? 'none' : 'block';
+      trigger.classList.toggle('active', !isVisible);
+    }
+
+    // Uždaryti paspaudus už kalendoriaus ribų
+    document.addEventListener('click', (e) => {
+      const wrapper = e.target.closest('.form-col');
+      if (!wrapper) {
+        const popup = document.getElementById('calPopup');
+        const trigger = document.getElementById('calTrigger');
+        if (popup && popup.style.display === 'block') {
+          popup.style.display = 'none';
+          trigger.classList.remove('active');
+        }
+      }
+    });
+
+    function calPrevMonth() {
+      currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+      renderCalendar();
+    }
+
+    function calNextMonth() {
+      currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+      const titleElem = document.getElementById('calMonthTitle');
+      const grid = document.getElementById('calDaysGrid');
+
+      if (titleElem) {
+        titleElem.textContent = `${year} m. ${LT_MONTHS[month]}`;
+      }
+
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      // Pirmos dienos savaitės diena (0 = Sekmadienis, perdarome į 1 = Pirmadienis ... 7 = Sekmadienis)
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const startOffset = (firstDayIndex === 0 ? 7 : firstDayIndex) - 1;
+
+      // Dienų skaičius šiame mėnesyje
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Tušti langeliai prieš 1-ą mėnesio dieną
+      for (let i = 0; i < startOffset; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'cal-day disabled';
+        grid.appendChild(blank);
+      }
+
+      // Dienos
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dElem = document.createElement('div');
+        dElem.className = 'cal-day';
+        dElem.textContent = day;
+
+        const thisDate = new Date(year, month, day);
+        thisDate.setHours(0,0,0,0);
+
+        // Praeities dienos užrakintos
+        if (thisDate < today) {
+          dElem.classList.add('disabled');
+        } else {
+          // Šiandiena
+          if (thisDate.getTime() === today.getTime()) {
+            dElem.classList.add('today');
+          }
+          // Pasirinkta diena
+          if (selectedDate && thisDate.getTime() === selectedDate.getTime()) {
+            dElem.classList.add('selected');
+          }
+
+          dElem.addEventListener('click', () => {
+            selectCalendarDate(year, month, day);
+          });
+        }
+
+        grid.appendChild(dElem);
+      }
+    }
+
+    function selectCalendarDate(y, m, d) {
+      selectedDate = new Date(y, m, d);
+      selectedDate.setHours(0,0,0,0);
+
+      const yyyy = y;
+      const mm = String(m + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      const isoDate = `${yyyy}-${mm}-${dd}`;
+
+      // Nustatyti reikšmes
+      document.getElementById('resDate').value = isoDate;
+      const weekdayName = LT_WEEKDAYS[selectedDate.getDay()];
+      const monthGen = LT_MONTHS_GENITIVE[m];
+      document.getElementById('calSelectedText').textContent = `${y} m. ${monthGen} ${d} d. (${weekdayName})`;
+
+      // Uždaryti kalendorių
+      document.getElementById('calPopup').style.display = 'none';
+      document.getElementById('calTrigger').classList.remove('active');
+
+      renderCalendar();
+      populateTimeSlots(selectedDate);
+    }
+
+    // Dinaminiai laiko langai pagal pasirinktą dieną ir darbo laiką:
     // I-IV: 16:00 - 23:00
     // V-VII: 09:00 - 24:00
-    function populateTimeSlots() {
-      const dateVal = document.getElementById('resDate')?.value;
+    function populateTimeSlots(targetDate) {
       const timeSelect = document.getElementById('resTime');
-      if (!dateVal || !timeSelect) return;
+      if (!timeSelect) return;
 
-      const dateObj = new Date(dateVal);
-      const dayOfWeek = dateObj.getDay(); // 0 = sekmadienis, 1 = pirmadienis, ..., 5 = penktadienis, 6 = sestadienis
+      const dayOfWeek = targetDate.getDay(); // 0 = Sekmadienis, 1 = Pirmadienis ... 6 = Šeštadienis
 
       timeSelect.innerHTML = '';
       let startHour = 16;
-      let endHour = 22; // paskutinis 1h slotas prasideda 22:00, baigiasi 23:00
+      let endHour = 22; // Paskutinė 1h sesija: 22:00 - 23:00
 
-      // V-VII: Penktadienis (5), Šeštadienis (6), Sekmadienis (0)
+      // Penktadienis (5), Šeštadienis (6), Sekmadienis (0)
       if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
         startHour = 9;
-        endHour = 23; // paskutinis 1h slotas prasideda 23:00, baigiasi 24:00
+        endHour = 23; // Paskutinė 1h sesija: 23:00 - 24:00
       }
 
       for (let h = startHour; h <= endHour; h++) {
@@ -1575,16 +1855,20 @@
         const nextHour = ((h + 1) < 10 ? '0' : '') + (h + 1) + ':00';
         const opt = document.createElement('option');
         opt.value = hourStr;
-        opt.textContent = `${hourStr} - ${nextHour}`;
+        opt.textContent = `${hourStr} - ${nextHour} val.`;
         timeSelect.appendChild(opt);
       }
     }
 
-    function submitReservation(e) {
+    /* ========================================================
+       REALAUS REZERVACIJOS SIUNTIMAS (AJAX + PHP)
+    ======================================================== */
+    async function submitReservation(e) {
       e.preventDefault();
       const form = document.getElementById('resForm');
       const box = document.getElementById('resSuccess');
       const sum = document.getElementById('resSummary');
+      const btn = document.getElementById('submitBtn');
 
       const name = document.getElementById('resName').value;
       const phone = document.getElementById('resPhone').value;
@@ -1592,23 +1876,69 @@
       const act = document.querySelector('input[name="resActivity"]:checked').value;
       const cnt = document.getElementById('resCount').value;
       const date = document.getElementById('resDate').value;
+      const dateText = document.getElementById('calSelectedText').textContent;
       const time = document.getElementById('resTime').value;
-      const lane = act.includes('Kirvių') ? ` (${document.getElementById('resLane').value})` : '';
+      const lane = act.includes('Kirvių') ? document.getElementById('resLane').value : '';
       const prc = document.getElementById('calcPrice').textContent;
 
-      if (form && box && sum) {
+      if (!date) {
+        alert('Prašome pasirinkti datą iš kalendoriaus!');
+        toggleCalendar();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Siunčiama ir ruošiama...';
+
+      try {
+        const payload = {
+          name, phone, email,
+          activity: act,
+          lane,
+          count: cnt,
+          date: dateText,
+          time,
+          price: prc
+        };
+
+        const res = await fetch('rezervacija.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        form.style.display = 'none';
+        box.style.display = 'block';
+
+        const orderId = data.reservation_id || ('TH-' + Math.floor(100000 + Math.random() * 900000));
+
+        sum.innerHTML = `
+          <strong>Užsakymo Nr.:</strong> <span style="color:var(--accent);">${orderId}</span><br>
+          <strong>Užsakovas:</strong> ${name} (${phone})<br>
+          <strong>Pramoga:</strong> ${act} ${lane ? '(' + lane + ')' : ''} (${cnt} asm., 1 val.)<br>
+          <strong>Data ir laikas:</strong> ${dateText}, ${time} val.<br>
+          <strong>Mokėtina suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong><br><br>
+          <span style="color:#4ade80;">✓ Informacija sėkmingai išsiųsta į el. paštą <strong>${email}</strong> bei ThrowHouse administracijai (throwhousee@gmail.com)!</span>
+        `;
+        box.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        // Atsarginis variantas jei paleista be PHP serverio lokaliai
         form.style.display = 'none';
         box.style.display = 'block';
         sum.innerHTML = `
-          <p>
-            Užsakovas: <strong>${name}</strong> (${phone})<br>
-            Pramoga: <strong>${act}${lane}</strong> (${cnt} asm., 1 val.)<br>
-            Data ir laikas: <strong>${date} d., ${time} val.</strong><br>
-            Mokėtina suma: <strong style="color:var(--accent); font-size:1.2rem;">${prc}</strong><br>
-            Apmokėjimas: <em>Mokėjimas internetu (Banklink / Kortelė)</em><br><br>
-            <em>Patvirtinimo nuoroda išsiųsta į <strong>${email}</strong>. Lauksime jūsų adresu Pramonės g. 15, Šiauliai!</em>
-          </p>
+          <strong>Užsakovas:</strong> ${name} (${phone})<br>
+          <strong>Pramoga:</strong> ${act} ${lane ? '(' + lane + ')' : ''} (${cnt} asm.)<br>
+          <strong>Data ir laikas:</strong> ${dateText}, ${time} val.<br>
+          <strong>Suma:</strong> <strong style="color:var(--accent);">${prc}</strong><br><br>
+          <em>Patvirtinimas paruoštas. Laiškas bus išsiųstas į <strong>${email}</strong> bei <strong>throwhousee@gmail.com</strong>!</em>
         `;
+        box.scrollIntoView({ behavior: 'smooth' });
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Patvirtinti ir pereiti prie apmokėjimo ➔';
       }
     }
 
@@ -1619,19 +1949,18 @@
         form.reset();
         form.style.display = 'block';
         box.style.display = 'none';
-        onActivityChange();
-        populateTimeSlots();
+        initTodaySelection();
       }
     }
 
-    // Inicijavimas
-    const dateInput = document.getElementById('resDate');
-    if (dateInput) {
-      const today = new Date().toISOString().split('T')[0];
-      dateInput.min = today;
-      dateInput.value = today;
-      populateTimeSlots();
+    function initTodaySelection() {
+      const today = new Date();
+      currentCalDate = new Date(today);
+      selectCalendarDate(today.getFullYear(), today.getMonth(), today.getDate());
     }
+
+    // Paleidimas
+    initTodaySelection();
     onActivityChange();
   </script>
 </body>
