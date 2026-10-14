@@ -1,6 +1,93 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
+// Pagalbinė funkcija: lietuviškos datos konvertavimas į ISO YYYY-MM-DD
+function normalizeDateToIso($dateStr) {
+    $trimmed = trim($dateStr);
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $trimmed)) {
+        return $trimmed;
+    }
+    $months = [
+        'sausio' => '01', 'vasario' => '02', 'kovo' => '03', 'balandžio' => '04',
+        'gegužės' => '05', 'birželio' => '06', 'liepos' => '07', 'rugpjūčio' => '08',
+        'rugsėjo' => '09', 'spalio' => '10', 'lapkričio' => '11', 'gruodžio' => '12'
+    ];
+    if (preg_match('/(\d{4})\s*m\.\s*(\S+)\s*(\d{1,2})\s*d\./ui', $trimmed, $m)) {
+        $year = $m[1];
+        $monthName = mb_strtolower(trim($m[2]), 'UTF-8');
+        $day = str_pad($m[3], 2, '0', STR_PAD_LEFT);
+        $month = $months[$monthName] ?? '01';
+        return "$year-$month-$day";
+    }
+    $ts = strtotime($trimmed);
+    return $ts ? date('Y-m-d', $ts) : date('Y-m-d');
+}
+
+$dataFile = __DIR__ . '/rezervacijos.json';
+
+// =========================================================================
+// 1. GET užklausa: gražinti užimtų laikų žemėlapį kalendoriui ir formoms
+// =========================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $all = [];
+    if (file_exists($dataFile)) {
+        $all = json_decode(file_get_contents($dataFile), true) ?: [];
+    }
+
+    $bookedMap = [];
+    foreach ($all as $r) {
+        if (($r['status'] ?? '') === 'Atšaukta') continue;
+        $iso = !empty($r['iso_date']) ? $r['iso_date'] : normalizeDateToIso($r['date'] ?? '');
+        $t = trim($r['time'] ?? '');
+        if (!$iso || !$t) continue;
+
+        if (!isset($bookedMap[$iso])) {
+            $bookedMap[$iso] = [];
+        }
+        if (!isset($bookedMap[$iso][$t])) {
+            $bookedMap[$iso][$t] = [
+                'rage' => 0,
+                'axe' => 0,
+                'lanes' => [],
+                'is_rage_full' => false,
+                'is_axe_full' => false,
+                'is_full' => false
+            ];
+        }
+
+        $act = $r['activity'] ?? '';
+        $l = $r['lane'] ?? '';
+
+        if (stripos($act, 'Pykčio') !== false) {
+            $bookedMap[$iso][$t]['rage']++;
+        } elseif (stripos($act, 'Kirvių') !== false) {
+            $bookedMap[$iso][$t]['axe']++;
+            if ($l) $bookedMap[$iso][$t]['lanes'][] = $l;
+        } elseif (stripos($act, 'KOMBO') !== false) {
+            $bookedMap[$iso][$t]['rage']++;
+            $bookedMap[$iso][$t]['axe']++;
+            if ($l) $bookedMap[$iso][$t]['lanes'][] = $l;
+            else $bookedMap[$iso][$t]['lanes'][] = 'Takelis 1';
+        }
+
+        if ($bookedMap[$iso][$t]['rage'] >= 1) {
+            $bookedMap[$iso][$t]['is_rage_full'] = true;
+        }
+        if ($bookedMap[$iso][$t]['axe'] >= 2) {
+            $bookedMap[$iso][$t]['is_axe_full'] = true;
+        }
+        if ($bookedMap[$iso][$t]['is_rage_full'] && $bookedMap[$iso][$t]['is_axe_full']) {
+            $bookedMap[$iso][$t]['is_full'] = true;
+        }
+    }
+
+    echo json_encode(['success' => true, 'booked' => $bookedMap]);
+    exit;
+}
+
+// =========================================================================
+// 2. POST užklausa: naujos rezervacijos priėmimas su griežtu užimtumo tikrinimu
+// =========================================================================
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Neteisingas užklausos metodas']);
     exit;
@@ -16,6 +103,7 @@ $activity = htmlspecialchars(trim($input['activity'] ?? ''));
 $lane = htmlspecialchars(trim($input['lane'] ?? ''));
 $count = intval($input['count'] ?? 1);
 $date = htmlspecialchars(trim($input['date'] ?? ''));
+$isoDate = !empty($input['iso_date']) ? trim($input['iso_date']) : normalizeDateToIso($date);
 $time = htmlspecialchars(trim($input['time'] ?? ''));
 $price = htmlspecialchars(trim($input['price'] ?? ''));
 
@@ -27,7 +115,82 @@ if (!$name || !$phone || !$email || !$date || !$time) {
     exit;
 }
 
-// 1. Išsaugoti rezervaciją į failą serveryje
+// Esamų rezervacijų užkrovimas
+$all = [];
+if (file_exists($dataFile)) {
+    $content = file_get_contents($dataFile);
+    $all = json_decode($content, true) ?: [];
+}
+
+// -------------------------------------------------------------
+// APSAUGA NUO DVIGUBO UŽSAKYMO (SLOT CAPACITY VALIDATION)
+// -------------------------------------------------------------
+$currentRage = 0;
+$currentAxe = 0;
+$takenLanes = [];
+
+foreach ($all as $ex) {
+    if (($ex['status'] ?? '') === 'Atšaukta') continue;
+    $exIso = !empty($ex['iso_date']) ? $ex['iso_date'] : normalizeDateToIso($ex['date'] ?? '');
+    $exTime = trim($ex['time'] ?? '');
+
+    if ($exIso === $isoDate && $exTime === $time) {
+        $exAct = $ex['activity'] ?? '';
+        $exLane = $ex['lane'] ?? '';
+
+        if (stripos($exAct, 'Pykčio') !== false) {
+            $currentRage++;
+        } elseif (stripos($exAct, 'Kirvių') !== false) {
+            $currentAxe++;
+            if ($exLane) $takenLanes[] = $exLane;
+        } elseif (stripos($exAct, 'KOMBO') !== false) {
+            $currentRage++;
+            $currentAxe++;
+            if ($exLane) $takenLanes[] = $exLane;
+            else $takenLanes[] = 'Takelis 1';
+        }
+    }
+}
+
+// Tikriname pagal užsakomą paslaugą:
+if (stripos($activity, 'Pykčio') !== false) {
+    if ($currentRage >= 1) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinktu laiku ($time val.) pykčio kambarys jau yra užimtas! Prašome pasirinkti kitą laisvą laiką."
+        ]);
+        exit;
+    }
+} elseif (stripos($activity, 'Kirvių') !== false) {
+    if ($currentAxe >= 2) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinktu laiku ($time val.) visi kirvių takeliai jau yra užimti! Prašome pasirinkti kitą laisvą laiką."
+        ]);
+        exit;
+    }
+    // Jei pasirinktas konkretus takelis, bet jis jau užimtas, automatiškai nukreipiame į laisvą takelį:
+    if ($lane && in_array($lane, $takenLanes)) {
+        $lane = ($lane === 'Takelis 1') ? 'Takelis 2' : 'Takelis 1';
+    } elseif (!$lane) {
+        $lane = in_array('Takelis 1', $takenLanes) ? 'Takelis 2' : 'Takelis 1';
+    }
+} elseif (stripos($activity, 'KOMBO') !== false) {
+    if ($currentRage >= 1 || $currentAxe >= 2) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinktu laiku ($time val.) KOMBO paketo rezervuoti negalima, nes erdvė jau yra užimta! Prašome pasirinkti kitą laiką."
+        ]);
+        exit;
+    }
+    if (!$lane) {
+        $lane = in_array('Takelis 1', $takenLanes) ? 'Takelis 2' : 'Takelis 1';
+    }
+}
+
+// -------------------------------------------------------------
+// 3. Išsaugojimas serveryje
+// -------------------------------------------------------------
 $reservationId = 'TH-' . strtoupper(substr(uniqid(), -6));
 $reservation = [
     'id' => $reservationId,
@@ -39,22 +202,17 @@ $reservation = [
     'lane' => $lane,
     'count' => $count,
     'date' => $date,
+    'iso_date' => $isoDate,
     'time' => $time,
     'price' => $price,
-    'status' => 'Gauta (be išankstinio apmokėjimo)'
+    'status' => 'Gauta'
 ];
 
-$dataFile = __DIR__ . '/rezervacijos.json';
-$all = [];
-if (file_exists($dataFile)) {
-    $content = file_get_contents($dataFile);
-    $all = json_decode($content, true) ?: [];
-}
 $all[] = $reservation;
 file_put_contents($dataFile, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
 // -------------------------------------------------------------
-// A. Mandagus ir išsamus tekstinis laiškas klientui (Autoresponse)
+// 4. Tekstinis patvirtinimas klientui (FormSubmit Autoresponse)
 // -------------------------------------------------------------
 $clientTextBody = "Sveiki, $name!\n\n"
     . "Nuoširdžiai dėkojame už Jūsų rezervaciją „ThrowHouse Šiauliai“ pramogų erdvėje!\n"
@@ -68,8 +226,8 @@ $clientTextBody = "Sveiki, $name!\n\n"
     . "📍 KUR MUS RASTI:\n"
     . "• Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
     . "• Koordinatės: 55.910730, 23.315700\n"
-    . "• Google Maps navigacija: https://www.google.com/maps?q=55.910730,23.315700\n"
-    . "• Waze navigacija: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
+    . "• Google Maps: https://www.google.com/maps?q=55.910730,23.315700\n"
+    . "• Waze: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
     . "🚪 PATEKIMAS Į PATALPAS:\n"
     . "Atvykus prie pastato (Pramonės g. 15), maloniai prašome užeiti pro duris, pažymėtas iškaba „Floristika“.\n"
     . "Patekus į pastato vidų, eikite pro pirmąsias duris kairėje pusėje ir laiptais pakilkite į antrąjį aukštą – čia Jūsų lauks „ThrowHouse“ erdvė.\n\n"
@@ -79,86 +237,65 @@ $clientTextBody = "Sveiki, $name!\n\n"
     . "Visą reikalingą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame vietoje nemokamai!\n\n"
     . "⏱️ REZERVACIJOS ATŠAUKIMAS AR PERKĖLIMAS (LIKUS 24 VAL.):\n"
     . "Jeigu pasikeistų Jūsų planai, maloniai prašome apie atšaukimą arba laiko pakeitimą informuoti likus ne mažiau kaip 24 valandoms iki rezervuoto laiko pradžios.\n\n"
-    . "ℹ️ REKOMENDACIJA: Prašome atvykti likus 5–10 min. iki sesijos pradžios trumpam saugumo instruktažui.\n\n"
-    . "Kilus klausimams, susisiekite su mumis:\n"
-    . "• Telefonu: +370 619 88009\n"
-    . "• El. paštu: throwhousee@gmail.com\n\n"
+    . "ℹ️ Prašome atvykti likus 5–10 min. iki sesijos pradžios trumpam saugumo instruktažui.\n\n"
+    . "Kilus klausimams, susisiekite: tel. +370 619 88009 arba el. paštu throwhousee@gmail.com.\n\n"
     . "Laukiame Jūsų atvykstant!\n"
-    . "Pagarbiai,\n"
-    . "„ThrowHouse Šiauliai“ komanda";
+    . "Pagarbiai, „ThrowHouse Šiauliai“ komanda";
 
 // -------------------------------------------------------------
-// B. Gražus HTML laiškas klientui
+// 5. Gražus HTML laiškas klientui
 // -------------------------------------------------------------
 $clientHtmlBody = '<!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #0f172a; margin: 0; padding: 20px; }
-  .card { max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.25); border: 1px solid #e2e8f0; }
-  .header { background: #0b0f19; color: #ffffff; padding: 28px 24px; text-align: center; border-bottom: 3px solid #f59e0b; }
-  .header h1 { margin: 0 0 6px 0; font-size: 24px; color: #f59e0b; letter-spacing: 1px; }
-  .header p { margin: 0; font-size: 14px; color: #94a3b8; }
-  .content { padding: 26px 24px; line-height: 1.6; font-size: 15px; color: #334155; }
-  .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0; }
-  .box-title { font-weight: 700; color: #0f172a; margin-bottom: 10px; font-size: 15px; display: block; }
-  .alert-door { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
-  .alert-shoes { background: #f0fdf4; border-left: 4px solid #10b981; padding: 14px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
-  .alert-cancel { background: #fef2f2; border-left: 4px solid #ef4444; padding: 14px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
-  .btn-row { margin: 14px 0 6px 0; text-align: center; }
-  .btn { display: inline-block; background: #f59e0b; color: #000000; font-weight: 700; text-decoration: none; padding: 10px 18px; border-radius: 6px; margin: 4px 6px; font-size: 13px; }
-  .footer { background: #f1f5f9; padding: 18px 24px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; }
-</style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <h1>THROW HOUSE ŠIAULIAI</h1>
-      <p>Rezervacijos patvirtinimas</p>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0f172a; margin: 0; padding: 20px;">
+  <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div style="background-color: #0b0f19; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8;">Rezervacijos patvirtinimas</p>
     </div>
-    <div class="content">
+    <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
       <p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $name . '</strong>!</p>
-      <p>Nuoširdžiai dėkojame už Jūsų rezervaciją! Jūsų užsakymas yra sėkmingai priimtas ir patvirtintas.</p>
+      <p>Nuoširdžiai dėkojame už Jūsų rezervaciją! Užsakymas sėkmingai priimtas ir patvirtintas.</p>
       
-      <div class="box">
-        <span class="box-title">📋 REZERVACIJOS DUOMENYS:</span>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <span style="font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📋 REZERVACIJOS DUOMENYS:</span>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-          <tr><td style="padding: 5px 0; color: #64748b;">Užsakymo numeris:</td><td style="font-weight: 700; color: #d97706;">' . $reservationId . '</td></tr>
-          <tr><td style="padding: 5px 0; color: #64748b;">Pramoga:</td><td style="font-weight: 700;">' . $activity . ($lane ? " ($lane)" : "") . '</td></tr>
-          <tr><td style="padding: 5px 0; color: #64748b;">Dalyvių skaičius:</td><td>' . $count . ' asm. (1 val. sesija)</td></tr>
-          <tr><td style="padding: 5px 0; color: #64748b;">Data ir laikas:</td><td style="font-weight: 700; color: #0f172a;">' . $date . ' d., ' . $time . ' val.</td></tr>
-          <tr><td style="padding: 5px 0; color: #64748b;">Mokėtina suma:</td><td style="font-weight: 700; font-size: 16px; color: #059669;">' . $price . ' (mokama vietoje)</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Užsakymo numeris:</td><td style="font-weight: 700; color: #d97706;">' . $reservationId . '</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Pramoga:</td><td style="font-weight: 700;">' . $activity . ($lane ? " ($lane)" : "") . '</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Dalyvių skaičius:</td><td>' . $count . ' asm. (1 val. sesija)</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Data ir laikas:</td><td style="font-weight: 700; color: #0f172a;">' . $date . ' d., ' . $time . ' val.</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Mokėtina suma:</td><td style="font-weight: 700; font-size: 16px; color: #059669;">' . $price . ' (mokama vietoje)</td></tr>
         </table>
       </div>
 
-      <div class="box">
-        <span class="box-title">📍 KUR MUS RASTI:</span>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <span style="font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📍 KUR MUS RASTI:</span>
         <p style="margin: 0 0 10px 0; font-size: 14px;">
           Adresas: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong><br>
           Koordinatės: 55.910730, 23.315700
         </p>
-        <div class="btn-row">
-          <a href="https://www.google.com/maps?q=55.910730,23.315700" class="btn" style="background:#2563eb; color:#fff;" target="_blank">🗺️ Google Maps žemėlapis</a>
-          <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" class="btn" style="background:#0284c7; color:#fff;" target="_blank">🚗 Waze navigacija</a>
+        <div style="text-align: center; margin-top: 10px;">
+          <a href="https://www.google.com/maps?q=55.910730,23.315700" style="display:inline-block; background-color:#2563eb; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🗺️ Google Maps žemėlapis</a>
+          <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" style="display:inline-block; background-color:#0284c7; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🚗 Waze navigacija</a>
         </div>
       </div>
 
-      <div class="alert-door">
+      <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #92400e; display: block; margin-bottom: 4px;">🚪 PATEKIMAS Į PATALPAS:</strong>
         <p style="margin: 0; color: #78350f; font-size: 14px;">
           Atvykus prie pastato (Pramonės g. 15), maloniai prašome užeiti pro duris, pažymėtas iškaba <strong>„Floristika“</strong>. Patekus į pastato vidų, eikite pro pirmąsias duris kairėje pusėje ir laiptais pakilkite į antrąjį aukštą – čia Jūsų lauks „ThrowHouse“ erdvė.
         </p>
       </div>
 
-      <div class="alert-shoes">
+      <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 14px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #065f46; display: block; margin-bottom: 4px;">👟 SVARBU – AVALYNĖ IR APRANGA:</strong>
         <p style="margin: 0; color: #047857; font-size: 14px;">
-          Saugumo sumetimais visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai ar auliniai batai). Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama. Visą apsauginę aprangą (kombinezonus, šalmus su apsauginiais skydeliais, pirštines) suteikiame vietoje nemokamai.
+          Saugumo sumetimais visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai ar auliniai batai). Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama. Visą apsauginę aprangą suteikiame vietoje nemokamai.
         </p>
       </div>
 
-      <div class="alert-cancel">
+      <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 14px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #991b1b; display: block; margin-bottom: 4px;">⏱️ REZERVACIJOS ATŠAUKIMAS (LIKUS 24 VAL.):</strong>
         <p style="margin: 0; color: #b91c1c; font-size: 14px;">
           Jei pasikeistų Jūsų planai, maloniai prašome apie rezervacijos atšaukimą arba laiko pakeitimą informuoti <strong>likus ne mažiau kaip 24 valandoms</strong> iki sesijos pradžios.
@@ -170,112 +307,86 @@ $clientHtmlBody = '<!DOCTYPE html>
       </p>
 
       <div style="margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
-        <strong>Kilus bet kokiems klausimams, susisiekite:</strong><br>
-        📞 Telefonas: <a href="tel:+37061988009" style="color: #d97706; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
+        <strong>Kilus klausimams:</strong><br>
+        📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
         ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; text-decoration:none;">throwhousee@gmail.com</a>
       </div>
     </div>
-    <div class="footer">
+    <div style="background-color: #f1f5f9; padding: 16px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0;">
       Iki malonaus susitikimo!<br>
-      <strong>„ThrowHouse Šiauliai“ komanda</strong><br>
-      Pramonės g. 15, Šiauliai
+      <strong>„ThrowHouse Šiauliai“ komanda</strong> · Pramonės g. 15, Šiauliai
     </div>
   </div>
 </body>
 </html>';
 
 // -------------------------------------------------------------
-// B. Gražus, tvarkingas HTML laiškas administratoriui
+// 6. Modernus, tvarkingas HTML laiškas administratoriui (su 100% veikiančiais mygtukais)
 // -------------------------------------------------------------
 $adminHtmlBody = '<!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #0b0f19; margin: 0; padding: 20px; color: #1e293b; }
-  .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.35); border: 1px solid #e2e8f0; }
-  .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #f59e0b; }
-  .header h1 { margin: 0 0 6px 0; font-size: 20px; color: #f59e0b; letter-spacing: 1px; }
-  .header p { margin: 0; font-size: 13px; color: #94a3b8; }
-  .badge-id { display: inline-block; background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.4); padding: 5px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; margin-top: 10px; }
-  .content { padding: 24px; font-size: 14px; line-height: 1.6; color: #334155; }
-  .section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin: 18px 0 8px 0; display: block; }
-  .client-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-  .client-name { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-  .contact-btn-row { margin-top: 12px; }
-  .contact-btn { display: inline-block; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; text-decoration: none; margin-right: 8px; margin-bottom: 6px; }
-  .btn-tel { background: #10b981; color: #ffffff !important; }
-  .btn-mail { background: #6366f1; color: #ffffff !important; }
-  .order-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
-  .order-table td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
-  .order-table tr:last-child td { border-bottom: none; }
-  .order-table td.label { color: #64748b; width: 38%; font-weight: 500; }
-  .order-table td.val { color: #0f172a; font-weight: 700; }
-  .time-highlight { background: #fffbeb; color: #b45309; padding: 4px 10px; border-radius: 6px; border: 1px solid #fde68a; display: inline-block; font-weight: 800; }
-  .price-highlight { color: #059669; font-size: 16px; }
-  .admin-action { text-align: center; margin: 24px 0 10px 0; }
-  .btn-dashboard { display: inline-block; background: #0f172a; color: #ffffff !important; font-weight: 700; text-decoration: none; padding: 12px 24px; border-radius: 8px; border: 1px solid #334155; font-size: 14px; }
-  .footer { background: #f8fafc; padding: 14px 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
-</style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <h1>THROW HOUSE ŠIAULIAI</h1>
-      <p>🎯 Gauta nauja rezervacija sistemoje</p>
-      <span class="badge-id">Užsakymo Nr. ' . $reservationId . '</span>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8;">Gauta nauja rezervacija sistemoje</p>
+      <div style="display:inline-block; background-color:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.4); padding:4px 12px; border-radius:20px; font-weight:bold; font-size:13px; margin-top:8px;">
+        Užsakymo Nr. ' . $reservationId . '
+      </div>
     </div>
-    <div class="content">
-      <span class="section-title">👤 Kliento kontaktai:</span>
-      <div class="client-box">
-        <div class="client-name">' . $name . '</div>
-        <div style="color: #475569; margin-bottom: 10px; line-height: 1.8;">
+    <div style="padding: 24px; font-size: 14px; line-height: 1.6; color: #334155;">
+      
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 8px; display: block;">👤 Kliento kontaktai:</span>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+        <div style="font-size: 18px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">' . $name . '</div>
+        <div style="color: #475569; margin-bottom: 12px; line-height: 1.8;">
           📞 Tel.: <strong>' . $phone . '</strong><br>
           ✉️ El. paštas: <strong>' . $email . '</strong>
         </div>
-        <div class="contact-btn-row">
-          <a href="tel:' . $phone . '" class="contact-btn btn-tel">📞 Skambinti klientui</a>
-          <a href="mailto:' . $email . '" class="contact-btn btn-mail">✉️ Rašyti laišką</a>
+        <div style="margin-top: 10px;">
+          <a href="tel:' . $phone . '" style="display:inline-block; background-color:#10b981; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 16px; border-radius:6px; font-size:13px; margin-right:8px; margin-bottom:6px;">📞 Skambinti klientui</a>
+          <a href="mailto:' . $email . '" style="display:inline-block; background-color:#6366f1; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 16px; border-radius:6px; font-size:13px; margin-bottom:6px;">✉️ Rašyti laišką</a>
         </div>
       </div>
 
-      <span class="section-title">📋 Užsakymo parametrai:</span>
-      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin-bottom: 16px;">
-        <table class="order-table">
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 8px; display: block;">📋 Užsakymo parametrai:</span>
+      <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;">
+        <table style="width: 100%; border-collapse: collapse;">
           <tr>
-            <td class="label">Pramoga:</td>
-            <td class="val">' . $activity . ($lane ? " ($lane)" : "") . '</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b; width: 40%;">Pramoga:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $activity . ($lane ? " ($lane)" : "") . '</td>
           </tr>
           <tr>
-            <td class="label">Dalyviai:</td>
-            <td class="val">' . $count . ' asm. (1 val. sesija)</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Dalyviai:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $count . ' asm. (1 val. sesija)</td>
           </tr>
           <tr>
-            <td class="label">Data:</td>
-            <td class="val">' . $date . '</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Data:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $date . '</td>
           </tr>
           <tr>
-            <td class="label">Laikas:</td>
-            <td class="val"><span class="time-highlight">🕒 ' . $time . ' val.</span></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Laikas:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #b45309; font-weight: 800; font-size: 15px;">🕒 ' . $time . ' val.</td>
           </tr>
           <tr>
-            <td class="label">Mokėtina suma:</td>
-            <td class="val price-highlight">' . $price . ' <span style="font-size:12px; font-weight:normal; color:#64748b;">(vietoje)</span></td>
-          </tr>
-          <tr>
-            <td class="label">Būsena:</td>
-            <td class="val" style="color: #d97706;">Gauta (laukiama atvykimo)</td>
+            <td style="padding: 8px 0; color: #64748b;">Mokėtina suma:</td>
+            <td style="padding: 8px 0; color: #059669; font-weight: bold; font-size: 16px;">' . $price . ' <span style="font-size:12px; font-weight:normal; color:#64748b;">(vietoje)</span></td>
           </tr>
         </table>
       </div>
 
-      <div class="admin-action">
-        <a href="https://violet-dove-675017.hostingersite.com/admin.php?tab=rezervacijos" class="btn-dashboard" target="_blank">
+      <div style="text-align: center; margin: 26px 0 12px 0;">
+        <a href="https://violet-dove-675017.hostingersite.com/admin.php?tab=kalendorius" style="display:inline-block; background-color:#0f172a; color:#ffffff; font-weight:bold; text-decoration:none; padding:12px 24px; border-radius:8px; border:1px solid #334155; font-size:14px;" target="_blank">
           ⚙️ Atidaryti valdymo pultą (admin.php) ➔
         </a>
+        <div style="font-size:12px; color:#64748b; margin-top:8px;">
+          Tiesioginė nuoroda: <a href="https://violet-dove-675017.hostingersite.com/admin.php?tab=kalendorius" style="color:#d97706; word-break:break-all;">https://violet-dove-675017.hostingersite.com/admin.php?tab=kalendorius</a>
+        </div>
       </div>
+
     </div>
-    <div class="footer">
+    <div style="background-color: #f8fafc; padding: 14px 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
       ThrowHouse Šiauliai · Automatinis pranešimas administratoriams · ' . date('Y-m-d H:i') . '
     </div>
   </div>
@@ -283,7 +394,7 @@ $adminHtmlBody = '<!DOCTYPE html>
 </html>';
 
 // -------------------------------------------------------------
-// 2. Siuntimas administratoriui per FormSubmit (be _cc klientui!)
+// 7. Siuntimas administratoriui per FormSubmit (atsarginis kanalas)
 // -------------------------------------------------------------
 $formSubmitData = [
     'Užsakymo_ID' => $reservationId,
@@ -292,12 +403,12 @@ $formSubmitData = [
     'Kliento_El_pastas' => $email,
     'email' => $email,
     '_replyto' => $email,
-    'Pasirinkta_pramoga' => $activity . ($lane ? " ($lane)" : ""),
-    'Dalyviu_skaicius' => $count . " asm.",
+    'Pramoga' => $activity . ($lane ? " ($lane)" : ""),
+    'Dalyviai' => $count . " asm.",
     'Data' => $date,
     'Laikas' => $time . " val.",
     'Moketina_suma' => $price . " (mokama vietoje)",
-    '_subject' => "🎯 Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
+    '_subject' => "Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
     '_template' => "table",
     '_autoresponse' => $clientTextBody
 ];
@@ -320,7 +431,7 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 // -------------------------------------------------------------
-// 3. Siuntimas tiesioginiu serverio PHP mail() su anti-spam apsauga
+// 8. Tiesioginis serverio PHP mail() su anti-spam antraštėmis
 // -------------------------------------------------------------
 $serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
 $fromEmail = "noreply@" . $serverHost;
@@ -328,11 +439,10 @@ $dateHeader = date('r');
 $adminMsgId = "<th-admin-" . $reservationId . "-" . time() . "@" . $serverHost . ">";
 $clientMsgId = "<th-client-" . $reservationId . "-" . time() . "@" . $serverHost . ">";
 
-// Base64 kodavimas temai (pašalina Gmail SUBJECT_NEEDS_ENCODING spam klaidą)
 $subAdmin = "=?UTF-8?B?" . base64_encode("Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)") . "?=";
 $subClient = "=?UTF-8?B?" . base64_encode("Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]") . "?=";
 
-// A. Administratoriaus modernus HTML pranešimas
+// Administratoriaus HTML laiškas
 $headersAdminHtml = "MIME-Version: 1.0\r\n"
     . "Date: $dateHeader\r\n"
     . "Message-ID: $adminMsgId\r\n"
@@ -345,7 +455,7 @@ $headersAdminHtml = "MIME-Version: 1.0\r\n"
 
 @mail("throwhousee@gmail.com", $subAdmin, $adminHtmlBody, $headersAdminHtml, "-f" . $fromEmail);
 
-// B. Kliento išsamus HTML laiškas
+// Kliento HTML laiškas
 $headersClientHtml = "MIME-Version: 1.0\r\n"
     . "Date: $dateHeader\r\n"
     . "Message-ID: $clientMsgId\r\n"
@@ -359,11 +469,11 @@ $headersClientHtml = "MIME-Version: 1.0\r\n"
 @mail($email, $subClient, $clientHtmlBody, $headersClientHtml, "-f" . $fromEmail);
 
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Tel: $phone | FS_Code: $httpCode | FS_Resp: $fsResp\n";
+$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data: $isoDate $time | FS_Code: $httpCode | FS_Resp: $fsResp\n";
 @file_put_contents(__DIR__ . '/rezervacija_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([
     'success' => true,
-    'message' => 'Rezervacija sėkmingai išsaugota ir patvirtinimas išsiųstas!',
+    'message' => 'Rezervacija sėkmingai priimta ir patvirtinta!',
     'reservation_id' => $reservationId
 ]);

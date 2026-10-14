@@ -1603,7 +1603,9 @@
       }
 
       calcTotal();
-    }
+      if (typeof selectedDate !== 'undefined' && selectedDate) {
+        populateTimeSlots(selectedDate);
+      }
 
     // Kainos skaičiavimas: Bazinė kaina + Papildomi indai (0.60 € / vnt.)
     function calcTotal() {
@@ -1815,9 +1817,35 @@
       populateTimeSlots(selectedDate);
     }
 
+    let bookedSlotsData = {};
+
+    async function fetchBookedSlots() {
+      try {
+        const res = await fetch('rezervacija.php');
+        const d = await res.json();
+        if (d && d.booked) {
+          bookedSlotsData = d.booked;
+        }
+      } catch (e) {
+        console.log('Booked slots fetch err', e);
+      }
+    }
+
     function populateTimeSlots(targetDate) {
       const timeSelect = document.getElementById('resTime');
       if (!timeSelect) return;
+
+      const actEl = document.querySelector('input[name="resActivity"]:checked');
+      const act = actEl ? actEl.value : 'Pykčio kambarys';
+      const isRage = act.includes('Pykčio kambarys');
+      const isAxe = act.includes('Kirvių mėtymas');
+      const isKombo = act.includes('KOMBO');
+
+      const yyyy = targetDate.getFullYear();
+      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(targetDate.getDate()).padStart(2, '0');
+      const isoKey = `${yyyy}-${mm}-${dd}`;
+      const daySlots = bookedSlotsData[isoKey] || {};
 
       const dayOfWeek = targetDate.getDay();
       timeSelect.innerHTML = '';
@@ -1829,13 +1857,37 @@
         endHour = 23;
       }
 
+      let firstAvailable = null;
+
       for (let h = startHour; h <= endHour; h++) {
         const hourStr = (h < 10 ? '0' : '') + h + ':00';
         const nextHour = ((h + 1) < 10 ? '0' : '') + (h + 1) + ':00';
         const opt = document.createElement('option');
         opt.value = hourStr;
-        opt.textContent = `${hourStr} - ${nextHour} val.`;
+
+        const slot = daySlots[hourStr] || null;
+        let isBooked = false;
+
+        if (slot) {
+          if (isRage && slot.is_rage_full) isBooked = true;
+          else if (isAxe && slot.is_axe_full) isBooked = true;
+          else if (isKombo && (slot.is_rage_full || slot.is_axe_full)) isBooked = true;
+        }
+
+        if (isBooked) {
+          opt.disabled = true;
+          opt.textContent = `${hourStr} - ${nextHour} val. (UŽIMTA)`;
+          opt.style.color = '#ef4444';
+          opt.style.background = '#18181b';
+        } else {
+          opt.textContent = `${hourStr} - ${nextHour} val.`;
+          if (!firstAvailable) firstAvailable = hourStr;
+        }
         timeSelect.appendChild(opt);
+      }
+
+      if (firstAvailable) {
+        timeSelect.value = firstAvailable;
       }
     }
 
@@ -1866,7 +1918,7 @@
       }
 
       btn.disabled = true;
-      btn.textContent = 'Siunčiama ir ruošiama...';
+      btn.textContent = 'Tikrinama ir siunčiama...';
 
       try {
         const payload = {
@@ -1875,6 +1927,7 @@
           lane,
           count: cnt,
           date: dateText,
+          iso_date: date,
           time,
           price: prc
         };
@@ -1886,11 +1939,21 @@
         });
 
         const data = await res.json();
+
+        // Jei laikas buvo užimtas (dvigubo užsakymo apsauga):
+        if (!data.success) {
+          alert('⚠️ ' + data.message);
+          btn.disabled = false;
+          btn.textContent = 'Patvirtinti rezervaciją dabar ➔';
+          await fetchBookedSlots();
+          populateTimeSlots(selectedDate);
+          return;
+        }
+
         form.style.display = 'none';
         box.style.display = 'block';
 
         const orderId = data.reservation_id || ('TH-' + Math.floor(100000 + Math.random() * 900000));
-
 
         sum.innerHTML = `
           <strong>Užsakymo Nr.:</strong> <span style="color:var(--accent);">${orderId}</span><br>
@@ -1903,18 +1966,11 @@
         `;
         box.scrollIntoView({ behavior: 'smooth' });
 
+        // Atnaujiname užimtumo duomenis po sėkmingos rezervacijos
+        fetchBookedSlots();
+
       } catch (err) {
-        form.style.display = 'none';
-        box.style.display = 'block';
-        sum.innerHTML = `
-          <strong>Užsakovas:</strong> ${name} (${phone})<br>
-          <strong>Pramoga:</strong> ${act} (${cnt} asm.)<br>
-          <strong>Data ir laikas:</strong> ${dateText}, ${time} val.<br>
-          <strong>Suma:</strong> <strong style="color:var(--accent);">${prc}</strong><br><br>
-          <em>Patvirtinimas paruoštas ir išsiųstas į <strong>${email}</strong>!</em>
-        `;
-        box.scrollIntoView({ behavior: 'smooth' });
-      } finally {
+        alert('Įvyko tinklo ryšio klaida. Prašome pabandyti dar kartą.');
         btn.disabled = false;
         btn.textContent = 'Patvirtinti rezervaciją dabar ➔';
       }
@@ -1937,8 +1993,10 @@
       selectCalendarDate(today.getFullYear(), today.getMonth(), today.getDate());
     }
 
-    initTodaySelection();
-    onActivityChange();
+    fetchBookedSlots().then(() => {
+      initTodaySelection();
+      onActivityChange();
+    });
   </script>
 </body>
 </html>
