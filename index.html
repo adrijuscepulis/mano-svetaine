@@ -4,89 +4,1006 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ThrowHouse Šiauliai | Pykčio kambarys ir Kirvių mėtymas</title>
-  <meta name="description" content="Vienintelė tokia emocijų iškrovos ir pramogų erdvė Šiauliuose. Pykčio kambarys (Smash Room) ir kirvių mėtymas (Axe Throwing). Pramonės g. 15, Šiauliai.">
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Pramogų erdvė Šiauliuose. Pykčio kambarys (Smash Room) ir kirvių mėtymas (Axe Throwing). Pramonės g. 15, Šiauliai.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* BAZINIAI KINTAMIEJI */
+    :root {
+      --bg-dark: #0b0d14;
+      --bg-surface: #121624;
+      --bg-card: #181d2f;
+      --bg-card-hover: #1f253c;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: #f59e0b;
+      
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --accent-glow: rgba(245, 158, 11, 0.3);
+      --accent-red: #ef4444;
+
+      --text-white: #ffffff;
+      --text-gray: #9ca3af;
+      --text-muted: #6b7280;
+
+      --font-head: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    /* BAZINIS NUSTATYMAS */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* MYGTUKAI */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.85rem 1.8rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff7828 0%, #f59e0b 100%);
+      color: #0b0d14;
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.45);
+      color: #000;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1.1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    /* VIRŠUTINIS MENIU (HEADER) */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(11, 13, 20, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 0;
+    }
+
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+
+    .brand-title {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title span {
+      color: var(--accent);
+    }
+
+    .brand-city {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      color: var(--text-gray);
+      margin-top: 3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+    }
+
+    .nav-item {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-gray);
+      transition: color 0.2s;
+    }
+
+    .nav-item:hover {
+      color: var(--accent);
+    }
+
+    .nav-btn {
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem;
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* HERO BLOKAS */
+    .hero {
+      position: relative;
+      padding: 10.5rem 0 6rem 0;
+      background: linear-gradient(180deg, rgba(11, 13, 20, 0.75) 0%, rgba(11, 13, 20, 0.95) 100%),
+                  url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+      padding: 0.4rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
+    }
+
+    .hero-h1 {
+      font-family: var(--font-head);
+      font-size: 3.75rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-h1 .gradient {
+      background: linear-gradient(135deg, #ff7828 0%, #f59e0b 50%, #facc15 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-lead {
+      font-size: 1.25rem;
+      color: var(--text-gray);
+      max-width: 680px;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+
+    .features-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.25rem;
+      text-align: left;
+    }
+
+    .feat-card {
+      background: rgba(18, 22, 36, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .feat-card:hover {
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .feat-icon {
+      font-size: 1.8rem;
+    }
+
+    .feat-card strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .feat-card span {
+      font-size: 0.825rem;
+      color: var(--text-gray);
+    }
+
+    /* SEKCIJŲ BENDRAS STILIUS */
+    .section {
+      padding: 5.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-head {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 0.85rem;
+    }
+
+    .title {
+      font-family: var(--font-head);
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-gray);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* PRAMOGŲ KORTELĖS SU NUOTRAUKOMIS */
+    .activities-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+    }
+
+    .act-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+
+    .act-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .act-img {
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .act-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(18, 22, 36, 0.95) 100%);
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+    }
+
+    .act-pill {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .act-content {
+      padding: 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .act-title {
+      font-family: var(--font-head);
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+
+    .act-desc {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .perk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex: 1;
+    }
+
+    .perk-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.925rem;
+      color: #e5e7eb;
+    }
+
+    .perk-check {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .act-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.25rem;
+    }
+
+    .price-tag {
+      font-size: 0.85rem;
+      color: var(--text-gray);
+    }
+
+    .price-tag strong {
+      display: block;
+      font-size: 1.35rem;
+      color: #fff;
+      font-family: var(--font-head);
+    }
+
+    /* KAINŲ LENTELĖ */
+    .prices-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .p-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .p-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .p-card.popular {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, var(--bg-surface) 100%);
+      box-shadow: 0 14px 35px var(--accent-glow);
+    }
+
+    .pop-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ff7828, #f59e0b);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      padding: 0.3rem 1.1rem;
+      border-radius: 999px;
+    }
+
+    .p-head {
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .p-head h3 {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .p-head p {
+      color: var(--text-gray);
+      font-size: 0.875rem;
+      min-height: 40px;
+    }
+
+    .p-cost {
+      font-family: var(--font-head);
+      font-size: 3.25rem;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 0.5rem;
+    }
+
+    .p-cost span {
+      font-size: 1.6rem;
+      color: var(--accent);
+    }
+
+    .p-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+      flex: 1;
+    }
+
+    .p-list li {
+      font-size: 0.925rem;
+      color: #d1d5db;
+    }
+
+    /* REZERVACIJOS FORMA */
+    .book-box {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 3rem;
+      align-items: flex-start;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+    }
+
+    .book-info h3 {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .book-info p {
+      color: var(--text-gray);
+      margin-bottom: 2rem;
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .info-icon {
+      font-size: 1.5rem;
+    }
+
+    .info-item strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .info-item span {
+      font-size: 0.85rem;
+      color: var(--text-gray);
+    }
+
+    .form-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-col {
+      flex: 1;
+    }
+
+    .f-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .f-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #e5e7eb;
+      margin-bottom: 0.45rem;
+    }
+
+    .f-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: #0b0d14;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+
+    .f-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .act-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+    }
+
+    .act-opt {
+      cursor: pointer;
+    }
+
+    .act-opt input {
+      display: none;
+    }
+
+    .act-box {
+      background: #0b0d14;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.75rem 0.4rem;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .act-opt input:checked + .act-box {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    .act-box strong {
+      display: block;
+      font-size: 0.8rem;
+      color: #fff;
+      margin-top: 0.25rem;
+    }
+
+    .pay-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .pay-lbl {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #0b0d14;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .pay-lbl input {
+      accent-color: var(--accent);
+    }
+
+    .calc-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 1.25rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .calc-box strong {
+      font-size: 1.05rem;
+    }
+
+    .calc-price {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .success-alert {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .success-alert h4 {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      color: #4ade80;
+      margin-bottom: 0.75rem;
+    }
+
+    .success-alert p {
+      color: var(--text-gray);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* DUK AKORDEONAS */
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .faq-row {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .faq-row.open {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .faq-btn {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 1.25rem 1.5rem;
+      color: #fff;
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .faq-symbol {
+      color: var(--accent);
+      font-size: 1.4rem;
+      transition: transform 0.2s;
+    }
+
+    .faq-row.open .faq-symbol {
+      transform: rotate(45deg);
+    }
+
+    .faq-content {
+      display: none;
+      padding: 0 1.5rem 1.25rem 1.5rem;
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .faq-row.open .faq-content {
+      display: block;
+    }
+
+    /* KONTAKTAI */
+    .contact-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .contact-card-box {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .c-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 1.1rem 1.4rem;
+      border-radius: var(--radius-md);
+    }
+
+    .c-icon {
+      font-size: 1.5rem;
+    }
+
+    .c-box strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .c-box span, .c-box a {
+      font-size: 0.9rem;
+      color: var(--text-gray);
+    }
+
+    .c-box a:hover {
+      color: var(--accent);
+    }
+
+    .map-frame {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(18, 22, 36, 0.95) 100%),
+                  url('https://images.unsplash.com/photo-1547499681-28dece7dba00?auto=format&fit=crop&w=800&q=80') center/cover no-repeat;
+    }
+
+    .map-frame h3 {
+      font-family: var(--font-head);
+      font-size: 1.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .map-frame p {
+      color: var(--text-gray);
+      margin-bottom: 1.5rem;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 3rem 0;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: var(--text-gray);
+      margin: 0 0.75rem;
+    }
+
+    .footer a:hover {
+      color: var(--accent);
+    }
+
+    /* MOBILUS PRITAIKYMAS */
+    @media (max-width: 900px) {
+      .hero-h1 {
+        font-size: 2.75rem;
+      }
+      .book-box {
+        grid-template-columns: 1fr;
+      }
+      .contact-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 8rem 0 4.5rem 0;
+      }
+      .hero-h1 {
+        font-size: 2.2rem;
+      }
+      .hero-lead {
+        font-size: 1.05rem;
+      }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(11, 13, 20, 0.98);
+        flex-direction: column;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .nav-links.show {
+        display: flex;
+      }
+      .nav-toggle {
+        display: block;
+      }
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      .act-options {
+        grid-template-columns: 1fr;
+      }
+      .book-box {
+        padding: 1.5rem;
+      }
+      .form-wrap {
+        padding: 1.25rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- NAVIGACIJA -->
-  <header class="site-header" id="header">
-    <div class="nav-container">
-      <a href="#" class="logo">
-        <span class="logo-text">THROW<span class="highlight">HOUSE</span></span>
-        <span class="logo-sub">ŠIAULIAI</span>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container nav-bar">
+      <a href="#" class="brand">
+        <div class="brand-title">THROW<span>HOUSE</span></div>
+        <div class="brand-city">ŠIAULIAI</div>
       </a>
 
-      <nav class="main-nav" id="mainNav">
-        <a href="#pramogos" class="nav-link">Pramogos</a>
-        <a href="#kainos" class="nav-link">Kainos</a>
-        <a href="#saugumas" class="nav-link">Saugumas</a>
-        <a href="#duk" class="nav-link">D.U.K.</a>
-        <a href="#kontaktai" class="nav-link">Kontaktai</a>
-        <a href="#rezervacija" class="btn btn-primary nav-cta">Rezervuoti laiką</a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#pramogos" class="nav-item">Pramogos</a>
+        <a href="#kainos" class="nav-item">Kainos</a>
+        <a href="#duk" class="nav-item">D.U.K.</a>
+        <a href="#kontaktai" class="nav-item">Kontaktai</a>
+        <a href="#rezervacija" class="btn btn-primary nav-btn">Rezervuoti laiką</a>
       </nav>
 
-      <button class="mobile-toggle" id="mobileToggle" aria-label="Atidaryti meniu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <button class="nav-toggle" id="navToggle" aria-label="Meniu">☰</button>
     </div>
   </header>
 
   <!-- HERO SEKCIJA -->
-  <section class="hero-section">
-    <div class="hero-overlay"></div>
-    <div class="container hero-content">
+  <section class="hero">
+    <div class="container">
       <div class="hero-badge">
-        <span class="pulse-dot"></span> Pramonės g. 15, Šiauliai
+        <span class="badge-dot"></span> Pramonės g. 15, Šiauliai
       </div>
-      <h1 class="hero-title">
+
+      <h1 class="hero-h1">
         IŠLIEK EMOCIJAS.<br>
-        <span class="gradient-text">PATAIKYK Į TAIKINĮ.</span>
+        <span class="gradient">PATAIKYK Į TAIKINĮ.</span>
       </h1>
-      <p class="hero-description">
+
+      <p class="hero-lead">
         Adrenalino sprogimas, dūžtantis stiklas ir vikingų taiklumas po vienu stogu. Vienintelė tokia emocijų iškrovos ir pramogų erdvė Šiauliuose.
       </p>
 
-      <div class="hero-cta-group">
-        <a href="#rezervacija" class="btn btn-primary btn-large">
-          <span>Rezervuoti laiką dabar</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-        <a href="#pramogos" class="btn btn-secondary btn-large">Mūsų pramogos</a>
+      <div class="hero-actions">
+        <a href="#rezervacija" class="btn btn-primary">Rezervuoti laiką dabar ➔</a>
+        <a href="#pramogos" class="btn btn-secondary">Mūsų pramogos</a>
       </div>
 
-      <div class="hero-features-bar">
-        <div class="feature-item">
-          <span class="feature-icon">🔨</span>
+      <div class="features-row">
+        <div class="feat-card">
+          <span class="feat-icon">🔨</span>
           <div>
             <strong>Pykčio kambarys</strong>
-            <p>100% streso iškrova</p>
+            <span>100% streso iškrova</span>
           </div>
         </div>
-        <div class="feature-item">
-          <span class="feature-icon">🪓</span>
+        <div class="feat-card">
+          <span class="feat-icon">🪓</span>
           <div>
             <strong>Kirvių mėtymas</strong>
-            <p>Taiklumas ir azartas</p>
+            <span>Taiklumas ir azartas</span>
           </div>
         </div>
-        <div class="feature-item">
-          <span class="feature-icon">🛡️</span>
+        <div class="feat-card">
+          <span class="feat-icon">🛡️</span>
           <div>
             <strong>Pilna apsauga</strong>
-            <p>Saugumo garantas</p>
+            <span>Saugumas garantuotas</span>
           </div>
         </div>
-        <div class="feature-item">
-          <span class="feature-icon">🎉</span>
+        <div class="feat-card">
+          <span class="feat-icon">🎉</span>
           <div>
-            <strong>Šventės ir grupės</strong>
-            <p>Gimtadieniai, bernvakariai</p>
+            <strong>Gimtadieniai ir šventės</strong>
+            <span>Poilsio erdvė grupėms</span>
           </div>
         </div>
       </div>
@@ -94,83 +1011,61 @@
   </section>
 
   <!-- PRAMOGŲ BLOKAS -->
-  <section class="section pramogos-section" id="pramogos">
+  <section class="section" id="pramogos">
     <div class="container">
-      <div class="section-header text-center">
-        <span class="section-tag">Ką siūlome</span>
-        <h2 class="section-title">Pasirinkite savo adrenalino dozę</h2>
-        <p class="section-subtitle">Dvi unikalios pramogos, garantuojančios nepamirštamus įspūdžius ir emocijų iškrovą.</p>
+      <div class="section-head">
+        <span class="tag">Ką siūlome</span>
+        <h2 class="title">Pasirinkite savo adrenalino dozę</h2>
+        <p class="subtitle">Dvi unikalios pramogos po vienu stogu, garantuojančios nepamirštamus įspūdžius.</p>
       </div>
 
-      <div class="activities-grid">
+      <div class="activities-row">
         <!-- PYKČIO KAMBARYS -->
-        <div class="activity-card smash-card">
-          <div class="activity-card-inner">
-            <div class="activity-badge">Populiariausia streso iškrova</div>
-            <div class="activity-icon-wrap">🔨</div>
-            <h3 class="activity-title">Pykčio kambarys <span class="en-tag">(Smash Room)</span></h3>
-            <p class="activity-desc">
-              Kada nors norėjote beisbolo lazda sudaužyti spausdintuvą ar kūju sutrupinti monitorių? Čia tai galima daryti legaliai, saugiai ir be jokių pasekmių.
+        <div class="act-card">
+          <div class="act-img" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80');">
+            <div class="act-img-overlay">
+              <span class="act-pill">🔨 Populiariausia streso iškrova</span>
+            </div>
+          </div>
+          <div class="act-content">
+            <h3 class="act-title">Pykčio kambarys (Smash Room)</h3>
+            <p class="act-desc">
+              Kada nors norėjote beisbolo lazda sudaužyti spausdintuvą ar kūju sutrupinti monitorių? Čia tai galima daryti legaliai, saugiai ir be jokių pasekmių!
             </p>
-
-            <ul class="activity-perks">
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Suteikiame kūjus, beisbolo lazdas, laužtuvus</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Indai, buteliai, buitinė technika, elektronika</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Pilna apsauginė apranga (šalmas, skydelis, kostiumas, pirštinės)</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Muzika pagal jūsų grojaraštį – daužykite skambant jūsų ritmui!</span>
-              </li>
+            <ul class="perk-list">
+              <li><span class="perk-check">✓</span> Kūjai, beisbolo lazdos, laužtuvai</li>
+              <li><span class="perk-check">✓</span> Indai, monitoriai, buitinė technika</li>
+              <li><span class="perk-check">✓</span> Pilna apsauginė apranga (šalmas, skydelis, pirštinės)</li>
+              <li><span class="perk-check">✓</span> Muzika pagal jūsų pasirinktą grojaraštį</li>
             </ul>
-
-            <div class="activity-footer">
-              <div class="price-from">Kaina nuo <strong>35 €</strong></div>
-              <a href="#rezervacija" class="btn btn-outline" onclick="selectActivityInBooking('pykcio-kambarys')">Rezervuoti pyktį</a>
+            <div class="act-footer">
+              <div class="price-tag">Kaina nuo <strong>35 €</strong></div>
+              <a href="#rezervacija" class="btn btn-secondary btn-sm" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti pyktį</a>
             </div>
           </div>
         </div>
 
         <!-- KIRVIŲ MĖTYMAS -->
-        <div class="activity-card axe-card">
-          <div class="activity-card-inner">
-            <div class="activity-badge badge-alt">Taiklumas ir azartas</div>
-            <div class="activity-icon-wrap">🪓</div>
-            <h3 class="activity-title">Kirvių mėtymas <span class="en-tag">(Axe Throwing)</span></h3>
-            <p class="activity-desc">
-              Pajuskite savyje slypintį vikingą! Kirvių mėtymas – tai pasaulyje sparčiai populiarėjantis sportas ir nepakartojama pramoga kompanijoms su azartiškomis varžybomis.
+        <div class="act-card">
+          <div class="act-img" style="background-image: url('https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?auto=format&fit=crop&w=800&q=80');">
+            <div class="act-img-overlay">
+              <span class="act-pill">🪓 Vikingų taiklumas</span>
+            </div>
+          </div>
+          <div class="act-content">
+            <h3 class="act-title">Kirvių mėtymas (Axe Throwing)</h3>
+            <p class="act-desc">
+              Pajuskite savyje slypintį vikingą! Kirvių mėtymas – tai azartiškas sportas ir nepakartojama pramoga kompanijoms su azartiškomis varžybomis.
             </p>
-
-            <ul class="activity-perks">
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Specialiai įrengti mediniai taikiniai ir saugos zonos</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Instruktorius išmoko taisyklingos technikos per 5 minutes</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Turnyrai, taškų skaičiavimas ir azartiški žaidimai</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <span>Tinka tiek pradedantiesiems, tiek norintiems tobulėti</span>
-              </li>
+            <ul class="perk-list">
+              <li><span class="perk-check">✓</span> Specialiai įrengti mediniai taikiniai ir saugos zonos</li>
+              <li><span class="perk-check">✓</span> Instruktorius apmoko technikos vos per 5 minutes</li>
+              <li><span class="perk-check">✓</span> Turnyrai, taškų skaičiavimas ir rungtys</li>
+              <li><span class="perk-check">✓</span> Tinka tiek pirmą kartą bandantiems, tiek pažengusiems</li>
             </ul>
-
-            <div class="activity-footer">
-              <div class="price-from">Kaina nuo <strong>20 € / asm.</strong></div>
-              <a href="#rezervacija" class="btn btn-outline" onclick="selectActivityInBooking('kirviu-metymas')">Rezervuoti taikinį</a>
+            <div class="act-footer">
+              <div class="price-tag">Kaina nuo <strong>20 € / asm.</strong></div>
+              <a href="#rezervacija" class="btn btn-secondary btn-sm" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti taikinį</a>
             </div>
           </div>
         </div>
@@ -178,163 +1073,154 @@
     </div>
   </section>
 
-  <!-- KAINŲ IR PAKETŲ SEKCIJA -->
-  <section class="section kainos-section" id="kainos">
+  <!-- KAINŲ SEKCIJA -->
+  <section class="section" id="kainos">
     <div class="container">
-      <div class="section-header text-center">
-        <span class="section-tag">Pasiūlymai</span>
-        <h2 class="section-title">Kainos ir paketai</h2>
-        <p class="section-subtitle">Skaidrios kainos be jokių paslėptų mokesčių. Visi apsaugos reikmenys įskaičiuoti.</p>
+      <div class="section-head">
+        <span class="tag">Pasiūlymai</span>
+        <h2 class="title">Kainos ir paketai</h2>
+        <p class="subtitle">Skaidrios kainos be jokių paslėptų mokesčių. Apsaugos reikmenys įskaičiuoti.</p>
       </div>
 
-      <div class="pricing-grid">
+      <div class="prices-row">
         <!-- PAKETAS 1 -->
-        <div class="price-card">
-          <div class="price-header">
+        <div class="p-card">
+          <div class="p-head">
             <h3>Solo Iškrova</h3>
-            <p>Vienam žmogui, norinčiam pilnai atsikratyti streso</p>
-            <div class="price-amount">35 <span>€</span></div>
+            <p>1 asmeniui – visiškas streso pašalinimas</p>
+            <div class="p-cost">35 <span>€</span></div>
           </div>
-          <ul class="price-features">
+          <ul class="p-list">
             <li>✓ 1 asmeniui (iki 30 min.)</li>
-            <li>✓ Pilnas stiklo ir keramikos indų krepšys</li>
-            <li>✓ 1 mažos elektronikos prietaisas</li>
+            <li>✓ Indų ir stiklo krepšys</li>
+            <li>✓ 1 elektronikos prietaisas</li>
             <li>✓ Pilna apsauginė apranga</li>
             <li>✓ Pasirinkti įrankiai (lazda, kūjis)</li>
           </ul>
-          <a href="#rezervacija" class="btn btn-secondary full-width" onclick="selectPackageInBooking('solo')">Rinktis šį paketą</a>
+          <a href="#rezervacija" class="btn btn-secondary btn-block" onclick="setBookingPkg(1, 'Pykčio kambarys')">Rinktis šį paketą</a>
         </div>
 
-        <!-- PAKETAS 2 (POPULIARIAUSIAS) -->
-        <div class="price-card popular">
-          <div class="popular-ribbon">Rekomenduojama</div>
-          <div class="price-header">
+        <!-- PAKETAS 2 -->
+        <div class="p-card popular">
+          <div class="pop-badge">Populiariausias</div>
+          <div class="p-head">
             <h3>Duetas / Dvikova</h3>
-            <p>Dviem asmenims – dvigubai daugiau veiksmo ir adrenalino</p>
-            <div class="price-amount">65 <span>€</span></div>
+            <p>2 asmenims – dvigubai daugiau veiksmo ir emocijų</p>
+            <div class="p-cost">65 <span>€</span></div>
           </div>
-          <ul class="price-features">
+          <ul class="p-list">
             <li>✓ 2 asmenims (iki 45 min.)</li>
-            <li>✓ Dvigubas indų ir stiklo kiekis</li>
-            <li>✓ Vidutinio dydžio technika (monitorius/TV)</li>
+            <li>✓ Dvigubas stiklo ir indų kiekis</li>
+            <li>✓ Didesnė technika (monitorius/TV)</li>
             <li>✓ Pilna apsauga abiem</li>
             <li>✓ Galimybė išbandyti ir kirvių taikinį</li>
           </ul>
-          <a href="#rezervacija" class="btn btn-primary full-width" onclick="selectPackageInBooking('duo')">Rinktis šį paketą</a>
+          <a href="#rezervacija" class="btn btn-primary btn-block" onclick="setBookingPkg(2, 'Pykčio kambarys')">Rinktis šį paketą</a>
         </div>
 
-        <!-- PAKETAS 3 (ŠVENTĖS) -->
-        <div class="price-card">
-          <div class="price-header">
-            <h3>Grupė / Šventė VIP</h3>
+        <!-- PAKETAS 3 -->
+        <div class="p-card">
+          <div class="p-head">
+            <h3>Šventė / VIP Grupė</h3>
             <p>Gimtadieniams, bernvakariams, įmonių vakarėliams</p>
-            <div class="price-amount">150 <span>€</span></div>
+            <div class="p-cost">150 <span>€</span></div>
           </div>
-          <ul class="price-features">
+          <ul class="p-list">
             <li>✓ Iki 6–10 asmenų (iki 2 val.)</li>
-            <li>✓ Pykčio kambarys + Kirvių mėtymo takai</li>
+            <li>✓ Pykčio kambarys + Kirvių takai</li>
             <li>✓ Didelis kiekis daiktų ir didelė technika</li>
             <li>✓ Poilsio erdvė jūsų užkandžiams ir gėrimams</li>
             <li>✓ Instruktoriaus vedamas kirvių turnyras</li>
           </ul>
-          <a href="#rezervacija" class="btn btn-secondary full-width" onclick="selectPackageInBooking('vip')">Rinktis šį paketą</a>
+          <a href="#rezervacija" class="btn btn-secondary btn-block" onclick="setBookingPkg(6, 'KOMBO: Pyktis + Kirviai')">Rinktis šį paketą</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- INTERAKTYVI REZERVACINĖ SISTEMA -->
-  <section class="section booking-section" id="rezervacija">
+  <!-- REZERVACIJA -->
+  <section class="section" id="rezervacija">
     <div class="container">
-      <div class="booking-wrapper">
-        <div class="booking-intro">
-          <span class="section-tag">Internetinė rezervacija</span>
-          <h2 class="section-title">Užsisakykite savo laiką internetu</h2>
-          <p class="section-subtitle">
-            Pasirinkite norimą pramogą, datą bei laiką. Užpildžius duomenis, rezervacija bus išsaugota ir paruošta apmokėjimui.
-          </p>
+      <div class="book-box">
+        <div class="book-info">
+          <span class="tag">Internetinė registracija</span>
+          <h3>Užsakykite savo laiką internetu</h3>
+          <p>Pasirinkite pramogą, datą bei laiką. Užsakymas bus iškart paruoštas jūsų apsilankymui.</p>
 
-          <div class="booking-highlights">
-            <div class="highlight-item">
-              <span class="icon">⚡</span>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-icon">⚡</span>
               <div>
-                <strong>Momentinis patvirtinimas</strong>
-                <p>Gausite patvirtinimą SMS ir el. paštu.</p>
+                <strong>Greita ir patogu</strong>
+                <span>Patvirtinimą gausite SMS ir el. paštu.</span>
               </div>
             </div>
-            <div class="highlight-item">
-              <span class="icon">💳</span>
+            <div class="info-item">
+              <span class="info-icon">💳</span>
               <div>
-                <strong>Saugus atsiskaitymas</strong>
-                <p>Elektroninė bankininkystė, kortelės arba vietoje.</p>
+                <strong>Apmokėjimas</strong>
+                <span>Mokėkite internetu arba atvykus vietoje.</span>
               </div>
             </div>
-            <div class="highlight-item">
-              <span class="icon">🔄</span>
+            <div class="info-item">
+              <span class="info-icon">🔄</span>
               <div>
-                <strong>Lankstus perkėlimas</strong>
-                <p>Galite nemokamai perkelti laiką pranešę prieš 24 val.</p>
+                <strong>Lankstus laikas</strong>
+                <span>Nemokamas perkėlimas pranešus prieš 24 val.</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- FORMA -->
-        <div class="booking-form-card">
-          <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
-            <h3 class="form-title">Rezervacijos detalės</h3>
-
-            <!-- 1 ŽINGSNIS: PRAMOGA -->
-            <div class="form-group">
-              <label class="form-label">1. Pasirinkite pramogą:</label>
-              <div class="activity-selector-grid">
-                <label class="selector-card">
-                  <input type="radio" name="activity" value="Pykčio kambarys" checked onchange="updateBookingCalculation()">
-                  <div class="selector-content">
-                    <span class="s-icon">🔨</span>
-                    <span class="s-title">Pykčio kambarys</span>
+        <div class="form-wrap">
+          <form id="resForm" onsubmit="submitReservation(event)">
+            <div class="f-group">
+              <label class="f-label">1. Pasirinkite pramogą:</label>
+              <div class="act-options">
+                <label class="act-opt">
+                  <input type="radio" name="resActivity" value="Pykčio kambarys" checked onchange="calcTotal()">
+                  <div class="act-box">
+                    <span>🔨</span>
+                    <strong>Pyktis</strong>
                   </div>
                 </label>
-                <label class="selector-card">
-                  <input type="radio" name="activity" value="Kirvių mėtymas" onchange="updateBookingCalculation()">
-                  <div class="selector-content">
-                    <span class="s-icon">🪓</span>
-                    <span class="s-title">Kirvių mėtymas</span>
+                <label class="act-opt">
+                  <input type="radio" name="resActivity" value="Kirvių mėtymas" onchange="calcTotal()">
+                  <div class="act-box">
+                    <span>🪓</span>
+                    <strong>Kirviai</strong>
                   </div>
                 </label>
-                <label class="selector-card">
-                  <input type="radio" name="activity" value="KOMBO: Pyktis + Kirviai" onchange="updateBookingCalculation()">
-                  <div class="selector-content">
-                    <span class="s-icon">🔥</span>
-                    <span class="s-title">KOMBO paketas</span>
+                <label class="act-opt">
+                  <input type="radio" name="resActivity" value="KOMBO: Pyktis + Kirviai" onchange="calcTotal()">
+                  <div class="act-box">
+                    <span>🔥</span>
+                    <strong>KOMBO</strong>
                   </div>
                 </label>
               </div>
             </div>
 
-            <!-- 2 ŽINGSNIS: DALYVIŲ SKAIČIUS -->
-            <div class="form-group">
-              <label class="form-label" for="participantCount">2. Dalyvių skaičius:</label>
-              <select id="participantCount" class="form-control" onchange="updateBookingCalculation()">
+            <div class="f-group">
+              <label class="f-label" for="resCount">2. Dalyvių skaičius:</label>
+              <select id="resCount" class="f-input" onchange="calcTotal()">
                 <option value="1">1 asmuo</option>
                 <option value="2" selected>2 asmenys</option>
                 <option value="3">3 asmenys</option>
                 <option value="4">4 asmenys</option>
                 <option value="5">5 asmenys</option>
                 <option value="6">6–10 asmenų (Grupė / Šventė)</option>
-                <option value="11">Daugiau nei 10 asmenų</option>
               </select>
             </div>
 
-            <!-- 3 ŽINGSNIS: DATA IR LAIKAS -->
             <div class="form-row">
-              <div class="form-group col-6">
-                <label class="form-label" for="bookingDate">3. Pasirinkite datą:</label>
-                <input type="date" id="bookingDate" class="form-control" required onchange="updateBookingCalculation()">
+              <div class="form-col">
+                <label class="f-label" for="resDate">3. Data:</label>
+                <input type="date" id="resDate" class="f-input" required onchange="calcTotal()">
               </div>
-              <div class="form-group col-6">
-                <label class="form-label" for="bookingTime">4. Pasirinkite laiką:</label>
-                <select id="bookingTime" class="form-control" required>
+              <div class="form-col">
+                <label class="f-label" for="resTime">4. Laikas:</label>
+                <select id="resTime" class="f-input" required>
                   <option value="">Pasirinkite laiką</option>
                   <option value="13:00">13:00 - 14:00</option>
                   <option value="14:30">14:30 - 15:30</option>
@@ -347,278 +1233,311 @@
               </div>
             </div>
 
-            <!-- 4 ŽINGSNIS: KONTAKTINIAI DUOMENYS -->
             <div class="form-row">
-              <div class="form-group col-6">
-                <label class="form-label" for="customerName">Vardas ir Pavardė:</label>
-                <input type="text" id="customerName" class="form-control" placeholder="Jūsų vardas" required>
+              <div class="form-col">
+                <label class="f-label" for="resName">Jūsų Vardas:</label>
+                <input type="text" id="resName" class="f-input" placeholder="Vardas Pavardė" required>
               </div>
-              <div class="form-group col-6">
-                <label class="form-label" for="customerPhone">Telefono numeris:</label>
-                <input type="tel" id="customerPhone" class="form-control" placeholder="+370 6XX XXXXX" required>
+              <div class="form-col">
+                <label class="f-label" for="resPhone">Telefono numeris:</label>
+                <input type="tel" id="resPhone" class="f-input" placeholder="+370 6XX XXXXX" required>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="customerEmail">El. pašto adresas:</label>
-              <input type="email" id="customerEmail" class="form-control" placeholder="vardas@pavyzdys.lt" required>
+            <div class="f-group">
+              <label class="f-label" for="resEmail">El. paštas:</label>
+              <input type="email" id="resEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="customerNotes">Papildomi pageidavimai / Proga (neprivaloma):</label>
-              <textarea id="customerNotes" class="form-control" rows="2" placeholder="Gimtadienis, bernvakaris, pageidaujama muzika ar papildomi klausimai..."></textarea>
-            </div>
-
-            <!-- APMOKĖJIMO BŪDAS -->
-            <div class="form-group">
-              <label class="form-label">Apmokėjimo būdas:</label>
-              <div class="payment-options">
-                <label class="pay-option">
-                  <input type="radio" name="paymentMethod" value="online" checked>
+            <div class="f-group">
+              <label class="f-label">Apmokėjimo būdas:</label>
+              <div class="pay-methods">
+                <label class="pay-lbl">
+                  <input type="radio" name="resPay" value="online" checked>
                   <span>Mokėti internetu (Banklink / Visa / Mastercard)</span>
                 </label>
-                <label class="pay-option">
-                  <input type="radio" name="paymentMethod" value="onsite">
-                  <span>Mokėti atvykus vietoje (Grynieji / Kortelė)</span>
+                <label class="pay-lbl">
+                  <input type="radio" name="resPay" value="onsite">
+                  <span>Mokėti atvykus vietoje (Kortelė / Grynieji)</span>
                 </label>
               </div>
             </div>
 
-            <!-- SANTRAUKA -->
-            <div class="booking-summary-box">
-              <div class="summary-line">
-                <span>Preliminari suma:</span>
-                <span class="total-price" id="calcPrice">65 €</span>
-              </div>
-              <p class="summary-note">Apmokėjimo vartai (Paysera / Stripe) bus aktyvuoti pagal jūsų pasirinktą tiekėją.</p>
+            <div class="calc-box">
+              <strong>Preliminari suma:</strong>
+              <div class="calc-price" id="calcPrice">65 €</div>
             </div>
 
-            <button type="submit" class="btn btn-primary full-width btn-submit">
-              Patvirtinti rezervaciją ir pereiti prie apmokėjimo
+            <button type="submit" class="btn btn-primary btn-block">
+              Patvirtinti rezervaciją ➔
             </button>
           </form>
 
-          <!-- SĖKMĖS PRANEŠIMAS -->
-          <div class="booking-success" id="bookingSuccess" style="display: none;">
-            <div class="success-icon">✓</div>
-            <h3>Rezervacija sėkmingai gauta!</h3>
-            <p id="successDetails">Ačiū! Detali informacija apie jūsų vizitą išsiųsta nurodytu el. paštu.</p>
-            <button class="btn btn-secondary" onclick="resetBookingForm()">Nauja rezervacija</button>
+          <div id="resSuccess" class="success-alert" style="display:none;">
+            <h4>✓ Rezervacija sėkmingai priimta!</h4>
+            <div id="resSummary"></div>
+            <button class="btn btn-secondary btn-sm" onclick="newBooking()">Atlikti naują rezervaciją</button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SAUGUMAS IR TAISYKLĖS -->
-  <section class="section saugumas-section" id="saugumas">
+  <!-- DUK SEKCIJA -->
+  <section class="section" id="duk">
     <div class="container">
-      <div class="section-header text-center">
-        <span class="section-tag">Saugumas pirmiausia</span>
-        <h2 class="section-title">Saugumo taisyklės ir reikalavimai</h2>
-        <p class="section-subtitle">Mums svarbiausia, kad patirtumėte geriausias emocijas saugiai ir be rūpesčių.</p>
+      <div class="section-head">
+        <span class="tag">Atsakymai</span>
+        <h2 class="title">Dažniausiai užduodami klausimai (D.U.K.)</h2>
+        <p class="subtitle">Viskas, ką reikia žinoti prieš atvykstant į ThrowHouse Šiauliai.</p>
       </div>
 
-      <div class="rules-grid">
-        <div class="rule-card">
-          <div class="rule-icon">👟</div>
-          <h4>Uždara avalynė yra BŪTINA</h4>
-          <p>Draudžiama dalyvauti su basutėmis, šlepetėmis ar atvira avalyne. Rekomenduojami patogūs sportbačiai ar auliniai batai.</p>
-        </div>
-
-        <div class="rule-card">
-          <div class="rule-icon">🥽</div>
-          <h4>Pilna apsauginė apranga</h4>
-          <p>Kiekvienam suteikiame apsauginį kostiumą, veido skydelį arba akinius bei sustiprintas pirštines. Būtina dėvėti visos sesijos metu.</p>
-        </div>
-
-        <div class="rule-card">
-          <div class="rule-icon">🚫</div>
-          <h4>Nulinė tolerancija alkoholiui</h4>
-          <p>Asmenys, turintys akivaizdžių apsvaigimo nuo alkoholio ar kitų medžiagų požymių, į pramogų erdvę neįleidžiami.</p>
-        </div>
-
-        <div class="rule-card">
-          <div class="rule-icon">📋</div>
-          <h4>Instruktažas ir taisyklės</h4>
-          <p>Prieš kiekvieną sesiją profesionalus instruktorius paaiškina saugaus mėtymo ir įrankių valdymo taisykles.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DUK (FAQ) SEKCIJA -->
-  <section class="section duk-section" id="duk">
-    <div class="container">
-      <div class="section-header text-center">
-        <span class="section-tag">Atsakymai</span>
-        <h2 class="section-title">Dažniausiai užduodami klausimai (D.U.K.)</h2>
-        <p class="section-subtitle">Atsakymai į visus klausimus, kurie dažniausiai kyla prieš atvykstant.</p>
-      </div>
-
-      <div class="faq-accordion" id="faqAccordion">
-        <!-- 1 -->
-        <div class="faq-item">
-          <button class="faq-question">
+      <div class="faq-container">
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
             <span>Ką reikia apsirengti atvykstant?</span>
-            <span class="faq-arrow">+</span>
+            <span class="faq-symbol">+</span>
           </button>
-          <div class="faq-answer">
-            <p>Svarbiausia taisyklė – <strong>būtina uždara, tvirta avalynė</strong> (sportiniai bateliai, batai iki kulkšnių). Drabužius rekomenduojame rinktis patogius, nevaržančius judesių. Visą apsauginę aprangą (kombinezonus, pirštines, šalmus su skydeliais) suteikiame mes.</p>
+          <div class="faq-content">
+            Svarbiausia taisyklė – <strong>būtina uždara avalynė</strong> (sportbačiai ar auliniai batai). Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama. Visą apsauginę aprangą (kombinezonus, pirštines, šalmus su skydeliais) suteikiame mes!
           </div>
         </div>
 
-        <!-- 2 -->
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Ar kirvių mėtymui reikia turėti patirties?</span>
-            <span class="faq-arrow">+</span>
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
+            <span>Ar kirvių mėtymui reikalinga patirtis?</span>
+            <span class="faq-symbol">+</span>
           </button>
-          <div class="faq-answer">
-            <p>Visiškai ne! Dauguma mūsų svečių kirvį į rankas paima pirmą kartą. Prieš pradedant, instruktorius skiria 5–10 minučių apmokymui, parodo taisyklingą metimo stovėseną bei techniką, todėl į taikinį pataiko praktiškai kiekvienas.</p>
+          <div class="faq-content">
+            Ne, patirties nereikia! Dauguma lankytojų kirvį į rankas paima pirmą kartą. Instruktorius per 5 minutes apmoko taisyklingos stovėsenos ir metimo technikos, todėl į taikinį sėkmingai pataiko beveik kiekvienas.
           </div>
         </div>
 
-        <!-- 3 -->
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Ar galima atsinešti savo daiktus į pykčio kambarį?</span>
-            <span class="faq-arrow">+</span>
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
+            <span>Ar galima atsinešti savo daiktų į pykčio kambarį?</span>
+            <span class="faq-symbol">+</span>
           </button>
-          <div class="faq-answer">
-            <p>Taip! Jei turite seną televizorių, spausdintuvą, indų servizą ar buitinę techniką, kurią norite sudaužyti patys – susisiekite iš anksto ir suderinsime detales. Draudžiama neštis sprogias ar kenksmingas chemines medžiagas (pvz. gyvsidabrio termometrus, dažus).</p>
+          <div class="faq-content">
+            Taip! Jei turite seną spausdintuvą, indų rinkinį, televizorių ar kitą nebenaudojamą techniką – galite atsivežti ir sudaužyti. Prašome prieš tai suderinti su mumis. Draudžiama neštis pavojingas, sprogias ar chemines medžiagas.
           </div>
         </div>
 
-        <!-- 4 -->
-        <div class="faq-item">
-          <button class="faq-question">
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
             <span>Nuo kokio amžiaus galima dalyvauti?</span>
-            <span class="faq-arrow">+</span>
+            <span class="faq-symbol">+</span>
           </button>
-          <div class="faq-answer">
-            <p>Pramogos skirtos asmenims nuo 18 metų. Jaunuoliai nuo 14 iki 17 metų gali dalyvauti tik su raštišku tėvų ar globėjų sutikimu arba kartu dalyvaujant suaugusiam asmeniui.</p>
+          <div class="faq-content">
+            Pramogos skirtos asmenims nuo 18 metų. Jaunuoliai nuo 14 iki 17 metų gali dalyvauti tik kartu su suaugusiu asmeniu arba pateikę raštišką tėvų ar globėjų sutikimą.
           </div>
         </div>
 
-        <!-- 5 -->
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Ar galima rengti gimtadienius, bernvakarius ar įmonių renginius?</span>
-            <span class="faq-arrow">+</span>
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
+            <span>Ar galima švęsti gimtadienius, bernvakarius ar įmonių renginius?</span>
+            <span class="faq-symbol">+</span>
           </button>
-          <div class="faq-answer">
-            <p>Tikrai taip! Turime specialią poilsio erdvę, kurioje galite atsinešti savo užkandžius bei gaiviuosius gėrimus. Galime suorganizuoti privatų kirvių mėtymo turnyrą jūsų kompanijai ir paruošti didesnį kiekį daiktų pykčio kambariui.</p>
+          <div class="faq-content">
+            Tikrai taip! Turime poilsio zoną, kurioje galite atsinešti savo užkandžius bei gaiviuosius gėrimus. Galime surengti privatų kirvių turnyrą jūsų kompanijai ir paruošti didesnį kiekį daiktų pykčio kambariui.
           </div>
         </div>
 
-        <!-- 6 -->
-        <div class="faq-item">
-          <button class="faq-question">
+        <div class="faq-row">
+          <button class="faq-btn" onclick="toggleFaq(this)">
             <span>Kaip atšaukti ar perkelti rezervacijos laiką?</span>
-            <span class="faq-arrow">+</span>
+            <span class="faq-symbol">+</span>
           </button>
-          <div class="faq-answer">
-            <p>Rezervacijos laiką galite nemokamai perkelti į kitą datą, jei apie tai pranešite bent prieš 24 valandas telefonu arba el. paštu.</p>
+          <div class="faq-content">
+            Rezervacijos laiką galite nemokamai perkelti į kitą datą, jei apie tai pranešite bent prieš 24 valandas telefonu arba el. paštu.
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- KONTAKTAI IR LOKACIJA -->
-  <section class="section kontaktai-section" id="kontaktai">
+  <!-- KONTAKTAI -->
+  <section class="section" id="kontaktai">
     <div class="container">
-      <div class="contact-grid">
-        <div class="contact-info-panel">
-          <span class="section-tag">Kontaktai ir vieta</span>
-          <h2 class="section-title">Kur mus rasti Šiauliuose?</h2>
-          <p class="section-subtitle">
+      <div class="contact-row">
+        <div>
+          <span class="tag">Kontaktai</span>
+          <h2 class="title">Kur mus rasti Šiauliuose?</h2>
+          <p class="subtitle" style="text-align: left; margin: 0 0 1.5rem 0;">
             Esame įsikūrę lengvai pasiekiamoje vietoje su erdvia automobilių stovėjimo aikštele.
           </p>
 
-          <div class="contact-details-list">
-            <div class="c-item">
+          <div class="contact-card-box">
+            <div class="c-box">
               <span class="c-icon">📍</span>
               <div>
                 <strong>Adresas:</strong>
-                <p>Pramonės g. 15, Šiauliai, Lietuva</p>
+                <span>Pramonės g. 15, Šiauliai, Lietuva</span>
               </div>
             </div>
 
-            <div class="c-item">
+            <div class="c-box">
               <span class="c-icon">📞</span>
               <div>
                 <strong>Telefonas:</strong>
-                <p><a href="tel:+37060000000">+370 600 00000</a></p>
+                <a href="tel:+37060000000">+370 600 00000</a>
               </div>
             </div>
 
-            <div class="c-item">
+            <div class="c-box">
               <span class="c-icon">✉️</span>
               <div>
                 <strong>El. paštas:</strong>
-                <p><a href="mailto:info@throwhouse.lt">info@throwhouse.lt</a></p>
+                <a href="mailto:info@throwhouse.lt">info@throwhouse.lt</a>
               </div>
             </div>
 
-            <div class="c-item">
+            <div class="c-box">
               <span class="c-icon">🕒</span>
               <div>
                 <strong>Darbo laikas:</strong>
-                <p>II – V: 15:00 – 22:00</p>
-                <p>VI – VII: 12:00 – 23:00</p>
-                <p>Pirmadieniais: pagal išankstinį susitarimą grupėms</p>
+                <span>II–V: 15:00–22:00 | VI–VII: 12:00–23:00 (I – poilsio diena)</span>
               </div>
-            </div>
-          </div>
-
-          <div class="social-links-box">
-            <span>Sekite mus socialiniuose tinkluose:</span>
-            <div class="social-icons">
-              <a href="#" class="social-link" title="Instagram">Instagram</a>
-              <a href="#" class="social-link" title="Facebook">Facebook</a>
-              <a href="#" class="social-link" title="TikTok">TikTok</a>
             </div>
           </div>
         </div>
 
-        <div class="contact-map-panel">
-          <div class="map-placeholder">
-            <div class="map-content">
-              <div class="map-pin">📍</div>
-              <h3>ThrowHouse Šiauliai</h3>
-              <p>Pramonės g. 15, Šiauliai</p>
-              <a href="https://maps.google.com/?q=Pramonės+g.+15,+Šiauliai" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
-                Atidaryti Google Maps ↗
-              </a>
-            </div>
-          </div>
+        <div class="map-frame">
+          <h3>ThrowHouse Šiauliai</h3>
+          <p>Pramonės g. 15, Šiauliai</p>
+          <a href="https://maps.google.com/?q=Pramonės+g.+15,+Šiauliai" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+            Atidaryti Google Maps ↗
+          </a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FOOTERIS -->
-  <footer class="site-footer">
-    <div class="container footer-content">
-      <div class="footer-brand">
-        <span class="logo-text">THROW<span class="highlight">HOUSE</span></span>
-        <p>Pramogų erdvė: Pykčio kambarys ir Kirvių mėtymas Šiauliuose.</p>
-      </div>
-      <div class="footer-links">
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROW<span style="color:var(--accent);">HOUSE</span> ŠIAULIAI</p>
+      <div style="margin-bottom: 1.5rem;">
         <a href="#pramogos">Pramogos</a>
         <a href="#kainos">Kainos</a>
         <a href="#duk">D.U.K.</a>
         <a href="#rezervacija">Rezervacija</a>
         <a href="#kontaktai">Kontaktai</a>
       </div>
-      <div class="footer-copy">
-        <p>© 2026 ThrowHouse Šiauliai. Visos teisės saugomos.</p>
-      </div>
+      <p>© 2026 ThrowHouse Šiauliai. Visos teisės saugomos.</p>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    // Mobilus meniu
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('show');
+      });
+      navLinks.querySelectorAll('a').forEach(l => {
+        l.addEventListener('click', () => navLinks.classList.remove('show'));
+      });
+    }
+
+    // DUK Akordeonas
+    function toggleFaq(btn) {
+      const parent = btn.parentElement;
+      const isOpen = parent.classList.contains('open');
+      document.querySelectorAll('.faq-row').forEach(r => r.classList.remove('open'));
+      if (!isOpen) parent.classList.add('open');
+    }
+
+    // Rezervacijos skaičiuoklė
+    function calcTotal() {
+      const act = document.querySelector('input[name="resActivity"]:checked')?.value || 'Pykčio kambarys';
+      const cnt = parseInt(document.getElementById('resCount')?.value || '2', 10);
+      const prcDisplay = document.getElementById('calcPrice');
+      if (!prcDisplay) return;
+
+      let sum = 0;
+      if (act === 'Pykčio kambarys') {
+        if (cnt === 1) sum = 35;
+        else if (cnt === 2) sum = 65;
+        else if (cnt === 3) sum = 90;
+        else if (cnt === 4) sum = 115;
+        else sum = 150;
+      } else if (act === 'Kirvių mėtymas') {
+        sum = cnt >= 6 ? cnt * 18 : cnt * 20;
+      } else {
+        if (cnt === 1) sum = 50;
+        else if (cnt === 2) sum = 90;
+        else if (cnt === 3) sum = 130;
+        else if (cnt === 4) sum = 165;
+        else sum = 220;
+      }
+      prcDisplay.textContent = sum + ' €';
+    }
+
+    function setBookingActivity(name) {
+      const radios = document.querySelectorAll('input[name="resActivity"]');
+      radios.forEach(r => {
+        if (r.value.includes(name)) r.checked = true;
+      });
+      calcTotal();
+    }
+
+    function setBookingPkg(count, actName) {
+      const sel = document.getElementById('resCount');
+      if (sel) sel.value = String(count);
+      setBookingActivity(actName);
+    }
+
+    function submitReservation(e) {
+      e.preventDefault();
+      const form = document.getElementById('resForm');
+      const box = document.getElementById('resSuccess');
+      const sum = document.getElementById('resSummary');
+
+      const name = document.getElementById('resName').value;
+      const phone = document.getElementById('resPhone').value;
+      const email = document.getElementById('resEmail').value;
+      const act = document.querySelector('input[name="resActivity"]:checked').value;
+      const cnt = document.getElementById('resCount').value;
+      const date = document.getElementById('resDate').value;
+      const time = document.getElementById('resTime').value;
+      const prc = document.getElementById('calcPrice').textContent;
+
+      if (form && box && sum) {
+        form.style.display = 'none';
+        box.style.display = 'block';
+        sum.innerHTML = `
+          <p>
+            Ačiū, <strong>${name}</strong>!<br>
+            Pramoga: <strong>${act}</strong> (${cnt} asm.)<br>
+            Data ir laikas: <strong>${date} d., ${time} val.</strong><br>
+            Suma: <strong>${prc}</strong><br><br>
+            <em>Patvirtinimas išsiųstas į <strong>${email}</strong>. Lauksime jūsų Pramonės g. 15, Šiauliai!</em>
+          </p>
+        `;
+      }
+    }
+
+    function newBooking() {
+      const form = document.getElementById('resForm');
+      const box = document.getElementById('resSuccess');
+      if (form && box) {
+        form.reset();
+        form.style.display = 'block';
+        box.style.display = 'none';
+        calcTotal();
+      }
+    }
+
+    // Nustatyti šiandienos datą
+    const dateInput = document.getElementById('resDate');
+    if (dateInput) {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.min = today;
+      dateInput.value = today;
+    }
+    calcTotal();
+  </script>
 </body>
 </html>
