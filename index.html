@@ -1446,7 +1446,7 @@
       <div class="section-head">
         <span class="tag">Dovana su emocijomis</span>
         <h2 class="title">ThrowHouse Dovanų Kuponai</h2>
-        <p class="subtitle">Padovanokite nepamirštamą adrenalino dozę draugui, kolegai ar antrai pusei. Kuponas galioja net 12 mėnesių!</p>
+        <p class="subtitle">Padovanokite nepamirštamą adrenalino dozę draugui, kolegai ar antrai pusei. Kuponas galioja 6 mėnesius!</p>
       </div>
 
       <div class="gift-cards-row">
@@ -1555,9 +1555,17 @@
           <div class="calc-box">
             <div>
               <strong>Kupono vertė apmokėjimui:</strong>
-              <span class="calc-note">Galioja 12 mėn. nuo pirkimo</span>
+              <span class="calc-note">Galioja 6 mėn. nuo pirkimo</span>
             </div>
             <div class="calc-price" id="giftPriceDisplay">25 €</div>
+          </div>
+
+          <!-- SUTIKIMAS SU TAISYKLĖMIS IR PRIVATUMO POLITIKA -->
+          <div class="f-group" style="margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; line-height: 1.5;">
+              <input type="checkbox" id="giftTermsAgree" required style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;">
+              <span>Susipažinau ir sutinku su <a href="taisykles.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Pirkimo–pardavimo taisyklėmis</a> bei <a href="privatumas.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Privatumo politika</a> *</span>
+            </label>
           </div>
 
           <div style="display: flex; gap: 1rem;">
@@ -1749,6 +1757,14 @@
               <div class="calc-price" id="calcPrice">25 €</div>
             </div>
 
+            <!-- SUTIKIMAS SU TAISYKLĖMIS IR PRIVATUMO POLITIKA -->
+            <div class="f-group" style="margin-bottom: 1.25rem;">
+              <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; line-height: 1.5;">
+                <input type="checkbox" id="resTermsAgree" required style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;">
+                <span>Susipažinau ir sutinku su <a href="taisykles.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Pirkimo–pardavimo taisyklėmis</a> bei <a href="privatumas.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Privatumo politika</a> *</span>
+              </label>
+            </div>
+
             <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
               Patvirtinti rezervaciją dabar ➔
             </button>
@@ -1814,7 +1830,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Dovanų kuponą galite įsigyti tiesiogiai internetu (25 €, 40 € arba 50 €). Kuponas su unikaliu kodu (pvz. TH-KUP-1234) iškart atsiunčiamas į el. paštą. Jis <strong>galioja net 12 mėnesių</strong>, o dovanos gavėjas laiką gali patogiai užsirezervuoti mūsų svetainėje.
+            Dovanų kuponą galite įsigyti tiesiogiai internetu (25 €, 40 € arba 50 €). Kuponas su unikaliu kodu (pvz. TH-KUP-1234) iškart atsiunčiamas į el. paštą. Jis <strong>galioja 6 mėnesius</strong>, o dovanos gavėjas laiką gali patogiai užsirezervuoti mūsų svetainėje arba susisiekęs asmeniškai.
           </div>
         </div>
 
@@ -1835,15 +1851,17 @@
   <footer class="footer">
     <div class="container">
       <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROW<span style="color:var(--accent);">HOUSE</span> ŠIAULIAI 🎃</p>
-      <div style="margin-bottom: 1.5rem;">
+      <div style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem;">
         <a href="#pramogos">Pramogos</a>
         <a href="#kainos">Kainos</a>
         <a href="#kuponai">Dovanų kuponai</a>
         <a href="#duk">D.U.K.</a>
         <a href="#rezervacija">Rezervacija</a>
         <a href="kontaktai.html">Kontaktai</a>
+        <a href="taisykles.html" style="color: var(--accent); font-weight: bold;">Taisyklės</a>
+        <a href="privatumas.html" style="color: var(--accent); font-weight: bold;">Privatumo politika</a>
       </div>
-      <p>© 2026 ThrowHouse Šiauliai. Visos teisės saugomos. Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
+      <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
     </div>
   </footer>
 
@@ -1980,6 +1998,13 @@
       const successBox = document.getElementById('giftSuccess');
       const summaryText = document.getElementById('giftSummaryText');
 
+      const termsAgree = document.getElementById('giftTermsAgree');
+      if (!termsAgree || !termsAgree.checked) {
+        alert('Prašome pažymėti varnelę, jog susipažinote ir sutinkate su Pirkimo–pardavimo taisyklėmis bei Privatumo politika.');
+        termsAgree?.focus();
+        return;
+      }
+
       const target = document.querySelector('input[name="giftTarget"]:checked')?.value || 'friend';
       const amount = document.getElementById('giftAmount').value;
       const buyerName = document.getElementById('giftBuyerName').value;
@@ -2026,7 +2051,7 @@
             <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
             <strong>Vertė:</strong> ${amount} €<br>
             <strong>Gavėjas:</strong> ${recipientName} (el. paštas: <strong>${friendEmail}</strong>)<br>
-            <strong>Galiojimas:</strong> 12 mėnesių<br><br>
+            <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
             <span style="color:#4ade80;">✓ Dovanų kuponas su Jūsų palinkėjimu sėkmingai išsiųstas gavėjui <strong>${friendEmail}</strong>!<br>Pirkimo patvirtinimas išsiųstas Jums į <strong>${buyerEmail}</strong>.</span>
           `;
         } else {
@@ -2034,7 +2059,7 @@
             <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
             <strong>Vertė:</strong> ${amount} €<br>
             <strong>Gavėjas:</strong> ${buyerName}<br>
-            <strong>Galiojimas:</strong> 12 mėnesių<br><br>
+            <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
             <span style="color:#4ade80;">✓ Dovanų kuponas sėkmingai sugeneruotas ir išsiųstas į Jūsų el. paštą <strong>${buyerEmail}</strong>!</span>
           `;
         }
@@ -2256,6 +2281,13 @@
       const box = document.getElementById('resSuccess');
       const sum = document.getElementById('resSummary');
       const btn = document.getElementById('submitBtn');
+
+      const termsAgree = document.getElementById('resTermsAgree');
+      if (!termsAgree || !termsAgree.checked) {
+        alert('Prašome pažymėti varnelę, jog susipažinote ir sutinkate su Pirkimo–pardavimo taisyklėmis bei Privatumo politika.');
+        termsAgree?.focus();
+        return;
+      }
 
       const name = document.getElementById('resName').value;
       const phone = document.getElementById('resPhone').value;

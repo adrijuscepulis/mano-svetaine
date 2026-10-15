@@ -33,7 +33,7 @@ if ($giftTarget === 'friend') {
 
 $code = 'TH-KUP-' . rand(1000, 9999);
 $createdDate = date('Y-m-d H:i');
-$expiresAt = date('Y-m-d', strtotime('+12 months'));
+$expiresAt = date('Y-m-d', strtotime('+6 months'));
 
 // Jei perka sau: gavėjas yra pats pirkėjas, sveikinimo nenaudojame
 if ($giftTarget === 'myself') {
@@ -126,7 +126,7 @@ $voucherHtml = '<!DOCTYPE html>
           </tr>' : '') . '
           <tr>
             <td style="text-align: left; padding: 3px 0;">Galioja iki:</td>
-            <td style="text-align: right; font-weight: bold; color: #34d399;">' . $expiresAt . ' (12 mėn.)</td>
+            <td style="text-align: right; font-weight: bold; color: #34d399;">' . $expiresAt . ' (6 mėn.)</td>
           </tr>
         </table>
       </div>
@@ -217,7 +217,7 @@ if ($isFriend) {
               <tr><td style="padding: 6px 0; color: #64748b;">Gavėjo el. paštas:</td><td style="font-weight: bold; color: #2563eb;">' . $targetEmail . '</td></tr>
               <tr><td style="padding: 6px 0; color: #64748b;">Kupono kodas:</td><td style="font-weight: bold; color: #d97706; font-family: monospace;">' . $code . '</td></tr>
               <tr><td style="padding: 6px 0; color: #64748b;">Kupono vertė:</td><td style="font-weight: bold; font-size: 16px; color: #059669;">' . $amount . ' €</td></tr>
-              <tr><td style="padding: 6px 0; color: #64748b;">Galioja iki:</td><td>' . $expiresAt . ' (12 mėn.)</td></tr>
+              <tr><td style="padding: 6px 0; color: #64748b;">Galioja iki:</td><td>' . $expiresAt . ' (6 mėn.)</td></tr>
             </table>
           </div>
 
@@ -316,7 +316,7 @@ $adminHtmlBody = '<!DOCTYPE html>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9;">
           <span style="color: #64748b;">Galiojimo pabaiga:</span>
-          <strong style="color: #059669;">' . $expiresAt . ' (12 mėn.)</strong>
+          <strong style="color: #059669;">' . $expiresAt . ' (6 mėn.)</strong>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 6px 0;">
           <span style="color: #64748b;">Kupono būsena:</span>
@@ -349,7 +349,7 @@ $plainTextAutoresponse = "Sveiki, $targetName!\n\n"
     . "Dovanų kuponas pramogų erdvėje „ThrowHouse Šiauliai“:\n"
     . "• Kodas: $code\n"
     . "• Vertė: $amount €\n"
-    . "• Galioja iki: $expiresAt (12 mėn.)\n\n"
+    . "• Galioja iki: $expiresAt (6 mėn.)\n\n"
     . "📌 KAIP PANAUDOTI:\n"
     . "Dėl kupono panaudojimo ir apsilankymo laiko suderinimo prašome kreiptis asmeniškai:\n"
     . "• Tel.: +370 619 88009\n"

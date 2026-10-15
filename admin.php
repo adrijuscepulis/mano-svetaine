@@ -161,7 +161,7 @@ if (!empty($_SESSION['admin_logged'])) {
             'buyer' => $buyer,
             'recipient' => htmlspecialchars($_POST['recipient'] ?? ''),
             'created_at' => date('Y-m-d H:i'),
-            'expires_at' => date('Y-m-d', strtotime('+12 months')),
+            'expires_at' => date('Y-m-d', strtotime('+6 months')),
             'status' => 'Aktyvus'
         ];
         saveData($kupFile, $coupons);

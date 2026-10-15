@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pirkimo–pardavimo ir paslaugų teikimo taisyklės | ThrowHouse Šiauliai</title>
+  <meta name="description" content="ThrowHouse Šiauliai pirkimo–pardavimo ir saugumo taisyklės. Paslaugų teikėjas MB „Tomadra“. Pramonės g. 15, Šiauliai.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #08050e;
+      --bg-surface: #110b1e;
+      --bg-card: #18102a;
+      --border-color: rgba(255, 106, 0, 0.22);
+      
+      --accent: #ff6a00;
+      --accent-hover: #ff3700;
+      --accent-glow: rgba(255, 106, 0, 0.45);
+      --accent-flame: #ff2a00;
+      --purple-glow: rgba(168, 85, 247, 0.35);
+
+      --text-white: #ffffff;
+      --text-gray: #a3a3bd;
+      --text-muted: #71718c;
+
+      --font-head: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(255, 106, 0, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 90% 65%, rgba(147, 51, 234, 0.08) 0%, transparent 50%);
+      color: var(--text-white);
+      font-family: var(--font-body);
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #cbd5e1; }
+    ol { list-style: decimal; margin-left: 1.5rem; margin-bottom: 1rem; color: #cbd5e1; }
+    li { margin-bottom: 0.4rem; }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* HEADER */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(8, 5, 14, 0.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.9rem 0;
+    }
+
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+
+    .brand-title {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title span { color: var(--accent); }
+    .brand-city {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      color: #c084fc;
+      margin-top: 3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-item {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-gray);
+      transition: color 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active { color: var(--accent); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent) 50%, #ffa500 100%);
+      color: #08050e;
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 106, 0, 0.6);
+      color: #000;
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.6rem;
+      cursor: pointer;
+    }
+
+    /* HERO */
+    .legal-hero {
+      padding: 9.5rem 0 3.5rem 0;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 106, 0, 0.12);
+      border: 1px solid rgba(255, 106, 0, 0.4);
+      color: #fb923c;
+      padding: 0.4rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    .legal-title {
+      font-family: var(--font-head);
+      font-size: 2.75rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .legal-title span {
+      background: linear-gradient(135deg, #ff3b00 0%, #ff7518 40%, #ffb703 80%, #ff3b00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 18px rgba(255, 106, 0, 0.4));
+    }
+
+    .legal-meta {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+    }
+
+    /* LEGAL CONTENT */
+    .legal-content {
+      padding: 4.5rem 0;
+    }
+
+    .legal-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .legal-box h2 {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 106, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legal-box h2:first-of-type {
+      margin-top: 0;
+    }
+
+    .legal-box p {
+      color: #cbd5e1;
+      margin-bottom: 1.25rem;
+      font-size: 0.975rem;
+    }
+
+    .provider-card {
+      background: #08050e;
+      border: 1px solid rgba(255, 106, 0, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .provider-card table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .provider-card td {
+      padding: 0.4rem 0;
+      color: #cbd5e1;
+    }
+
+    .provider-card td:first-child {
+      color: var(--text-gray);
+      width: 220px;
+      font-weight: 600;
+    }
+
+    .provider-card td strong {
+      color: #ffffff;
+    }
+
+    .highlight-card {
+      background: rgba(255, 106, 0, 0.08);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-card strong {
+      color: #ffaa00;
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 1rem;
+    }
+
+    .highlight-card p {
+      margin-bottom: 0;
+      color: #f1f5f9;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 3.5rem 0 2rem 0;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer a { color: var(--text-gray); margin: 0 0.75rem; }
+    .footer a:hover { color: var(--accent); }
+
+    /* FIKSUOTAS SKAMBUČIO MYGTUKAS */
+    .floating-call-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 9998;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff3b00 0%, #ff7518 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(255, 106, 0, 0.55), 0 0 20px rgba(255, 59, 0, 0.4);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+    }
+
+    .floating-call-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 35px rgba(255, 106, 0, 0.7), 0 0 30px rgba(255, 59, 0, 0.6);
+      color: #fff;
+    }
+
+    .call-pulse-ring {
+      position: absolute;
+      inset: -5px;
+      border-radius: 50%;
+      border: 2px solid #ff7518;
+      opacity: 0.8;
+      animation: sonarPulse 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      pointer-events: none;
+    }
+
+    .call-pulse-ring.delay { animation-delay: 1.1s; }
+
+    @keyframes sonarPulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { opacity: 0.4; }
+      100% { transform: scale(1.65); opacity: 0; }
+    }
+
+    .floating-call-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2.3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 768px) {
+      .legal-box { padding: 1.75rem; }
+      .legal-title { font-size: 2rem; }
+      .provider-card td:first-child { width: 140px; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(8, 5, 14, 0.98);
+        flex-direction: column;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .nav-links.show { display: flex; }
+      .nav-toggle { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container nav-bar">
+      <a href="index.html" class="brand">
+        <div class="brand-title">THROW<span>HOUSE</span> 🎃</div>
+        <div class="brand-city">ŠIAULIAI</div>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html#pramogos" class="nav-item">Pramogos</a>
+        <a href="index.html#kainos" class="nav-item">Kainos</a>
+        <a href="index.html#kuponai" class="nav-item">🎁 Dovanų kuponai</a>
+        <a href="index.html#duk" class="nav-item">D.U.K.</a>
+        <a href="kontaktai.html" class="nav-item">Kontaktai</a>
+        <a href="index.html#rezervacija" class="btn btn-primary">Rezervuoti laiką</a>
+      </nav>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Meniu">☰</button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="legal-hero">
+    <div class="container">
+      <div class="hero-badge">
+        ⚖️ Teisinė informacija ir taisyklės
+      </div>
+      <h1 class="legal-title">
+        PIRKIMO–PARDAVIMO IR <span>PASLAUGŲ TEIKIMO TAISYKLĖS</span>
+      </h1>
+      <p class="legal-meta">
+        Galioja nuo 2026 m. spalio mėn. | MB „Tomadra“ (ThrowHouse Šiauliai)
+      </p>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <section class="legal-content">
+    <div class="container">
+      <div class="legal-box">
+
+        <h2>1. Bendrosios nuostatos ir Paslaugų teikėjas</h2>
+        <p>
+          Šios Pirkimo–pardavimo ir paslaugų teikimo taisyklės (toliau – <strong>Taisyklės</strong>) nustato bendrąsias naudojimosi pramogų erdvės „ThrowHouse Šiauliai“ interneto svetaine, paslaugų rezervavimo, dovanų kuponų pirkimo bei dalyvavimo pramogose sąlygas ir tvarką.
+        </p>
+        <p>
+          Pramogų erdvės valdytojas ir paslaugų teikėjas yra:
+        </p>
+
+        <div class="provider-card">
+          <table>
+            <tr>
+              <td>Paslaugų teikėjas:</td>
+              <td><strong>MB „Tomadra“</strong></td>
+            </tr>
+            <tr>
+              <td>Įmonės kodas:</td>
+              <td><strong>307625192</strong></td>
+            </tr>
+            <tr>
+              <td>PVM kodas:</td>
+              <td><strong>Ne PVM mokėtojas</strong></td>
+            </tr>
+            <tr>
+              <td>Registruotas adresas:</td>
+              <td><strong>Architektų g. 32-18, Šiauliai, Lietuva</strong></td>
+            </tr>
+            <tr>
+              <td>Veiklos vykdymo vieta:</td>
+              <td><strong>Pramonės g. 15 (2-as aukštas), Šiauliai</strong></td>
+            </tr>
+            <tr>
+              <td>El. paštas:</td>
+              <td><a href="mailto:throwhousee@gmail.com" style="color:var(--accent);">throwhousee@gmail.com</a></td>
+            </tr>
+            <tr>
+              <td>Telefonas:</td>
+              <td><a href="tel:+37061988009" style="color:var(--accent);">+370 619 88009</a></td>
+            </tr>
+          </table>
+        </div>
+
+        <p>
+          Klientas, atlikdamas rezervaciją internetu arba įsigydamas dovanų kuponą ir pažymėdamas varnelę „Susipažinau ir sutinku su taisyklėmis“, patvirtina, kad yra pilnai susipažinęs su šiomis Taisyklėmis, su jomis sutinka ir įsipareigoja jų besąlygiškai laikytis.
+        </p>
+
+        <h2>2. Teikiamos paslaugos</h2>
+        <p>Paslaugų teikėjas organizuoja aktyvias pramogas ir emocijų iškrovos sesijas:</p>
+        <ul>
+          <li><strong>Kirvių mėtymas (Axe Throwing):</strong> specialiai įrengti taikiniai, profesionalūs kirviai, instruktažas ir saugumo priežiūra.</li>
+          <li><strong>Pykčio kambarys (Smash Room):</strong> apsaugota erdvė stiklinių indų ir daiktų daužymui su apsaugine ekipuote (30 indų įskaičiuota į bazinę sesiją).</li>
+          <li><strong>KOMBO paketas:</strong> nuosekli sesija, apimanti abi pramogas vieno apsilankymo metu (1 val. kirvių mėtymas + 1 val. pykčio kambarys).</li>
+          <li><strong>Privatūs renginiai ir šventės:</strong> gimtadieniai, bernvakariai, mergvakariai, įmonių komandos formavimo (teambuilding) renginiai.</li>
+        </ul>
+
+        <h2>3. Amžiaus cenzas ir nepilnamečių dalyvavimas</h2>
+        <div class="highlight-card">
+          <strong>⚠️ Svarbus amžiaus apribojimas:</strong>
+          <p>
+            Savarankiškai paslaugomis gali naudotis asmenys nuo <strong>16 metų</strong>.<br>
+            Asmenys nuo <strong>14 iki 15 metų</strong> įleidžiami tik pateikę raštišką tėvų ar teisėtų globėjų sutikimą arba kartu dalyvaujant pilnamečiui lydinčiam asmeniui.<br>
+            Vaikams iki <strong>14 metų</strong> dalyvauti kirvių mėtyme ir pykčio kambaryje yra griežtai draudžiama saugumo sumetimais.
+          </p>
+        </div>
+
+        <h2>4. Saugumo reikalavimai ir elgesio taisyklės</h2>
+        <p>
+          Kadangi teikiamos paslaugos yra susijusios su padidinto aktyvumo fizine veikla, smūgiais ir aštriais daiktais, kiekvienas dalyvis privalo griežtai laikytis šių reikalavimų:
+        </p>
+        <ol>
+          <li>
+            <strong>Privaloma uždara avalynė:</strong> Į patalpas dalyvauti pramogose įleidžiami tik asmenys su tvirta, pilnai uždara avalyne (sportbačiai, auliniai batai). Su atvira avalyne (basutėmis, šlepetėmis, sandalais ar aukštakulniais) dalyvauti <strong>griežtai draudžiama</strong>.
+          </li>
+          <li>
+            <strong>Apsauginė ekipuotė:</strong> Prieš pradedant pykčio kambario sesiją, privaloma dėvėti visą Paslaugų teikėjo išduotą apsaugą: apsauginį kombinezoną, šalmą su veido skydeliu ar apsauginius akinius bei pirštines. Nusiimti apsaugos priemones patalpoje draudžiama.
+          </li>
+          <li>
+            <strong>Griežtas blaivumo reikalavimas:</strong> Asmenims, apsvaigusiems nuo alkoholio, narkotinių, psichotropinių ar kitų svaigiųjų medžiagų, naudotis paslaugomis yra <strong>kategoriškai draudžiama</strong>. Instruktorius turi teisę atsisakyti įleisti arba nedelsiant pašalinti įtartiną asmenį be jokio pinigų ar avanso grąžinimo.
+          </li>
+          <li>
+            <strong>Saugumo instruktažas:</strong> Prieš kiekvieną sesiją dalyviai privalo išklausyti instruktoriaus vedamą instruktažą ir pasirašyti saugos žurnale. Instruktoriaus nurodymai yra privalomi visos sesijos metu.
+          </li>
+          <li>
+            <strong>Draudžiami veiksmai:</strong> Draudžiama mesti kirvius ne į jiems skirtus medinius taikinius, mėtyti kirvius vienu metu keliems asmenims viename takelyje, nukreipti įrankius į žmones ar tyčia gadinti patalpų konstrukcijas.
+          </li>
+        </ol>
+
+        <h2>5. Rezervacija ir apmokėjimas</h2>
+        <ul>
+          <li>Rezervacija atliekama interneto svetainėje pasirinkus norimą pramogą, datą, laiką bei nurodžius kontaktinius duomenis.</li>
+          <li>Vienos sesijos trukmė – 1 valanda (KOMBO sesijai – 2 valandos). Vienoje standartinėje rezervacijoje gali dalyvauti iki 4 asmenų.</li>
+          <li>Apmokėjimas atliekamas el. bankininkyste / kortele internetu arba atvykus vietoje (grynaisiais / banko kortele / pavedimu).</li>
+          <li>Atlikus rezervaciją, į kliento el. paštą automatiškai išsiunčiamas patvirtinimo laiškas su rezervacijos kodu bei tikslia atvykimo instrukcija.</li>
+        </ul>
+
+        <h2>6. Rezervacijos keitimas, atšaukimas ir neatvykimas</h2>
+        <div class="highlight-card">
+          <strong>🕒 24 valandų taisyklė:</strong>
+          <p>
+            Nemokamai perkelti rezervacijos laiką į kitą datą arba atšaukti rezervaciją galima <strong>likus ne mažiau kaip 24 valandoms</strong> iki suderintos sesijos pradžios, susisiekus telefonu +370 619 88009 arba el. paštu throwhousee@gmail.com.<br><br>
+            Jeigu apie atšaukimą ar laiko keitimą pranešama <strong>likus mažiau nei 24 valandoms</strong> arba klientas <strong>neatvyksta</strong> nustatytu laiku, sumokėtas avansas / paslaugos kaina <strong>nėra grąžinama</strong>, kadangi laikas buvo rezervuotas ir personalas bei patalpos buvo paruoštos.
+          </p>
+        </div>
+
+        <h2>7. Dovanų kuponų taisyklės</h2>
+        <ul>
+          <li>Dovanų kuponai galioja <strong>6 (šešis) mėnesius</strong> nuo jų įsigijimo dienos.</li>
+          <li>Kupono galiojimo data yra nurodoma ant paties kupono bei pirkimo patvirtinimo el. laiške.</li>
+          <li>Pasibaigus 6 mėnesių galiojimo terminui, kupono galiojimas baigiasi, paslaugos neteikiamos ir sumokėti pinigai nėra grąžinami.</li>
+          <li>Dovanų kuponas į grynuosius pinigus nekeičiamas ir negali būti grąžintas (išskyrus teisės aktų nustatytą vartotojo teisę atsisakyti nuotolinės sutarties per 14 dienų nuo pirkimo, jei kuponas nebuvo panaudotas).</li>
+          <li>Dėl dovanų kupono panaudojimo ir konkretaus laiko rezervavimo būtina kreiptis asmeniškai iš anksto telefonu arba el. paštu, nurodant unikalų kupono kodą.</li>
+        </ul>
+
+        <h2>8. Šalių atsakomybė ir žalos atlyginimas</h2>
+        <ul>
+          <li>Klientas prisiima visą asmeninę atsakomybę už savo sveikatos būklę ir galimas pasekmes, kilusias dėl Taisyklių ar instruktoriaus saugumo nurodymų nesilaikymo.</li>
+          <li>Už nepilnamečių asmenų elgesį ir saugumą atsako jų tėvai, teisėti globėjai arba juos lydintys pilnamečiai asmenys.</li>
+          <li>Klientas įsipareigoja atlyginti tiesioginius nuostolius, jei tyčiniais ar chuliganiškais veiksmais apgadino ar sunaikino Paslaugų teikėjo inventorių ar patalpas (už pykčio kambaryje leistinų indų daužymą atskiras mokestis nėra taikomas, tai įskaičiuota į paslaugą).</li>
+        </ul>
+
+        <h2>9. Baigiamosios nuostatos</h2>
+        <p>
+          Šioms Taisyklėms taikoma Lietuvos Respublikos teisė. Visi nesutarimai sprendžiami geranoriškomis derybomis. Nepavykus susitarti, vartotojas turi teisę kreiptis į Valstybinę vartotojų teisių apsaugos tarnybą (Vilniaus g. 25, 01402 Vilnius, el. p. tarnyba@vvtat.lt, interneto svetainė <a href="https://vvtat.lrv.lt" target="_blank" rel="noopener" style="color:var(--accent);">vvtat.lrv.lt</a>) arba užpildyti prašymo formą EGS platformoje <a href="https://ec.europa.eu/odr" target="_blank" rel="noopener" style="color:var(--accent);">ec.europa.eu/odr</a>.
+        </p>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROW<span style="color:var(--accent);">HOUSE</span> ŠIAULIAI 🎃</p>
+      <div style="margin-bottom: 1.5rem;">
+        <a href="index.html#pramogos">Pramogos</a>
+        <a href="index.html#kainos">Kainos</a>
+        <a href="index.html#kuponai">Dovanų kuponai</a>
+        <a href="index.html#duk">D.U.K.</a>
+        <a href="index.html#rezervacija">Rezervacija</a>
+        <a href="kontaktai.html">Kontaktai</a>
+        <a href="taisykles.html" style="color: var(--accent); font-weight: bold;">Taisyklės</a>
+        <a href="privatumas.html">Privatumo politika</a>
+      </div>
+      <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
+    </div>
+  </footer>
+
+  <!-- FIKSUOTAS SKAMBUČIO MYGTUKAS -->
+  <a href="tel:+37061988009" class="floating-call-btn" id="floatingCallBtn" aria-label="Skambinti dabar">
+    <span class="call-pulse-ring"></span>
+    <span class="call-pulse-ring delay"></span>
+    <svg viewBox="0 0 24 24">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </a>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => { navLinks.classList.toggle('show'); });
+      navLinks.querySelectorAll('a').forEach(l => {
+        l.addEventListener('click', () => navLinks.classList.remove('show'));
+      });
+    }
+  </script>
+</body>
+</html>
