@@ -372,78 +372,41 @@ $formSubmitData = [
     '_subject' => "Naujas dovanų kuponas [$code] - $amount € ($targetLabel)",
     '_template' => "table",
     '_autoresponse' => $plainTextAutoresponse
-];
-
-$ch = curl_init("https://formsubmit.co/ajax/throwhousee@gmail.com");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($formSubmitData));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Accept: application/json',
-    'Origin: https://violet-dove-675017.hostingersite.com',
-    'Referer: https://violet-dove-675017.hostingersite.com/'
-]);
-curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-curl_setopt($ch, CURLOPT_TIMEOUT, 8);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-$fsResp = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
 // =============================================================
-// 5. Tiesioginis serverio PHP mail() su anti-spam RFC antraštėmis
+// 4. Siuntimas per serverio PHP mail()
 // =============================================================
-$serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
-$fromEmail = "noreply@" . $serverHost;
-$dateHeader = date('r');
-
-// 1) Siunčiame administratoriui
-$adminMsgId = "<th-kup-adm-" . $code . "-" . time() . "@" . $serverHost . ">";
-$headersAdmin = "MIME-Version: 1.0\r\n"
-    . "Date: $dateHeader\r\n"
-    . "Message-ID: $adminMsgId\r\n"
-    . "From: ThrowHouse Kuponai <$fromEmail>\r\n"
-    . "Reply-To: $buyerEmail\r\n"
-    . "Auto-Submitted: auto-generated\r\n"
-    . "X-Mailer: ThrowHouse Engine\r\n"
+$fromSender = "ThrowHouse Šiauliai <throwhousee@gmail.com>";
+$headersCommon = "MIME-Version: 1.0\r\n"
     . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n";
+    . "Content-Transfer-Encoding: 8bit\r\n"
+    . "X-Mailer: PHP/" . phpversion() . "\r\n";
 
-@mail("throwhousee@gmail.com", $subAdmin, $adminHtmlBody, $headersAdmin, "-f" . $fromEmail);
+// 1) Siunčiame administratoriui reprezentatyvų HTML laišką
+$headersAdmin = $headersCommon
+    . "From: ThrowHouse Kuponai <throwhousee@gmail.com>\r\n"
+    . "Reply-To: $buyerEmail\r\n";
 
-// 2) Siunčiame kuponą gavėjui (draugui arba pirkėjui, jei pirko sau)
-$voucherMsgId = "<th-kup-vch-" . $code . "-" . time() . "@" . $serverHost . ">";
-$headersVoucher = "MIME-Version: 1.0\r\n"
-    . "Date: $dateHeader\r\n"
-    . "Message-ID: $voucherMsgId\r\n"
-    . "From: ThrowHouse Šiauliai <$fromEmail>\r\n"
-    . "Reply-To: throwhousee@gmail.com\r\n"
-    . "Auto-Submitted: auto-generated\r\n"
-    . "X-Mailer: ThrowHouse Engine\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n";
+$adminSent = @mail("throwhousee@gmail.com", $subAdmin, $adminHtmlBody, $headersAdmin);
 
-@mail($targetEmail, $subVoucher, $voucherHtml, $headersVoucher, "-f" . $fromEmail);
+// 2) Siunčiame reprezentatyvų kuponą gavėjui (draugui arba pirkėjui, jei pirko sau)
+$headersVoucher = $headersCommon
+    . "From: $fromSender\r\n"
+    . "Reply-To: throwhousee@gmail.com\r\n";
+
+$voucherSent = @mail($targetEmail, $subVoucher, $voucherHtml, $headersVoucher);
 
 // 3) Jei siųsta draugui – papildomai išsiunčiame pirkimo patvirtinimą pirkėjui
+$receiptSent = false;
 if ($isFriend && $buyerReceiptHtml && $buyerEmail !== $targetEmail) {
-    $receiptMsgId = "<th-kup-rcp-" . $code . "-" . time() . "@" . $serverHost . ">";
-    $headersReceipt = "MIME-Version: 1.0\r\n"
-        . "Date: $dateHeader\r\n"
-        . "Message-ID: $receiptMsgId\r\n"
-        . "From: ThrowHouse Šiauliai <$fromEmail>\r\n"
-        . "Reply-To: throwhousee@gmail.com\r\n"
-        . "Auto-Submitted: auto-generated\r\n"
-        . "X-Mailer: ThrowHouse Engine\r\n"
-        . "Content-Type: text/html; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: 8bit\r\n";
+    $headersReceipt = $headersCommon
+        . "From: $fromSender\r\n"
+        . "Reply-To: throwhousee@gmail.com\r\n";
 
-    @mail($buyerEmail, $subBuyerReceipt, $buyerReceiptHtml, $headersReceipt, "-f" . $fromEmail);
+    $receiptSent = @mail($buyerEmail, $subBuyerReceipt, $buyerReceiptHtml, $headersReceipt);
 }
 
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | Kuponas: $code | $amount € | Tipas: $targetLabel | Pirkejas: $buyerName ($buyerEmail) | Gavejas: $targetName ($targetEmail) | FS: $httpCode\n";
+$logEntry = date('Y-m-d H:i:s') . " | Kuponas: $code | $amount € | Tipas: $targetLabel | Pirkejas: $buyerName ($buyerEmail) | Gavejas: $targetName ($targetEmail) | Admin: " . ($adminSent ? 'OK' : 'FAIL') . " | Client: " . ($voucherSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/kuponas_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([

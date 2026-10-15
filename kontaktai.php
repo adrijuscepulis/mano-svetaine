@@ -106,54 +106,22 @@ $adminHtmlBody = '<!DOCTYPE html>
 </html>';
 
 // =============================================================
-// 2. Siuntimas per FormSubmit (atsarginis patikimas kanalas)
+// 2. Tiesioginis serverio PHP mail()
 // =============================================================
-$formSubmitData = [
-    'Užklausos_tema' => $subject,
-    'Kliento_Vardas' => $name,
-    'Telefono_numeris' => $phone,
-    'email' => $email,
-    '_replyto' => $email,
-    'Žinutė' => $message,
-    'Data_Laikas' => $createdDate,
-    '_subject' => "Nauja kontaktų formos užklausa [$subject] - $name",
-    '_template' => "table"
-];
-
-$ch = curl_init("https://formsubmit.co/ajax/throwhousee@gmail.com");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($formSubmitData));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Accept: application/json',
-    'Origin: https://violet-dove-675017.hostingersite.com',
-    'Referer: https://violet-dove-675017.hostingersite.com/'
-]);
-curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-curl_setopt($ch, CURLOPT_TIMEOUT, 8);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-$fsResp = curl_exec($ch);
-curl_close($ch);
-
-// =============================================================
-// 3. Tiesioginis serverio PHP mail() administratoriui
-// =============================================================
-$adminMsgId = "<th-contact-" . time() . "-" . rand(100, 999) . "@" . $serverHost . ">";
-$headersAdmin = "MIME-Version: 1.0\r\n"
-    . "Date: $dateHeader\r\n"
-    . "Message-ID: $adminMsgId\r\n"
-    . "From: ThrowHouse Kontaktai <$fromEmail>\r\n"
-    . "Reply-To: $name <$email>\r\n"
-    . "Auto-Submitted: auto-generated\r\n"
-    . "X-Mailer: ThrowHouse Contact Engine\r\n"
+$headersCommon = "MIME-Version: 1.0\r\n"
     . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n";
+    . "Content-Transfer-Encoding: 8bit\r\n"
+    . "X-Mailer: PHP/" . phpversion() . "\r\n";
 
-@mail("throwhousee@gmail.com", $emailSubject, $adminHtmlBody, $headersAdmin, "-f" . $fromEmail);
+// 1) Siunčiame administratoriui
+$headersAdmin = $headersCommon
+    . "From: ThrowHouse Kontaktai <throwhousee@gmail.com>\r\n"
+    . "Reply-To: $name <$email>\r\n";
+
+$adminSent = @mail("throwhousee@gmail.com", $emailSubject, $adminHtmlBody, $headersAdmin);
 
 // =============================================================
-// 4. Patvirtinimo laiškas klientui
+// 3. Patvirtinimo laiškas klientui
 // =============================================================
 $clientSub = "=?UTF-8?B?" . base64_encode("Gavome Jūsų užklausą – ThrowHouse Šiauliai") . "?=";
 $clientHtml = '<!DOCTYPE html>
@@ -186,21 +154,14 @@ $clientHtml = '<!DOCTYPE html>
 </body>
 </html>';
 
-$clientMsgId = "<th-contact-reply-" . time() . "-" . rand(100, 999) . "@" . $serverHost . ">";
-$headersClient = "MIME-Version: 1.0\r\n"
-    . "Date: $dateHeader\r\n"
-    . "Message-ID: $clientMsgId\r\n"
-    . "From: ThrowHouse Šiauliai <$fromEmail>\r\n"
-    . "Reply-To: throwhousee@gmail.com\r\n"
-    . "Auto-Submitted: auto-generated\r\n"
-    . "X-Mailer: ThrowHouse Contact Engine\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n";
+$headersClient = $headersCommon
+    . "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
+    . "Reply-To: throwhousee@gmail.com\r\n";
 
-@mail($email, $clientSub, $clientHtml, $headersClient, "-f" . $fromEmail);
+$clientSent = @mail($email, $clientSub, $clientHtml, $headersClient);
 
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | Kontaktai: $subject | $name ($email, $phone)\n";
+$logEntry = date('Y-m-d H:i:s') . " | Kontaktai: $subject | $name ($email, $phone) | Admin: " . ($adminSent ? 'OK' : 'FAIL') . " | Client: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/kontaktai_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([

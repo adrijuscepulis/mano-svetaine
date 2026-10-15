@@ -434,82 +434,32 @@ $adminHtmlBody = '<!DOCTYPE html>
 </html>';
 
 // -------------------------------------------------------------
-// 7. Siuntimas administratoriui per FormSubmit (atsarginis kanalas)
+// 7. Tiesioginis serverio PHP mail()
 // -------------------------------------------------------------
-$formSubmitData = [
-    'Užsakymo_ID' => $reservationId,
-    'Kliento_Vardas' => $name,
-    'Telefono_numeris' => $phone,
-    'Kliento_El_pastas' => $email,
-    'email' => $email,
-    '_replyto' => $email,
-    'Pramoga' => $activity . ($lane ? " ($lane)" : ""),
-    'Dalyviai' => $count . " asm.",
-    'Data' => $date,
-    'Laikas' => $time . " val.",
-    'Moketina_suma' => $price . " (mokama vietoje)",
-    '_subject' => "Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
-    '_template' => "table",
-    '_autoresponse' => $clientTextBody
-];
-
-$ch = curl_init("https://formsubmit.co/ajax/throwhousee@gmail.com");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($formSubmitData));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Accept: application/json',
-    'Origin: https://violet-dove-675017.hostingersite.com',
-    'Referer: https://violet-dove-675017.hostingersite.com/'
-]);
-curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-curl_setopt($ch, CURLOPT_TIMEOUT, 8);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-$fsResp = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-// -------------------------------------------------------------
-// 8. Tiesioginis serverio PHP mail() su anti-spam antraštėmis
-// -------------------------------------------------------------
-$serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
-$fromEmail = "noreply@" . $serverHost;
-$dateHeader = date('r');
-$adminMsgId = "<th-admin-" . $reservationId . "-" . time() . "@" . $serverHost . ">";
-$clientMsgId = "<th-client-" . $reservationId . "-" . time() . "@" . $serverHost . ">";
-
 $subAdmin = "=?UTF-8?B?" . base64_encode("Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)") . "?=";
 $subClient = "=?UTF-8?B?" . base64_encode("Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]") . "?=";
 
-// Administratoriaus HTML laiškas
-$headersAdminHtml = "MIME-Version: 1.0\r\n"
-    . "Date: $dateHeader\r\n"
-    . "Message-ID: $adminMsgId\r\n"
-    . "From: ThrowHouse Sistema <$fromEmail>\r\n"
-    . "Reply-To: $email\r\n"
-    . "Auto-Submitted: auto-generated\r\n"
-    . "X-Mailer: ThrowHouse Engine\r\n"
+$headersCommon = "MIME-Version: 1.0\r\n"
     . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n";
+    . "Content-Transfer-Encoding: 8bit\r\n"
+    . "X-Mailer: PHP/" . phpversion() . "\r\n";
 
-@mail("throwhousee@gmail.com", $subAdmin, $adminHtmlBody, $headersAdminHtml, "-f" . $fromEmail);
+// Administratoriaus reprezentatyvus HTML laiškas
+$headersAdminHtml = $headersCommon
+    . "From: ThrowHouse Rezervacijos <throwhousee@gmail.com>\r\n"
+    . "Reply-To: $email\r\n";
 
-// Kliento HTML laiškas
-$headersClientHtml = "MIME-Version: 1.0\r\n"
-    . "Date: $dateHeader\r\n"
-    . "Message-ID: $clientMsgId\r\n"
-    . "From: ThrowHouse Šiauliai <$fromEmail>\r\n"
-    . "Reply-To: throwhousee@gmail.com\r\n"
-    . "Auto-Submitted: auto-generated\r\n"
-    . "X-Mailer: ThrowHouse Engine\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n";
+$adminSent = @mail("throwhousee@gmail.com", $subAdmin, $adminHtmlBody, $headersAdminHtml);
 
-@mail($email, $subClient, $clientHtmlBody, $headersClientHtml, "-f" . $fromEmail);
+// Kliento reprezentatyvus HTML laiškas su atvykimo instrukcija ir 24h taisykle
+$headersClientHtml = $headersCommon
+    . "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
+    . "Reply-To: throwhousee@gmail.com\r\n";
+
+$clientSent = @mail($email, $subClient, $clientHtmlBody, $headersClientHtml);
 
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data: $isoDate $time | FS_Code: $httpCode | FS_Resp: $fsResp\n";
+$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data: $isoDate $time | Admin: " . ($adminSent ? 'OK' : 'FAIL') . " | Client: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/rezervacija_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([

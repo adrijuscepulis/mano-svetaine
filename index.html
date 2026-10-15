@@ -851,122 +851,7 @@
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
-    }
-
-    /* APATINĖ KONTAKTŲ IR TEISINĖS INFORMACIJOS SKILTIS */
-    .footer-info-section {
-      border-top: 1px solid var(--border-color);
-      background: linear-gradient(180deg, rgba(8, 5, 14, 0.6) 0%, rgba(20, 10, 30, 0.95) 100%);
-      padding: 4.5rem 0 3.5rem 0;
-      position: relative;
-    }
-
-    .footer-info-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.75rem;
-      margin-top: 2rem;
-    }
-
-    @media (max-width: 992px) {
-      .footer-info-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-    }
-
-    .footer-card {
-      background: rgba(18, 12, 28, 0.75);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 1.75rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      transition: all 0.2s ease;
-    }
-
-    .footer-card:hover {
-      border-color: rgba(255, 106, 0, 0.45);
-      transform: translateY(-3px);
-      box-shadow: 0 14px 35px rgba(255, 106, 0, 0.15);
-    }
-
-    .footer-card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      margin-bottom: 1.25rem;
-      padding-bottom: 0.85rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .footer-card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: rgba(255, 106, 0, 0.15);
-      border: 1px solid rgba(255, 106, 0, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.35rem;
-      color: var(--accent);
-      flex-shrink: 0;
-    }
-
-    .footer-card-title {
-      font-family: var(--font-head);
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #fff;
-      margin: 0;
-    }
-
-    .footer-card-body {
-      font-size: 0.95rem;
-      color: var(--text-gray);
-      line-height: 1.6;
-      flex: 1;
-    }
-
-    .footer-legal-link {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-md);
-      padding: 0.9rem 1.1rem;
-      color: #fff;
-      text-decoration: none;
-      margin-bottom: 0.75rem;
-      transition: all 0.2s ease;
-    }
-
-    .footer-legal-link:hover {
-      background: rgba(255, 106, 0, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: translateX(4px);
-    }
-
-    .footer-legal-link strong {
-      display: block;
-      color: #fff;
-      font-size: 0.95rem;
-      margin-bottom: 0.2rem;
-    }
-
-    .footer-legal-link:hover strong {
-      color: var(--accent);
-    }
-
-    .footer-legal-link small {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
+    .map-actions .btn { flex: 1; }
 
     /* FOOTER */
     .footer {
@@ -1326,7 +1211,7 @@
         <a href="#kainos" class="nav-item">Kainos</a>
         <a href="#kuponai" class="nav-item">🎁 Dovanų kuponai</a>
         <a href="#duk" class="nav-item">D.U.K.</a>
-        <a href="#kontaktai-info" class="nav-item">Kontaktai</a>
+        <a href="kontaktai.html" class="nav-item">Kontaktai</a>
         <a href="taisykles.html" class="nav-item">Taisyklės</a>
         <a href="#rezervacija" class="btn btn-primary nav-btn">Rezervuoti laiką</a>
       </nav>
@@ -1961,142 +1846,6 @@
     </div>
   </section>
 
-  <!-- APATINĖ KONTAKTŲ IR TEISINĖS INFORMACIJOS SKILTIS -->
-  <section class="footer-info-section" id="kontaktai-info">
-    <div class="container">
-      <div class="section-header" style="margin-bottom: 2rem;">
-        <div class="badge">📍 SUSISIEKITE & INFORMACIJA</div>
-        <h2 class="section-title">Kontaktai ir Taisyklės</h2>
-        <p class="section-lead">Turite klausimų ar norite pasikonsultuoti? Susisiekite tiesiogiai arba susipažinkite su erdvės taisyklėmis.</p>
-      </div>
-
-      <div class="footer-info-grid">
-        <!-- 1 KORTELĖ: GREITASIS SUSISIEKIMAS -->
-        <div class="footer-card">
-          <div>
-            <div class="footer-card-header">
-              <div class="footer-card-icon">📞</div>
-              <div>
-                <h3 class="footer-card-title">Greitasis ryšys</h3>
-                <small style="color: var(--text-muted);">Skambutis arba el. paštas</small>
-              </div>
-            </div>
-            <div class="footer-card-body">
-              <p style="margin-bottom: 0.85rem;">
-                Reikia skubaus atsakymo ar norite suderinti naktinį apsilankymo laiką? Skambinkite tiesiogiai:
-              </p>
-              
-              <!-- SKAMBUČIO MYGTUKAS -->
-              <a href="tel:+37061988009" class="btn btn-primary btn-block" style="margin-bottom: 0.85rem; font-size: 1rem;">
-                📞 +370 619 88009 (Skambinti)
-              </a>
-
-              <p style="margin-bottom: 0.5rem; margin-top: 1.25rem;">
-                Rašykite užklausą el. paštu:
-              </p>
-
-              <!-- EL. PAŠTO MYGTUKAS (Mailto) -->
-              <a href="mailto:throwhousesiauliai@gmail.com" class="btn btn-secondary btn-block" style="margin-bottom: 0.5rem; font-size: 0.95rem;">
-                ✉️ throwhousesiauliai@gmail.com
-              </a>
-
-              <!-- Tiesioginis Gmail mygtukas -->
-              <div style="text-align: center; margin-top: 0.4rem;">
-                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=throwhousesiauliai@gmail.com" target="_blank" rel="noopener" style="font-size: 0.85rem; color: #ffaa00; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.3rem;">
-                  🌐 Atidaryti tiesiai per „Gmail“ naršyklėje ➔
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); text-align: center;">
-            <a href="kontaktai.html" style="font-size: 0.9rem; color: var(--accent); font-weight: 600;">
-              Norite parašyti žinutę svetainėje? Pildyti formą ➔
-            </a>
-          </div>
-        </div>
-
-        <!-- 2 KORTELĖ: LOKACIJA IR DARBO LAIKAS -->
-        <div class="footer-card">
-          <div>
-            <div class="footer-card-header">
-              <div class="footer-card-icon">📍</div>
-              <div>
-                <h3 class="footer-card-title">Vieta ir laikas</h3>
-                <small style="color: var(--text-muted);">Kur mus rasti Šiauliuose</small>
-              </div>
-            </div>
-            <div class="footer-card-body">
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #fff; display: block; margin-bottom: 0.25rem;">Adresas:</strong>
-                <span style="color: var(--text-gray);">Pramonės g. 15 (2-as aukštas), Šiauliai</span>
-              </div>
-
-              <a href="https://maps.google.com/?q=Pramon%C4%97s+g.+15,+%C5%A0iauliai" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-bottom: 1.25rem; font-size: 0.95rem;">
-                🗺️ Rodyti „Google Maps“ žemėlapyje
-              </a>
-
-              <div>
-                <strong style="color: #fff; display: block; margin-bottom: 0.35rem;">Darbo laikas:</strong>
-                <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; color: var(--text-gray); line-height: 1.7;">
-                  <li>🗓️ <strong>I – V:</strong> 15:00 – 22:00</li>
-                  <li>🗓️ <strong>VI – VII:</strong> 12:00 – 23:00</li>
-                  <li style="color: var(--accent); font-weight: 700;">🎃 <strong>Spalio 30 & 31 d.:</strong> DIRBAME VISĄ PARĄ (24/7)!</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; color: var(--text-muted);">
-            Nemokama automobilių stovėjimo aikštelė prie pastato.
-          </div>
-        </div>
-
-        <!-- 3 KORTELĖ: TEISINĖ INFORMACIJA IR TAISYKLĖS -->
-        <div class="footer-card" id="taisykliu-skiltis">
-          <div>
-            <div class="footer-card-header">
-              <div class="footer-card-icon">📜</div>
-              <div>
-                <h3 class="footer-card-title">Taisyklės ir Politika</h3>
-                <small style="color: var(--text-muted);">Saugumas, pirkimas ir privatumas</small>
-              </div>
-            </div>
-            <div class="footer-card-body">
-              <p style="margin-bottom: 1rem;">
-                Prieš atvykstant ar perkant paslaugas prašome susipažinti su oficialiomis taisyklėmis:
-              </p>
-
-              <!-- PIRKIMO-PARDAVIMO TAISYKLĖS -->
-              <a href="taisykles.html" class="footer-legal-link">
-                <div>
-                  <strong>📜 Pirkimo–pardavimo taisyklės</strong>
-                  <small>Amžiaus cenzas (16+), saugumas, 6 mėn. kuponai</small>
-                </div>
-                <span style="font-size: 1.2rem; color: var(--accent); font-weight: bold;">➔</span>
-              </a>
-
-              <!-- PRIVATUMO POLITIKA -->
-              <a href="privatumas.html" class="footer-legal-link">
-                <div>
-                  <strong>🔒 Privatumo politika (BDAR)</strong>
-                  <small>Asmens duomenų apsauga ir klientų teisės</small>
-                </div>
-                <span style="font-size: 1.2rem; color: var(--accent); font-weight: bold;">➔</span>
-              </a>
-            </div>
-          </div>
-
-          <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
-            <strong style="color: #fff;">MB „Tomadra“</strong><br>
-            Įm. kodas: 307625192 (Ne PVM mokėtojas)<br>
-            Reg. adresas: Architektų g. 32-18, Šiauliai
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
@@ -2111,7 +1860,7 @@
         <a href="taisykles.html" style="color: var(--accent); font-weight: 700;">📜 Taisyklės</a>
         <a href="privatumas.html" style="color: var(--accent); font-weight: 700;">🔒 Privatumo politika</a>
       </div>
-      <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
+      <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009 | El. p. throwhousee@gmail.com</p>
     </div>
   </footer>
 
