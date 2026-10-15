@@ -296,60 +296,6 @@
     .footer a { color: var(--text-gray); margin: 0 0.75rem; }
     .footer a:hover { color: var(--accent); }
 
-    /* FIKSUOTAS SKAMBUČIO MYGTUKAS */
-    .floating-call-btn {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 9998;
-      width: 62px;
-      height: 62px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ff3b00 0%, #ff7518 100%);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 25px rgba(255, 106, 0, 0.55), 0 0 20px rgba(255, 59, 0, 0.4);
-      cursor: pointer;
-      text-decoration: none;
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
-    }
-
-    .floating-call-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 35px rgba(255, 106, 0, 0.7), 0 0 30px rgba(255, 59, 0, 0.6);
-      color: #fff;
-    }
-
-    .call-pulse-ring {
-      position: absolute;
-      inset: -5px;
-      border-radius: 50%;
-      border: 2px solid #ff7518;
-      opacity: 0.8;
-      animation: sonarPulse 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-      pointer-events: none;
-    }
-
-    .call-pulse-ring.delay { animation-delay: 1.1s; }
-
-    @keyframes sonarPulse {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { opacity: 0.4; }
-      100% { transform: scale(1.65); opacity: 0; }
-    }
-
-    .floating-call-btn svg {
-      width: 28px;
-      height: 28px;
-      fill: none;
-      stroke: #ffffff;
-      stroke-width: 2.3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
     @media (max-width: 768px) {
       .legal-box { padding: 1.75rem; }
       .legal-title { font-size: 2rem; }
@@ -558,14 +504,6 @@
     </div>
   </footer>
 
-  <!-- FIKSUOTAS SKAMBUČIO MYGTUKAS -->
-  <a href="tel:+37061988009" class="floating-call-btn" id="floatingCallBtn" aria-label="Skambinti dabar">
-    <span class="call-pulse-ring"></span>
-    <span class="call-pulse-ring delay"></span>
-    <svg viewBox="0 0 24 24">
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-    </svg>
-  </a>
 
   <script>
     const navToggle = document.getElementById('navToggle');
