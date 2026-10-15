@@ -564,7 +564,6 @@ if (!empty($_SESSION['admin_logged'])) {
       <input type="password" name="login_pass" class="form-input" placeholder="Įveskite slaptažodį..." required autofocus>
       <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">Prisijungti</button>
     </form>
-    <p style="font-size: 0.75rem; color: #64748b; margin-top: 1.5rem;">Slaptažodis: <code>throw2026</code></p>
   </div>
 
 <?php else: 
