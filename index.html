@@ -1693,25 +1693,25 @@
         });
         const data = await res.json();
 
+        if (!data.success) {
+          alert('⚠️ ' + (data.message || 'Nepavyko sugeneruoti kupono.'));
+          return;
+        }
+
         form.style.display = 'none';
         successBox.style.display = 'block';
 
         const code = data.coupon?.code || ('TH-KUP-' + Math.floor(1000 + Math.random() * 9000));
 
         summaryText.innerHTML = `
-          <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent);">${code}</span><br>
+          <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
           <strong>Vertė:</strong> ${amount} €<br>
-          <strong>Gavėjas:</strong> ${recipientName || 'Nenurodyta'}<br>
+          <strong>Gavėjas:</strong> ${recipientName || 'Dovanos turėtojas'}<br>
           <strong>Galiojimas:</strong> 12 mėnesių<br><br>
-          <span style="color:#4ade80;">✓ Kuponas su instrukcija išsiųstas į <strong>${buyerEmail}</strong> bei administracijai!</span>
+          <span style="color:#4ade80;">✓ Dovanų kuponas su instrukcija sėkmingai išsiųstas į <strong>${buyerEmail}</strong> bei administracijai!</span>
         `;
       } catch (err) {
-        form.style.display = 'none';
-        successBox.style.display = 'block';
-        summaryText.innerHTML = `
-          <strong>Kupono vertė:</strong> ${amount} €<br>
-          <em>Kupono informacija paruošta ir išsiųsta į <strong>${buyerEmail}</strong>!</em>
-        `;
+        alert('Įvyko tinklo ryšio klaida. Prašome pabandyti dar kartą.');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Apmokėti ir gauti kuponą ➔';
