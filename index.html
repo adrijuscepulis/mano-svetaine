@@ -986,15 +986,26 @@
     /* HELOVYNO IŠŠOKANTI REKLAMA / PRANEŠIMAS */
     .halloween-modal-backdrop {
       position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: rgba(4, 2, 8, 0.85);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999999;
+      background: rgba(4, 2, 8, 0.88);
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       padding: 1.25rem;
+      overflow-y: auto;
       animation: fadeIn 0.3s ease;
+    }
+
+    .halloween-modal-backdrop.active {
+      display: flex !important;
     }
 
     @keyframes fadeIn {
@@ -1010,7 +1021,10 @@
       max-width: 560px;
       width: 100%;
       position: relative;
-      box-shadow: 0 0 45px rgba(255, 106, 0, 0.4), 0 25px 60px rgba(0, 0, 0, 0.85);
+      margin: auto;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 0 50px rgba(255, 106, 0, 0.5), 0 25px 60px rgba(0, 0, 0, 0.9);
       animation: scaleUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
@@ -1197,6 +1211,45 @@
   </style>
 </head>
 <body>
+
+  <!-- IŠŠOKANTI HELOVYNO REKLAMA / PRANEŠIMAS -->
+  <div class="halloween-modal-backdrop" id="halloweenModal">
+    <div class="halloween-modal-card">
+      <button class="halloween-modal-close" onclick="closeHalloweenModal()" aria-label="Uždaryti">&times;</button>
+      
+      <div class="halloween-modal-badge">
+        <span>🎃 SPECIALUS HELOVYNO PRANEŠIMAS 🎃</span>
+      </div>
+      
+      <h2 class="halloween-modal-title">
+        Spalio 30 & 31 d. DIRBAME VISĄ PARĄ!
+      </h2>
+      
+      <p class="halloween-modal-lead">
+        Šiurpiausios metų nakties proga „ThrowHouse Šiauliai“ atveria duris <strong>24 valandas per parą</strong>! Švęskite Helovyną su kirviu rankoje ir dūžtančio stiklo aidu!
+      </p>
+
+      <div class="halloween-modal-night-info">
+        <div class="night-icon">🌙</div>
+        <div>
+          <strong>Dėl naktinių apsilankymų (nuo 23:00 iki ryto):</strong>
+          <p>Kadangi naktinis laikas yra išskirtinis, rezervacijas deriname asmeniškai. Paskambinkite mums – suderinsime jūsų kompanijai patogiausią naktinį laiką!</p>
+        </div>
+      </div>
+
+      <div class="halloween-modal-actions" style="display: flex; justify-content: center;">
+        <a href="tel:+37061988009" class="btn btn-primary" style="width: 100%; max-width: 320px; font-size: 1.15rem; padding: 0.95rem 1.5rem; justify-content: center; text-align: center;">
+          📞 Skambinti
+        </a>
+      </div>
+
+      <div style="margin-top: 1.25rem; text-align: center;">
+        <a href="#rezervacija" onclick="closeHalloweenModal()" class="halloween-dismiss-link">
+          Dienos ir vakaro laikų rezervacija internetu ➔
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <header class="header">
@@ -2397,77 +2450,33 @@
     // Helovyno iššokančio pranešimo funkcijos
     function openHalloweenModal() {
       const modal = document.getElementById('halloweenModal');
-      if (modal) modal.style.display = 'flex';
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     function closeHalloweenModal() {
       const modal = document.getElementById('halloweenModal');
       if (modal) {
-        modal.style.display = 'none';
-        try {
-          sessionStorage.setItem('th_halloween_popup_dismissed', 'true');
-        } catch(e) {}
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
       }
     }
 
-    // Automatiškai parodyti pranešimą, jei dar nebuvo uždarytas šios sesijos metu
+    // Automatiškai iššokti pranešimui po 600ms
     window.addEventListener('DOMContentLoaded', () => {
-      try {
-        if (!sessionStorage.getItem('th_halloween_popup_dismissed')) {
-          setTimeout(openHalloweenModal, 900);
-        }
-      } catch(e) {
-        setTimeout(openHalloweenModal, 900);
-      }
+      setTimeout(openHalloweenModal, 600);
     });
 
     // Uždarymas paspaudus ant tamsaus fono arba Escape mygtuko
-    document.getElementById('halloweenModal')?.addEventListener('click', (e) => {
-      if (e.target.id === 'halloweenModal') closeHalloweenModal();
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'halloweenModal') closeHalloweenModal();
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeHalloweenModal();
     });
   </script>
-
-  <!-- IŠŠOKANTI HELOVYNO REKLAMA / PRANEŠIMAS -->
-  <div class="halloween-modal-backdrop" id="halloweenModal" style="display: none;">
-    <div class="halloween-modal-card">
-      <button class="halloween-modal-close" onclick="closeHalloweenModal()" aria-label="Uždaryti">&times;</button>
-      
-      <div class="halloween-modal-badge">
-        <span>🎃 SPECIALUS HELOVYNO PRANEŠIMAS 🎃</span>
-      </div>
-      
-      <h2 class="halloween-modal-title">
-        Spalio 30 & 31 d. DIRBAME VISĄ PARĄ!
-      </h2>
-      
-      <p class="halloween-modal-lead">
-        Šiurpiausios metų nakties proga „ThrowHouse Šiauliai“ atveria duris <strong>24 valandas per parą</strong>! Švęskite Helovyną su kirviu rankoje ir dūžtančio stiklo aidu!
-      </p>
-
-      <div class="halloween-modal-night-info">
-        <div class="night-icon">🌙</div>
-        <div>
-          <strong>Dėl naktinių apsilankymų (nuo 23:00 iki ryto):</strong>
-          <p>Kadangi naktinis laikas yra išskirtinis, rezervacijos deriname asmeniškai. Paskambinkite mums arba parašykite žinutę – suderinsime jūsų kompanijai patogiausią naktinį laiką!</p>
-        </div>
-      </div>
-
-      <div class="halloween-modal-actions" style="display: flex; justify-content: center;">
-        <a href="tel:+37061988009" class="btn btn-primary" style="width: 100%; max-width: 320px; font-size: 1.15rem; padding: 0.95rem 1.5rem; justify-content: center; text-align: center;">
-          📞 Skambinti
-        </a>
-      </div>
-
-      <div style="margin-top: 1.25rem; text-align: center;">
-        <a href="#rezervacija" onclick="closeHalloweenModal()" class="halloween-dismiss-link">
-          Dienos ir vakaro laikų rezervacija internetu ➔
-        </a>
-      </div>
-    </div>
-  </div>
 
   <!-- FIKSUOTAS SKAMBUČIO MYGTUKAS -->
   <a href="tel:+37061988009" class="floating-call-btn" id="floatingCallBtn" aria-label="Skambinti dabar">
