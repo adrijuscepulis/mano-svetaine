@@ -1563,7 +1563,6 @@
         <a href="#duk">D.U.K.</a>
         <a href="#rezervacija">Rezervacija</a>
         <a href="#kontaktai">Kontaktai</a>
-        <a href="admin.php" target="_blank" style="color: var(--accent); font-weight: 700;">🔒 Administratoriaus pultas</a>
       </div>
       <p>© 2026 ThrowHouse Šiauliai. Visos teisės saugomos. Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
     </div>
@@ -1606,6 +1605,7 @@
       if (typeof selectedDate !== 'undefined' && selectedDate) {
         populateTimeSlots(selectedDate);
       }
+    }
 
     // Kainos skaičiavimas: Bazinė kaina + Papildomi indai (0.60 € / vnt.)
     function calcTotal() {
@@ -1993,9 +1993,13 @@
       selectCalendarDate(today.getFullYear(), today.getMonth(), today.getDate());
     }
 
+    // Nedelsiant inicializuojame datą ir formą
+    initTodaySelection();
+    onActivityChange();
+
+    // Sinchronizuojame užimtų laikų žemėlapį iš serverio
     fetchBookedSlots().then(() => {
-      initTodaySelection();
-      onActivityChange();
+      if (selectedDate) populateTimeSlots(selectedDate);
     });
   </script>
 </body>

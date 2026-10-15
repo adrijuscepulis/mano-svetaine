@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 
-    echo json_encode(['success' => true, 'booked' => $bookedMap]);
+    echo json_encode(['success' => true, 'booked' => (object)$bookedMap]);
     exit;
 }
 
