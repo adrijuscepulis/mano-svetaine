@@ -852,7 +852,13 @@ if (!empty($_SESSION['admin_logged'])) {
                       <td>
                         <strong><?= htmlspecialchars($c['buyer'] ?? 'Nenurodyta') ?></strong>
                         <?php if (!empty($c['recipient'])): ?>
-                          <br><span style="font-size: 0.8rem; color: var(--muted);">Gavėjas: <?= htmlspecialchars($c['recipient']) ?></span>
+                          <br><span style="font-size: 0.8rem; color: #cbd5e1;">Gavėjas: <?= htmlspecialchars($c['recipient']) ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($c['target_type'])): ?>
+                          <br><span style="font-size: 0.75rem; color: var(--accent); font-weight: 600;"><?= htmlspecialchars($c['target_type']) ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($c['greeting'])): ?>
+                          <br><span style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">„<?= htmlspecialchars($c['greeting']) ?>“</span>
                         <?php endif; ?>
                       </td>
                       <td><?= htmlspecialchars($c['expires_at'] ?? '') ?></td>
