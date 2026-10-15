@@ -1634,8 +1634,10 @@
       if (breakdown) {
         if (extraCount > 0) {
           breakdown.textContent = `Bazinė kaina (${basePrice} €) + ${extraCount} papild. indų (+${extraPrice.toFixed(2)} €)`;
+        } else if (act.includes('KOMBO')) {
+          breakdown.textContent = `KOMBO paketas (40 €) – 2 val. sesija (1 val. Kirviai + 1 val. Pyktis su 30 indų)`;
         } else if (!act.includes('Kirvių mėtymas')) {
-          breakdown.textContent = `Bazinė kaina (${basePrice} €) + 30 indų įskaičiuota`;
+          breakdown.textContent = `Bazinė kaina (${basePrice} €) + 30 indų įskaičiuota (1 val.)`;
         } else {
           breakdown.textContent = `Bazinė kaina (${basePrice} €) už 1 val. sesiją`;
         }
@@ -1850,38 +1852,66 @@
       const dayOfWeek = targetDate.getDay();
       timeSelect.innerHTML = '';
       let startHour = 16;
-      let endHour = 22;
+      let closingHour = 23;
 
       if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
         startHour = 9;
-        endHour = 23;
+        closingHour = 24;
       }
 
+      // KOMBO trunka 2 valandas, todėl paskutinė pradžia – likus 2 val. iki uždarymo:
+      let endHour = isKombo ? (closingHour - 2) : (closingHour - 1);
       let firstAvailable = null;
 
       for (let h = startHour; h <= endHour; h++) {
         const hourStr = (h < 10 ? '0' : '') + h + ':00';
-        const nextHour = ((h + 1) < 10 ? '0' : '') + (h + 1) + ':00';
+        const hNext = h + 1;
+        const hNextStr = (hNext < 10 ? '0' : '') + hNext + ':00';
+        const hEnd = isKombo ? (h + 2) : (h + 1);
+        const endHourStr = (hEnd < 10 ? '0' : '') + hEnd + ':00';
+
         const opt = document.createElement('option');
         opt.value = hourStr;
 
-        const slot = daySlots[hourStr] || null;
+        const slot1 = daySlots[hourStr] || null;
+        const slot2 = daySlots[hNextStr] || null;
+
         let isBooked = false;
 
-        if (slot) {
-          if (isRage && slot.is_rage_full) isBooked = true;
-          else if (isAxe && slot.is_axe_full) isBooked = true;
-          else if (isKombo && (slot.is_rage_full || slot.is_axe_full)) isBooked = true;
+        if (isRage) {
+          if (slot1 && slot1.is_rage_full) isBooked = true;
+        } else if (isAxe) {
+          if (slot1 && slot1.is_axe_full) isBooked = true;
+        } else if (isKombo) {
+          // 1-oji valanda: Kirviai (reikia bent 1 laisvo kirvių takelio)
+          const axeFull = slot1 && slot1.is_axe_full;
+          // 2-oji valanda: Pyktis (reikia laisvo pykčio kambario)
+          const rageFull = slot2 && slot2.is_rage_full;
+          if (axeFull || rageFull) {
+            isBooked = true;
+          }
         }
 
-        if (isBooked) {
-          opt.disabled = true;
-          opt.textContent = `${hourStr} - ${nextHour} val. (UŽIMTA)`;
-          opt.style.color = '#ef4444';
-          opt.style.background = '#18181b';
+        if (isKombo) {
+          if (isBooked) {
+            opt.disabled = true;
+            opt.textContent = `${hourStr} - ${endHourStr} val. (2 val. UŽIMTA)`;
+            opt.style.color = '#ef4444';
+            opt.style.background = '#18181b';
+          } else {
+            opt.textContent = `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`;
+            if (!firstAvailable) firstAvailable = hourStr;
+          }
         } else {
-          opt.textContent = `${hourStr} - ${nextHour} val.`;
-          if (!firstAvailable) firstAvailable = hourStr;
+          if (isBooked) {
+            opt.disabled = true;
+            opt.textContent = `${hourStr} - ${endHourStr} val. (UŽIMTA)`;
+            opt.style.color = '#ef4444';
+            opt.style.background = '#18181b';
+          } else {
+            opt.textContent = `${hourStr} - ${endHourStr} val. (1 val.)`;
+            if (!firstAvailable) firstAvailable = hourStr;
+          }
         }
         timeSelect.appendChild(opt);
       }
@@ -1906,7 +1936,9 @@
       const cnt = document.getElementById('resCount').value;
       const date = document.getElementById('resDate').value;
       const dateText = document.getElementById('calSelectedText').textContent;
-      const time = document.getElementById('resTime').value;
+      const timeSelect = document.getElementById('resTime');
+      const time = timeSelect.value;
+      const timeOptionText = timeSelect.options[timeSelect.selectedIndex]?.text || `${time} val.`;
       const lane = act.includes('Kirvių') ? document.getElementById('resLane').value : '';
       const extraDishes = (!act.includes('Kirvių mėtymas')) ? document.getElementById('resExtraDishes').value : 0;
       const prc = document.getElementById('calcPrice').textContent;
@@ -1954,13 +1986,14 @@
         box.style.display = 'block';
 
         const orderId = data.reservation_id || ('TH-' + Math.floor(100000 + Math.random() * 900000));
+        const durText = act.includes('KOMBO') ? '2 val. sesija (Kirviai ➔ Pyktis)' : '1 val. sesija';
 
         sum.innerHTML = `
           <strong>Užsakymo Nr.:</strong> <span style="color:var(--accent);">${orderId}</span><br>
           <strong>Užsakovas:</strong> ${name} (${phone})<br>
-          <strong>Pramoga:</strong> ${act} ${lane ? '(' + lane + ')' : ''} (${cnt} asm., 1 val.)<br>
+          <strong>Pramoga:</strong> ${act} ${lane ? '(' + lane + ')' : ''} (${cnt} asm., ${durText})<br>
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
-          <strong>Data ir laikas:</strong> ${dateText}, ${time} val.<br>
+          <strong>Data ir laikas:</strong> ${dateText}, ${timeOptionText}<br>
           <strong>Mokėtina suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong><br><br>
           <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas sėkmingai išsiųstas į <strong>${email}</strong>!</span>
         `;

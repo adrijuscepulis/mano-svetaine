@@ -107,6 +107,14 @@ if (!empty($_SESSION['admin_logged'])) {
         $mPrice = htmlspecialchars(trim($_POST['m_price'] ?? '25 €'));
 
         $newId = 'TH-' . strtoupper(substr(uniqid(), -6));
+        if (stripos($mActivity, 'KOMBO') !== false) {
+            $startH = intval($mTime);
+            $t1 = sprintf('%02d:00', $startH);
+            $tEnd = sprintf('%02d:00', $startH + 2);
+            $mTime = "$t1 - $tEnd";
+            if (!$mLane) $mLane = 'Takelis 1';
+        }
+
         $reservations[] = [
             'id' => $newId,
             'created_at' => date('Y-m-d H:i:s'),
@@ -1070,18 +1078,28 @@ if (!empty($_SESSION['admin_logged'])) {
         let axe2Booking = null;
 
         activeBookings.forEach(r => {
-          if ((r.time || '').startsWith(hourStr)) {
-            const act = r.activity || '';
-            const l = r.lane || '';
-            if (act.includes('Pykčio')) {
-              rageBooking = r;
-            } else if (act.includes('KOMBO')) {
-              rageBooking = r;
+          const act = r.activity || '';
+          const l = r.lane || '';
+          const startH = parseInt(r.time, 10);
+          const startStr = (startH < 10 ? '0' : '') + startH + ':00';
+          const nextStr = ((startH + 1) < 10 ? '0' : '') + (startH + 1) + ':00';
+
+          if (act.includes('Pykčio')) {
+            if (hourStr === startStr) rageBooking = r;
+          } else if (act.includes('Kirvių')) {
+            if (hourStr === startStr) {
               if (l.includes('2')) axe2Booking = r;
               else axe1Booking = r;
-            } else if (act.includes('Kirvių')) {
+            }
+          } else if (act.includes('KOMBO')) {
+            // 1-oji valanda (Kirviai)
+            if (hourStr === startStr) {
               if (l.includes('2')) axe2Booking = r;
               else axe1Booking = r;
+            }
+            // 2-oji valanda (Pyktis)
+            if (hourStr === nextStr) {
+              rageBooking = r;
             }
           }
         });
@@ -1090,14 +1108,14 @@ if (!empty($_SESSION['admin_logged'])) {
         row.className = 'hour-row';
         row.innerHTML = `
           <div class="hour-time">${hourStr}</div>
-          <div class="slot-status ${rageBooking ? 'status-booked' : 'status-free'}" title="${rageBooking ? 'Užsakovas: ' + rageBooking.name : 'Laisva'}">
-            💥 Pyktis: ${rageBooking ? rageBooking.name.split(' ')[0] : 'Laisva'}
+          <div class="slot-status ${rageBooking ? 'status-booked' : 'status-free'}" title="${rageBooking ? 'Užsakovas: ' + rageBooking.name + (rageBooking.activity.includes('KOMBO') ? ' (KOMBO 2 d.)' : '') : 'Laisva'}">
+            💥 Pyktis: ${rageBooking ? (rageBooking.name.split(' ')[0] + (rageBooking.activity.includes('KOMBO') ? ' (KOMBO)' : '')) : 'Laisva'}
           </div>
-          <div class="slot-status ${axe1Booking && axe2Booking ? 'status-booked' : 'status-free'}">
+          <div class="slot-status ${axe1Booking && axe2Booking ? 'status-booked' : (axe1Booking || axe2Booking ? 'status-booked' : 'status-free')}">
             🪓 Kirviai: ${
               axe1Booking && axe2Booking ? 'Užimti abu' :
-              axe1Booking ? 'T2 laisvas' :
-              axe2Booking ? 'T1 laisvas' : '2 tak. laisvi'
+              axe1Booking ? (axe1Booking.name.split(' ')[0] + (axe1Booking.activity.includes('KOMBO') ? ' [K]' : '') + ' | T2 laisvas') :
+              axe2Booking ? ('T1 laisvas | ' + axe2Booking.name.split(' ')[0] + (axe2Booking.activity.includes('KOMBO') ? ' [K]' : '')) : '2 tak. laisvi'
             }
           </div>
         `;
@@ -1126,7 +1144,7 @@ if (!empty($_SESSION['admin_logged'])) {
             </div>
             
             <div style="font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem;">
-              • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''} (${r.count} asm.)<br>
+              • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''} (${r.count} asm., ${r.activity.includes('KOMBO') ? '2 val. sesija' : '1 val.'})<br>
               • <strong>Kontaktai:</strong> <a href="tel:${r.phone}" style="color:#34d399; font-weight:bold; text-decoration:none;">📞 ${r.phone}</a> | <a href="mailto:${r.email}" style="color:#60a5fa; text-decoration:none;">✉️ ${r.email}</a><br>
               • <strong>Mokėtina suma:</strong> <strong style="color:var(--accent);">${r.price}</strong>
             </div>
@@ -1173,9 +1191,10 @@ if (!empty($_SESSION['admin_logged'])) {
       const act = document.getElementById('m_activity').value;
       const laneWrap = document.getElementById('m_lane_wrapper');
       const prcInput = document.getElementById('m_price');
-      laneWrap.style.display = act.includes('Kirvių') ? 'block' : 'none';
+      laneWrap.style.display = (act.includes('Kirvių') || act.includes('KOMBO')) ? 'block' : 'none';
       if (act.includes('KOMBO')) prcInput.value = '40 €';
       else prcInput.value = '25 €';
+      populateManualTimes();
     }
 
     function populateManualTimes() {
@@ -1183,14 +1202,19 @@ if (!empty($_SESSION['admin_logged'])) {
       if (!timeSelect) return;
       timeSelect.innerHTML = '';
       const d = new Date(selectedIsoDate + 'T00:00:00');
+      const isKombo = (document.getElementById('m_activity')?.value || '').includes('KOMBO');
+
       let startH = (d.getDay() === 5 || d.getDay() === 6 || d.getDay() === 0) ? 9 : 16;
-      let endH = (d.getDay() === 5 || d.getDay() === 6 || d.getDay() === 0) ? 23 : 22;
+      let closingH = (d.getDay() === 5 || d.getDay() === 6 || d.getDay() === 0) ? 24 : 23;
+      let endH = isKombo ? (closingH - 2) : (closingH - 1);
 
       for (let h = startH; h <= endH; h++) {
         const hourStr = (h < 10 ? '0' : '') + h + ':00';
+        const hEnd = isKombo ? (h + 2) : (h + 1);
+        const endStr = (hEnd < 10 ? '0' : '') + hEnd + ':00';
         const opt = document.createElement('option');
         opt.value = hourStr;
-        opt.textContent = `${hourStr} val.`;
+        opt.textContent = isKombo ? `${hourStr} - ${endStr} val. (2 val.)` : `${hourStr} - ${endStr} val.`;
         timeSelect.appendChild(opt);
       }
     }

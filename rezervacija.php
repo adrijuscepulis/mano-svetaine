@@ -38,46 +38,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     foreach ($all as $r) {
         if (($r['status'] ?? '') === 'Atšaukta') continue;
         $iso = !empty($r['iso_date']) ? $r['iso_date'] : normalizeDateToIso($r['date'] ?? '');
-        $t = trim($r['time'] ?? '');
-        if (!$iso || !$t) continue;
+        $rawT = trim($r['time'] ?? '');
+        if (!$iso || !$rawT) continue;
 
-        if (!isset($bookedMap[$iso])) {
-            $bookedMap[$iso] = [];
-        }
-        if (!isset($bookedMap[$iso][$t])) {
-            $bookedMap[$iso][$t] = [
-                'rage' => 0,
-                'axe' => 0,
-                'lanes' => [],
-                'is_rage_full' => false,
-                'is_axe_full' => false,
-                'is_full' => false
-            ];
-        }
+        $startH = intval($rawT);
+        $t1 = sprintf('%02d:00', $startH);
+        $t2 = sprintf('%02d:00', $startH + 1);
 
         $act = $r['activity'] ?? '';
         $l = $r['lane'] ?? '';
 
-        if (stripos($act, 'Pykčio') !== false) {
-            $bookedMap[$iso][$t]['rage']++;
-        } elseif (stripos($act, 'Kirvių') !== false) {
-            $bookedMap[$iso][$t]['axe']++;
-            if ($l) $bookedMap[$iso][$t]['lanes'][] = $l;
-        } elseif (stripos($act, 'KOMBO') !== false) {
-            $bookedMap[$iso][$t]['rage']++;
-            $bookedMap[$iso][$t]['axe']++;
-            if ($l) $bookedMap[$iso][$t]['lanes'][] = $l;
-            else $bookedMap[$iso][$t]['lanes'][] = 'Takelis 1';
+        if (!isset($bookedMap[$iso])) {
+            $bookedMap[$iso] = [];
         }
 
-        if ($bookedMap[$iso][$t]['rage'] >= 1) {
-            $bookedMap[$iso][$t]['is_rage_full'] = true;
+        if (stripos($act, 'Pykčio') !== false) {
+            if (!isset($bookedMap[$iso][$t1])) {
+                $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+            }
+            $bookedMap[$iso][$t1]['rage']++;
+        } elseif (stripos($act, 'Kirvių') !== false) {
+            if (!isset($bookedMap[$iso][$t1])) {
+                $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+            }
+            $bookedMap[$iso][$t1]['axe']++;
+            if ($l) $bookedMap[$iso][$t1]['lanes'][] = $l;
+        } elseif (stripos($act, 'KOMBO') !== false) {
+            // Pirma darome Kirvių mėtymą (1-oji valanda: $t1)
+            if (!isset($bookedMap[$iso][$t1])) {
+                $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+            }
+            $bookedMap[$iso][$t1]['axe']++;
+            $bookedMap[$iso][$t1]['lanes'][] = $l ?: 'Takelis 1';
+
+            // Po to sekantis Pykčio kambarys (2-oji valanda: $t2)
+            if (!isset($bookedMap[$iso][$t2])) {
+                $bookedMap[$iso][$t2] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+            }
+            $bookedMap[$iso][$t2]['rage']++;
         }
-        if ($bookedMap[$iso][$t]['axe'] >= 2) {
-            $bookedMap[$iso][$t]['is_axe_full'] = true;
-        }
-        if ($bookedMap[$iso][$t]['is_rage_full'] && $bookedMap[$iso][$t]['is_axe_full']) {
-            $bookedMap[$iso][$t]['is_full'] = true;
+    }
+
+    foreach ($bookedMap as $isoKey => &$hours) {
+        foreach ($hours as $hKey => &$s) {
+            if ($s['rage'] >= 1) $s['is_rage_full'] = true;
+            if ($s['axe'] >= 2) $s['is_axe_full'] = true;
+            if ($s['is_rage_full'] && $s['is_axe_full']) $s['is_full'] = true;
         }
     }
 
@@ -125,68 +131,96 @@ if (file_exists($dataFile)) {
 // -------------------------------------------------------------
 // APSAUGA NUO DVIGUBO UŽSAKYMO (SLOT CAPACITY VALIDATION)
 // -------------------------------------------------------------
-$currentRage = 0;
-$currentAxe = 0;
-$takenLanes = [];
+$startHour = intval($time);
+$t1 = sprintf('%02d:00', $startHour);
+$t2 = sprintf('%02d:00', $startHour + 1);
+$tEnd = sprintf('%02d:00', $startHour + 2);
+$isKombo = (stripos($activity, 'KOMBO') !== false);
 
+$slotsOccupied = [];
 foreach ($all as $ex) {
     if (($ex['status'] ?? '') === 'Atšaukta') continue;
     $exIso = !empty($ex['iso_date']) ? $ex['iso_date'] : normalizeDateToIso($ex['date'] ?? '');
-    $exTime = trim($ex['time'] ?? '');
+    if ($exIso !== $isoDate) continue;
 
-    if ($exIso === $isoDate && $exTime === $time) {
-        $exAct = $ex['activity'] ?? '';
-        $exLane = $ex['lane'] ?? '';
+    $exRawT = trim($ex['time'] ?? '');
+    if (!$exRawT) continue;
+    $exStartH = intval($exRawT);
+    $exT1 = sprintf('%02d:00', $exStartH);
+    $exT2 = sprintf('%02d:00', $exStartH + 1);
+    $exAct = $ex['activity'] ?? '';
+    $exLane = $ex['lane'] ?? '';
 
-        if (stripos($exAct, 'Pykčio') !== false) {
-            $currentRage++;
-        } elseif (stripos($exAct, 'Kirvių') !== false) {
-            $currentAxe++;
-            if ($exLane) $takenLanes[] = $exLane;
-        } elseif (stripos($exAct, 'KOMBO') !== false) {
-            $currentRage++;
-            $currentAxe++;
-            if ($exLane) $takenLanes[] = $exLane;
-            else $takenLanes[] = 'Takelis 1';
-        }
+    if (!isset($slotsOccupied[$exT1])) $slotsOccupied[$exT1] = ['rage' => 0, 'axe' => 0, 'lanes' => []];
+    if (!isset($slotsOccupied[$exT2])) $slotsOccupied[$exT2] = ['rage' => 0, 'axe' => 0, 'lanes' => []];
+
+    if (stripos($exAct, 'Pykčio') !== false) {
+        $slotsOccupied[$exT1]['rage']++;
+    } elseif (stripos($exAct, 'Kirvių') !== false) {
+        $slotsOccupied[$exT1]['axe']++;
+        if ($exLane) $slotsOccupied[$exT1]['lanes'][] = $exLane;
+    } elseif (stripos($exAct, 'KOMBO') !== false) {
+        // 1-oji valanda (Kirviai)
+        $slotsOccupied[$exT1]['axe']++;
+        $slotsOccupied[$exT1]['lanes'][] = $exLane ?: 'Takelis 1';
+        // 2-oji valanda (Pyktis)
+        $slotsOccupied[$exT2]['rage']++;
     }
 }
 
-// Tikriname pagal užsakomą paslaugą:
+$rage1 = $slotsOccupied[$t1]['rage'] ?? 0;
+$axe1 = $slotsOccupied[$t1]['axe'] ?? 0;
+$lanes1 = $slotsOccupied[$t1]['lanes'] ?? [];
+
+$rage2 = $slotsOccupied[$t2]['rage'] ?? 0;
+
 if (stripos($activity, 'Pykčio') !== false) {
-    if ($currentRage >= 1) {
+    if ($rage1 >= 1) {
         echo json_encode([
             'success' => false,
-            'message' => "Atsiprašome, pasirinktu laiku ($time val.) pykčio kambarys jau yra užimtas! Prašome pasirinkti kitą laisvą laiką."
+            'message' => "Atsiprašome, pasirinktu laiku ($t1 val.) pykčio kambarys jau yra užimtas! Prašome pasirinkti kitą laisvą laiką."
         ]);
         exit;
     }
+    $time = "$t1 - $t2";
 } elseif (stripos($activity, 'Kirvių') !== false) {
-    if ($currentAxe >= 2) {
+    if ($axe1 >= 2) {
         echo json_encode([
             'success' => false,
-            'message' => "Atsiprašome, pasirinktu laiku ($time val.) visi kirvių takeliai jau yra užimti! Prašome pasirinkti kitą laisvą laiką."
+            'message' => "Atsiprašome, pasirinktu laiku ($t1 val.) visi kirvių takeliai jau yra užimti! Prašome pasirinkti kitą laisvą laiką."
         ]);
         exit;
     }
-    // Jei pasirinktas konkretus takelis, bet jis jau užimtas, automatiškai nukreipiame į laisvą takelį:
-    if ($lane && in_array($lane, $takenLanes)) {
+    if ($lane && in_array($lane, $lanes1)) {
         $lane = ($lane === 'Takelis 1') ? 'Takelis 2' : 'Takelis 1';
     } elseif (!$lane) {
-        $lane = in_array('Takelis 1', $takenLanes) ? 'Takelis 2' : 'Takelis 1';
+        $lane = in_array('Takelis 1', $lanes1) ? 'Takelis 2' : 'Takelis 1';
     }
-} elseif (stripos($activity, 'KOMBO') !== false) {
-    if ($currentRage >= 1 || $currentAxe >= 2) {
+    $time = "$t1 - $t2";
+} elseif ($isKombo) {
+    // 1-oji valanda: Kirviai
+    if ($axe1 >= 2) {
         echo json_encode([
             'success' => false,
-            'message' => "Atsiprašome, pasirinktu laiku ($time val.) KOMBO paketo rezervuoti negalima, nes erdvė jau yra užimta! Prašome pasirinkti kitą laiką."
+            'message' => "Atsiprašome, pasirinkto KOMBO paketo pradžios laiku ($t1 val.) visi kirvių takeliai jau užimti! Prašome pasirinkti kitą laiką."
         ]);
         exit;
     }
-    if (!$lane) {
-        $lane = in_array('Takelis 1', $takenLanes) ? 'Takelis 2' : 'Takelis 1';
+    // 2-oji valanda: Pykčio kambarys
+    if ($rage2 >= 1) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinkto KOMBO paketo 2-ajai daliai ($t2 val.) pykčio kambarys jau užimtas! Prašome pasirinkti kitą laiką."
+        ]);
+        exit;
     }
+    if (!$lane || in_array($lane, $lanes1)) {
+        $lane = in_array('Takelis 1', $lanes1) ? 'Takelis 2' : 'Takelis 1';
+    }
+    $time = "$t1 - $tEnd";
 }
+
+$durationLabel = $isKombo ? "2 val. sesija (1-oji val. Kirviai [$lane], 2-oji val. Pykčio kambarys)" : "1 val. sesija";
 
 // -------------------------------------------------------------
 // 3. Išsaugojimas serveryje
@@ -220,7 +254,8 @@ $clientTextBody = "Sveiki, $name!\n\n"
     . "📋 JŪSŲ REZERVACIJOS DUOMENYS:\n"
     . "• Užsakymo numeris: $reservationId\n"
     . "• Pasirinkta pramoga: $activity" . ($lane ? " ($lane)" : "") . "\n"
-    . "• Dalyvių skaičius: $count asm. (trukmė: 1 val.)\n"
+    . "• Trukmė: $durationLabel\n"
+    . "• Dalyvių skaičius: $count asm.\n"
     . "• Numatytas laikas: $date d., $time val.\n"
     . "• Mokėtina suma: $price (atsiskaitymas vietoje atvykus)\n\n"
     . "📍 KUR MUS RASTI:\n"
@@ -263,7 +298,8 @@ $clientHtmlBody = '<!DOCTYPE html>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr><td style="padding: 4px 0; color: #64748b;">Užsakymo numeris:</td><td style="font-weight: 700; color: #d97706;">' . $reservationId . '</td></tr>
           <tr><td style="padding: 4px 0; color: #64748b;">Pramoga:</td><td style="font-weight: 700;">' . $activity . ($lane ? " ($lane)" : "") . '</td></tr>
-          <tr><td style="padding: 4px 0; color: #64748b;">Dalyvių skaičius:</td><td>' . $count . ' asm. (1 val. sesija)</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Trukmė:</td><td style="font-weight: 700; color: #d97706;">' . $durationLabel . '</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Dalyvių skaičius:</td><td>' . $count . ' asm.</td></tr>
           <tr><td style="padding: 4px 0; color: #64748b;">Data ir laikas:</td><td style="font-weight: 700; color: #0f172a;">' . $date . ' d., ' . $time . ' val.</td></tr>
           <tr><td style="padding: 4px 0; color: #64748b;">Mokėtina suma:</td><td style="font-weight: 700; font-size: 16px; color: #059669;">' . $price . ' (mokama vietoje)</td></tr>
         </table>
@@ -358,8 +394,12 @@ $adminHtmlBody = '<!DOCTYPE html>
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $activity . ($lane ? " ($lane)" : "") . '</td>
           </tr>
           <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Trukmė:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #b45309; font-weight: bold;">' . $durationLabel . '</td>
+          </tr>
+          <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Dalyviai:</td>
-            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $count . ' asm. (1 val. sesija)</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $count . ' asm.</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Data:</td>
