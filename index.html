@@ -1845,12 +1845,12 @@
               </div>
             </div>
 
-            <!-- TAKELIO PASIRINKIMAS (RODOMA TIK KIRVIŲ MĖTYMUI) -->
+            <!-- TAKELIO PASIRINKIMAS (RODOMA KIRVIŲ MĖTYMUI IR KOMBO) -->
             <div id="laneSelector" class="lane-selector-box" style="display: none;">
               <label class="f-label" for="resLane">Pasirinkite kirvių takelį (turime 2 vnt.):</label>
               <select id="resLane" class="f-input">
-                <option value="Takelis #1">Takelis #1</option>
-                <option value="Takelis #2">Takelis #2</option>
+                <option value="Takelis 1">1 takelis</option>
+                <option value="Takelis 2">2 takelis</option>
               </select>
             </div>
 
@@ -2086,7 +2086,7 @@
       const extraBox = document.getElementById('extraDishesBox');
       
       if (laneBox) {
-        laneBox.style.display = act.includes('Kirvių') ? 'block' : 'none';
+        laneBox.style.display = (act.includes('Kirvių') || act.includes('KOMBO')) ? 'block' : 'none';
       }
 
       if (extraBox) {
@@ -2494,7 +2494,7 @@
       const timeSelect = document.getElementById('resTime');
       const time = timeSelect.value;
       const timeOptionText = timeSelect.options[timeSelect.selectedIndex]?.text || `${time} val.`;
-      const lane = act.includes('Kirvių') ? document.getElementById('resLane').value : '';
+      const lane = (act.includes('Kirvių') || act.includes('KOMBO')) ? document.getElementById('resLane').value : '';
       const extraDishes = (!act.includes('Kirvių mėtymas')) ? document.getElementById('resExtraDishes').value : 0;
       const prc = document.getElementById('calcPrice').textContent;
 
