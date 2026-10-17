@@ -678,7 +678,7 @@ if (!empty($_SESSION['admin_logged'])) {
         <div class="modal-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
             <h3 style="font-family: 'Outfit'; font-size: 1.25rem;">+ Užsakymas telefonu</h3>
-            <button onclick="closeManualModal()" style="background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+            <button onclick="closeManualModal()" style="background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">✕</button>
           </div>
 
           <form method="POST">
