@@ -2622,6 +2622,14 @@
       }
     }
 
+    // Užtikrinimas, kad visada būtų žodis „ir“
+    document.addEventListener('DOMContentLoaded', () => {
+      const banner = document.querySelector('.halloween-hero-banner span');
+      if (banner) banner.innerHTML = banner.innerHTML.replace(/\s*&\s*/g, ' ir ');
+      const modalH2 = document.querySelector('#halloweenModal h2');
+      if (modalH2) modalH2.innerHTML = modalH2.innerHTML.replace(/\s*&\s*/g, ' ir ');
+    });
+
     // Automatiškai iššokti pranešimui TIK atsidarius puslapį (po 700ms)
     window.addEventListener('DOMContentLoaded', () => {
       try {
