@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $rawInput = file_get_contents('php://input');
 $input = json_decode($rawInput, true) ?: $_POST;
 
-$amount = intval($input['amount'] ?? 25);
+$amount = intval($input['amount'] ?? 30);
 $giftTarget = trim($input['giftTarget'] ?? 'friend'); // 'friend' arba 'myself'
 $buyerName = htmlspecialchars(trim($input['buyerName'] ?? ''));
 $buyerPhone = htmlspecialchars(trim($input['buyerPhone'] ?? ''));

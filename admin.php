@@ -104,7 +104,7 @@ if (!empty($_SESSION['admin_logged'])) {
         $mCount = intval($_POST['m_count'] ?? 1);
         $mIsoDate = htmlspecialchars(trim($_POST['m_iso_date'] ?? date('Y-m-d')));
         $mTime = htmlspecialchars(trim($_POST['m_time'] ?? '16:00'));
-        $mPrice = htmlspecialchars(trim($_POST['m_price'] ?? '25 €'));
+        $mPrice = htmlspecialchars(trim($_POST['m_price'] ?? '30 €'));
 
         $newId = 'TH-' . strtoupper(substr(uniqid(), -6));
         if (stripos($mActivity, 'KOMBO') !== false) {
@@ -704,8 +704,8 @@ if (!empty($_SESSION['admin_logged'])) {
               <div>
                 <label style="display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">Pramoga:</label>
                 <select name="m_activity" id="m_activity" class="form-input" style="margin-bottom:0;" onchange="updateManualLaneSelect()">
-                  <option value="Pykčio kambarys">Pykčio kambarys (25 €)</option>
-                  <option value="Kirvių mėtymas">Kirvių mėtymas (25 €)</option>
+                  <option value="Pykčio kambarys">Pykčio kambarys (30 €)</option>
+                  <option value="Kirvių mėtymas">Kirvių mėtymas (30 €)</option>
                   <option value="KOMBO paketas">KOMBO paketas (40 €)</option>
                 </select>
               </div>
@@ -725,7 +725,7 @@ if (!empty($_SESSION['admin_logged'])) {
               </div>
               <div>
                 <label style="display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">Kaina:</label>
-                <input type="text" name="m_price" id="m_price" class="form-input" value="25 €" style="margin-bottom:0;">
+                <input type="text" name="m_price" id="m_price" class="form-input" value="30 €" style="margin-bottom:0;">
               </div>
             </div>
 
@@ -896,7 +896,7 @@ if (!empty($_SESSION['admin_logged'])) {
             <div style="margin-bottom: 1rem;">
               <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Kupono vertė:</label>
               <select name="amount" class="form-input" style="margin-bottom: 0;">
-                <option value="25">25 € (1 pramoga)</option>
+                <option value="30">30 € (1 pramoga)</option>
                 <option value="40">40 € (KOMBO paketas)</option>
                 <option value="50">50 € (Dovana)</option>
                 <option value="100">100 € (VIP šventė)</option>
@@ -1198,7 +1198,7 @@ if (!empty($_SESSION['admin_logged'])) {
       const prcInput = document.getElementById('m_price');
       laneWrap.style.display = (act.includes('Kirvių') || act.includes('KOMBO')) ? 'block' : 'none';
       if (act.includes('KOMBO')) prcInput.value = '40 €';
-      else prcInput.value = '25 €';
+      else prcInput.value = '30 €';
       populateManualTimes();
     }
 
