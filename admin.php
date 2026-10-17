@@ -706,7 +706,7 @@ if (!empty($_SESSION['admin_logged'])) {
                 <select name="m_activity" id="m_activity" class="form-input" style="margin-bottom:0;" onchange="updateManualLaneSelect()">
                   <option value="Pykčio kambarys">Pykčio kambarys (30 €)</option>
                   <option value="Kirvių mėtymas">Kirvių mėtymas (30 €)</option>
-                  <option value="KOMBO paketas">KOMBO paketas (40 €)</option>
+                  <option value="KOMBO paketas">KOMBO paketas (50 €)</option>
                 </select>
               </div>
               <div id="m_lane_wrapper" style="display:none;">
@@ -1197,7 +1197,7 @@ if (!empty($_SESSION['admin_logged'])) {
       const laneWrap = document.getElementById('m_lane_wrapper');
       const prcInput = document.getElementById('m_price');
       laneWrap.style.display = (act.includes('Kirvių') || act.includes('KOMBO')) ? 'block' : 'none';
-      if (act.includes('KOMBO')) prcInput.value = '40 €';
+      if (act.includes('KOMBO')) prcInput.value = '50 €';
       else prcInput.value = '30 €';
       populateManualTimes();
     }
