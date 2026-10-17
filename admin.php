@@ -896,9 +896,8 @@ if (!empty($_SESSION['admin_logged'])) {
             <div style="margin-bottom: 1rem;">
               <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Kupono vertė:</label>
               <select name="amount" class="form-input" style="margin-bottom: 0;">
-                <option value="30">30 € (1 pramoga)</option>
-                <option value="40">40 € (KOMBO paketas)</option>
-                <option value="50">50 € (Dovana)</option>
+                <option value="30">30 € (Pramogos kuponas)</option>
+                <option value="50">50 € (KOMBO kuponas)</option>
                 <option value="100">100 € (VIP šventė)</option>
               </select>
             </div>
