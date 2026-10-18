@@ -191,6 +191,7 @@ $date = htmlspecialchars(trim($input['date'] ?? ''));
 $isoDate = !empty($input['iso_date']) ? trim($input['iso_date']) : normalizeDateToIso($date);
 $time = htmlspecialchars(trim($input['time'] ?? ''));
 $price = htmlspecialchars(trim($input['price'] ?? ''));
+$payMethod = htmlspecialchars(trim($input['pay_method'] ?? 'Elektroninė bankininkystė / Kortelė'));
 
 if (!$name || !$phone || !$email || !$date || !$time) {
     echo json_encode([
@@ -405,6 +406,7 @@ $reservation = [
     'iso_date' => $isoDate,
     'time' => $time,
     'price' => $price,
+    'payment' => $payMethod,
     'status' => 'Gauta'
 ];
 
@@ -423,7 +425,8 @@ $clientTextBody = "Sveiki, $name!\n\n"
     . "• Trukmė: $durationLabel\n"
     . "• Dalyvių skaičius: $count asm.\n"
     . "• Numatytas laikas: $date d., $time val.\n"
-    . "• Mokėtina suma: $price (atsiskaitymas vietoje atvykus)\n\n"
+    . "• Apmokėjimo būdas: $payMethod (apmokėta internetu)\n"
+    . "• Suma: $price\n\n"
     . "📍 KUR MUS RASTI:\n"
     . "• Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
     . "• Koordinatės: 55.910730, 23.315700\n"
@@ -467,7 +470,8 @@ $clientHtmlBody = '<!DOCTYPE html>
           <tr><td style="padding: 4px 0; color: #64748b;">Trukmė:</td><td style="font-weight: 700; color: #d97706;">' . $durationLabel . '</td></tr>
           <tr><td style="padding: 4px 0; color: #64748b;">Dalyvių skaičius:</td><td>' . $count . ' asm.</td></tr>
           <tr><td style="padding: 4px 0; color: #64748b;">Data ir laikas:</td><td style="font-weight: 700; color: #0f172a;">' . $date . ' d., ' . $time . ' val.</td></tr>
-          <tr><td style="padding: 4px 0; color: #64748b;">Mokėtina suma:</td><td style="font-weight: 700; font-size: 16px; color: #059669;">' . $price . ' (mokama vietoje)</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Apmokėjimo būdas:</td><td style="font-weight: 700; color: #0f172a;">' . $payMethod . '</td></tr>
+          <tr><td style="padding: 4px 0; color: #64748b;">Mokėtina suma:</td><td style="font-weight: 700; font-size: 16px; color: #059669;">' . $price . ' (apmokėta internetu)</td></tr>
         </table>
       </div>
 
@@ -576,8 +580,12 @@ $adminHtmlBody = '<!DOCTYPE html>
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #b45309; font-weight: 800; font-size: 15px;">🕒 ' . $time . ' val.</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #64748b;">Mokėtina suma:</td>
-            <td style="padding: 8px 0; color: #059669; font-weight: bold; font-size: 16px;">' . $price . ' <span style="font-size:12px; font-weight:normal; color:#64748b;">(vietoje)</span></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Apmokėjimas:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $payMethod . '</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b;">Suma:</td>
+            <td style="padding: 8px 0; color: #059669; font-weight: bold; font-size: 16px;">' . $price . ' <span style="font-size:12px; font-weight:normal; color:#10b981;">(Apmokėta internetu)</span></td>
           </tr>
         </table>
       </div>

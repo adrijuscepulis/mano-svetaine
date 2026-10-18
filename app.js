@@ -149,7 +149,7 @@ function handleBookingSubmit(event) {
     form.style.display = 'none';
     successBox.style.display = 'block';
 
-    const payText = payMethod === 'online' ? 'Mokėjimas internetu (Banklink / Kortelė)' : 'Atsiskaitymas atvykus vietoje';
+    const payText = payMethod === 'card' ? 'Mokėjimo kortelė (Visa / Mastercard)' : 'Elektroninė bankininkystė (Banklink)';
 
     successDetails.innerHTML = `
       <strong>Užsakymo suvestinė:</strong><br>
