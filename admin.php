@@ -347,6 +347,23 @@ if (!empty($_SESSION['admin_logged'])) {
         exit;
     }
 
+    // 4b. Ištrinti kuponą
+    if (isset($_POST['action']) && $_POST['action'] === 'delete_coupon') {
+        $code = trim($_POST['coupon_code'] ?? '');
+        $found = false;
+        $coupons = array_values(array_filter($coupons, function($c) use ($code, &$found) {
+            if (($c['code'] ?? '') === $code) {
+                $found = true;
+                return false;
+            }
+            return true;
+        }));
+        saveCouponsData($kupFile, $kupDbFile, $coupons);
+        $_SESSION['admin_flash'] = $found ? "Dovanų kuponas ($code) sėkmingai ištrintas." : "Kuponas ($code) nerastas.";
+        header('Location: admin.php?tab=kuponai');
+        exit;
+    }
+
     // 5. Rankinis kupono sukūrimas iš admin panelės
     if (isset($_POST['action']) && $_POST['action'] === 'create_coupon') {
         $amount = intval($_POST['amount'] ?? 25);
@@ -1402,10 +1419,17 @@ if (!empty($_SESSION['admin_logged'])) {
     <?php if ($currentTab === 'kuponai'): ?>
       <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: flex-start;">
         <div class="table-card">
-          <div class="table-head">
-            <h3>Dovanų kuponų apskaita</h3>
-            <span style="font-size: 0.85rem; color: var(--muted);">Aktyvių: <?= $activeCoupons ?></span>
+          <div class="table-head" style="flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+            <div>
+              <h3>Dovanų kuponų apskaita</h3>
+              <span style="font-size: 0.85rem; color: var(--muted);">Aktyvių: <?= $activeCoupons ?> | Iš viso: <?= count($coupons) ?></span>
+            </div>
+            <div style="min-width: 260px; flex: 1; max-width: 420px; position: relative;">
+              <input type="text" id="couponSearchInput" placeholder="🔍 Ieškoti kupono (vardas, gavėjas, kodas, suma)..." class="form-input" style="margin-bottom: 0; padding-left: 2.2rem; font-size: 0.85rem; padding-top: 0.5rem; padding-bottom: 0.5rem;" oninput="filterCouponsTable()">
+              <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 0.5;">🔍</span>
+            </div>
           </div>
+          <div id="couponSearchSummary" style="display: none; padding: 0.5rem 1.5rem; font-size: 0.8rem; background: rgba(255, 106, 0, 0.08); border-bottom: 1px solid rgba(255, 106, 0, 0.2); color: var(--accent);"></div>
           <div style="overflow-x: auto;">
             <table>
               <thead>
@@ -1418,14 +1442,19 @@ if (!empty($_SESSION['admin_logged'])) {
                   <th>Veiksmas</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="couponsTableBody">
+                <tr id="noCouponsFoundRow" style="display: none;">
+                  <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--muted);">Pagal nurodytą paiešką dovanų kuponų nerasta.</td>
+                </tr>
                 <?php if (empty($coupons)): ?>
                   <tr>
                     <td colspan="6" style="text-align: center; padding: 3rem; color: var(--muted);">Dovanų kuponų kol kas neparduota.</td>
                   </tr>
                 <?php else: ?>
-                  <?php foreach (array_reverse($coupons) as $c): ?>
-                    <tr>
+                  <?php foreach (array_reverse($coupons) as $c): 
+                    $searchData = strtolower(($c['code'] ?? '') . ' ' . ($c['buyer'] ?? '') . ' ' . ($c['recipient'] ?? '') . ' ' . ($c['amount'] ?? '') . ' ' . ($c['target_type'] ?? '') . ' ' . ($c['greeting'] ?? '') . ' ' . ($c['status'] ?? ''));
+                  ?>
+                    <tr class="coupon-item-row" data-search="<?= htmlspecialchars($searchData) ?>">
                       <td>
                         <strong style="font-family:'Outfit'; font-size:1.05rem; letter-spacing:0.05em; color:var(--accent);">
                           <?= htmlspecialchars($c['code'] ?? '') ?>
@@ -1451,15 +1480,22 @@ if (!empty($_SESSION['admin_logged'])) {
                         </span>
                       </td>
                       <td>
-                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                          <a href="kuponas_print.php?code=<?= urlencode($c['code'] ?? '') ?>" target="_blank" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                            🖨️ PDF / Spausdinti
+                        <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                          <a href="kuponas_print.php?code=<?= urlencode($c['code'] ?? '') ?>" target="_blank" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.6rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Atidaryti kuponą peržiūrai ir spausdinimui">
+                            🖨️ PDF
                           </a>
                           <form method="POST" style="margin: 0;">
                             <input type="hidden" name="action" value="toggle_coupon">
                             <input type="hidden" name="coupon_code" value="<?= htmlspecialchars($c['code'] ?? '') ?>">
-                            <button type="submit" class="btn <?= ($c['status'] ?? '') === 'Aktyvus' ? 'btn-danger' : 'btn-success' ?>" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
-                              <?= ($c['status'] ?? '') === 'Aktyvus' ? 'Pažymėti panaudotu' : 'Atstatyti aktyvų' ?>
+                            <button type="submit" class="btn <?= ($c['status'] ?? '') === 'Aktyvus' ? 'btn-danger' : 'btn-success' ?>" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">
+                              <?= ($c['status'] ?? '') === 'Aktyvus' ? 'Panaudotas' : 'Aktyvus' ?>
+                            </button>
+                          </form>
+                          <form method="POST" style="margin: 0;" onsubmit="return confirm('Ar tikrai norite IŠTRINTI dovanų kuponą <?= htmlspecialchars($c['code'] ?? '') ?>? Šis veiksmas negrįžtamas.');">
+                            <input type="hidden" name="action" value="delete_coupon">
+                            <input type="hidden" name="coupon_code" value="<?= htmlspecialchars($c['code'] ?? '') ?>">
+                            <button type="submit" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.6rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); display: inline-flex; align-items: center; gap: 3px;" title="Ištrinti kuponą">
+                              🗑️ Trinti
                             </button>
                           </form>
                         </div>
@@ -1471,6 +1507,41 @@ if (!empty($_SESSION['admin_logged'])) {
             </table>
           </div>
         </div>
+
+        <script>
+        function filterCouponsTable() {
+          const input = document.getElementById('couponSearchInput');
+          if (!input) return;
+          const q = input.value.toLowerCase().trim();
+          const rows = document.querySelectorAll('.coupon-item-row');
+          const summary = document.getElementById('couponSearchSummary');
+          const noMatch = document.getElementById('noCouponsFoundRow');
+          let matched = 0;
+
+          rows.forEach(function(row) {
+            const text = row.getAttribute('data-search') || row.textContent.toLowerCase();
+            if (!q || text.indexOf(q) !== -1) {
+              row.style.display = '';
+              matched++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+
+          if (noMatch) {
+            noMatch.style.display = (matched === 0 && rows.length > 0 && q) ? '' : 'none';
+          }
+
+          if (summary) {
+            if (q) {
+              summary.style.display = 'block';
+              summary.innerHTML = 'Rasta kuponų: <strong>' + matched + '</strong> iš ' + rows.length;
+            } else {
+              summary.style.display = 'none';
+            }
+          }
+        }
+        </script>
 
         <!-- RANKINIS KUPONO SUKŪRIMAS -->
         <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem;">
