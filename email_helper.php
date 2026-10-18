@@ -281,16 +281,44 @@ function renderNewReservationClientHtml($res) {
       </div>
 
       <!-- LOKACIJA -->
-      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin: 18px 0;">
         <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📍 KUR MUS RASTI:</span>
-        <p style="margin: 0 0 12px 0; font-size: 14px;">
-          Adresas: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong><br>
-          Koordinatės: 55.910730, 23.315700
+        <p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.5;">
+          Adresas: <a href="https://maps.google.com/?q=55.910730,23.315700" target="_blank" rel="noopener noreferrer" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Pramonės g. 15, Šiauliai (2-as aukštas)</a><br>
+          Koordinatės: <strong>55.910730, 23.315700</strong>
         </p>
-        <div style="text-align: center;">
-          <a href="https://www.google.com/maps?q=55.910730,23.315700" style="display:inline-block; background-color:#2563eb; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🗺️ Google Maps žemėlapis</a>
-          <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" style="display:inline-block; background-color:#0284c7; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🚗 Waze navigacija</a>
-        </div>
+        
+        <!-- NAVIGACIJOS MYGTUKAI (BULLETPROOF EMAIL BUTTONS) -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 8px;">
+          <tr>
+            <td align="center" style="padding: 6px; width: 50%;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" bgcolor="#2563eb" style="border-radius: 8px;">
+                    <a href="https://maps.google.com/?q=55.910730,23.315700" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background-color: #2563eb; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 12px 14px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid #2563eb;">
+                      🗺️ Google Maps žemėlapis
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td align="center" style="padding: 6px; width: 50%;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" bgcolor="#0284c7" style="border-radius: 8px;">
+                    <a href="https://www.waze.com/ul?ll=55.910730,23.315700&navigate=yes" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background-color: #0284c7; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 12px 14px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid #0284c7;">
+                      🚗 Waze navigacija
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin: 12px 0 0 0; text-align: center; font-size: 13px; color: #64748b;">
+          Tiesioginė nuoroda: <a href="https://maps.google.com/?q=55.910730,23.315700" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">Atidaryti Pramonės g. 15 per Google Maps ➔</a>
+        </p>
       </div>
 
       <!-- INSTRUKCIJA: ĮĖJIMAS -->
@@ -305,7 +333,7 @@ function renderNewReservationClientHtml($res) {
       <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #065f46; display: block; margin-bottom: 4px;">👟 SVARBU – AVALYNĖ IR APRANGA:</strong>
         <p style="margin: 0; color: #047857; font-size: 14px;">
-          Saugumo sumetimais visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai ar auliniai batai). Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama. Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame vietoje nemokamai!
+          Saugumui užtikrinti visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai ar auliniai batai). Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama. Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame vietoje nemokamai!
         </p>
       </div>
 
@@ -567,9 +595,44 @@ function renderRescheduledReservationClientHtml($res, $oldDate = '', $oldTime = 
         </p>
       </div>
 
-      <div style="text-align: center; margin: 20px 0;">
-        <a href="https://www.google.com/maps?q=55.910730,23.315700" style="display:inline-block; background-color:#2563eb; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🗺️ Google Maps žemėlapis</a>
-        <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" style="display:inline-block; background-color:#0284c7; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🚗 Waze navigacija</a>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📍 KUR MUS RASTI:</span>
+        <p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.5;">
+          Adresas: <a href="https://maps.google.com/?q=55.910730,23.315700" target="_blank" rel="noopener noreferrer" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Pramonės g. 15, Šiauliai (2-as aukštas)</a><br>
+          Koordinatės: <strong>55.910730, 23.315700</strong>
+        </p>
+        
+        <!-- NAVIGACIJOS MYGTUKAI (BULLETPROOF EMAIL BUTTONS) -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 8px;">
+          <tr>
+            <td align="center" style="padding: 6px; width: 50%;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" bgcolor="#2563eb" style="border-radius: 8px;">
+                    <a href="https://maps.google.com/?q=55.910730,23.315700" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background-color: #2563eb; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 12px 14px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid #2563eb;">
+                      🗺️ Google Maps žemėlapis
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td align="center" style="padding: 6px; width: 50%;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" bgcolor="#0284c7" style="border-radius: 8px;">
+                    <a href="https://www.waze.com/ul?ll=55.910730,23.315700&navigate=yes" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background-color: #0284c7; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 12px 14px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid #0284c7;">
+                      🚗 Waze navigacija
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin: 12px 0 0 0; text-align: center; font-size: 13px; color: #64748b;">
+          Tiesioginė nuoroda: <a href="https://maps.google.com/?q=55.910730,23.315700" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">Atidaryti Pramonės g. 15 per Google Maps ➔</a>
+        </p>
       </div>
 
       <div style="margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">

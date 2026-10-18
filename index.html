@@ -1736,67 +1736,26 @@
       <!-- KUPONO PIRKIMO MODALAS / FORMA -->
       <div id="giftModal" class="form-wrap" style="display: none; max-width: 600px; margin: 0 auto; border: 1px solid var(--accent);">
         <h3 style="font-family:'Outfit'; font-size: 1.5rem; margin-bottom: 0.5rem;" id="giftModalTitle">Dovanų kupono pirkimas</h3>
-        <p style="color: var(--text-gray); font-size: 0.875rem; margin-bottom: 1.5rem;">Pasirinkite, ar kuponą siųsti tiesiai draugui, ar norite jį gauti pats.</p>
+        <p style="color: var(--text-gray); font-size: 0.875rem; margin-bottom: 1.5rem;">Užpildykite kontaktinius duomenis ir apmokėkite. Dovanų kuponą iškart atsiųsime į Jūsų nurodytą el. paštą.</p>
 
         <form id="giftForm" onsubmit="submitGiftCoupon(event)">
           <input type="hidden" id="giftAmount" value="30">
-          
-          <!-- PASIRINKIMAS: KAM SIŲSTI -->
-          <div class="f-group" style="margin-bottom: 1.5rem;">
-            <label class="f-label">Kaip norite pristatyti kuponą?</label>
-            <div class="gift-target-grid">
-              <label class="pay-lbl" style="cursor: pointer; padding: 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius-sm); background: rgba(245, 158, 11, 0.08); text-align: left; display: flex; align-items: flex-start; gap: 0.6rem;">
-                <input type="radio" name="giftTarget" value="friend" checked onchange="toggleGiftTarget()">
-                <div>
-                  <strong style="color: #fff; font-size: 0.88rem; display: block;">🎁 Dovana draugui</strong>
-                  <span style="color: var(--text-gray); font-size: 0.75rem;">Siųsti tiesiai draugui su asmeniniu palinkėjimu</span>
-                </div>
-              </label>
-              <label class="pay-lbl" style="cursor: pointer; padding: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-sm); background: #0a0c13; text-align: left; display: flex; align-items: flex-start; gap: 0.6rem;">
-                <input type="radio" name="giftTarget" value="myself" onchange="toggleGiftTarget()">
-                <div>
-                  <strong style="color: #fff; font-size: 0.88rem; display: block;">👤 Perku sau / Įteiksiu pats</strong>
-                  <span style="color: var(--text-gray); font-size: 0.75rem;">Kuponą atsiųsti man į el. paštą</span>
-                </div>
-              </label>
-            </div>
-          </div>
 
           <!-- PIRKĖJO KONTAKTAI -->
           <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.1rem; margin-bottom: 1.25rem;">
-            <span style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 0.75rem; display: block;" id="buyerSectionTitle">👤 Jūsų (Pirkėjo) kontaktai:</span>
             <div class="form-row" style="margin-bottom: 0.75rem;">
               <div class="form-col">
-                <label class="f-label">Vardas ir Pavardė:</label>
-                <input type="text" id="giftBuyerName" class="f-input" placeholder="Jūsų vardas" required>
+                <label class="f-label">Vardas ir Pavardė *</label>
+                <input type="text" id="giftBuyerName" class="f-input" placeholder="Jūsų vardas ir pavardė" required>
               </div>
               <div class="form-col">
-                <label class="f-label">Telefono numeris:</label>
+                <label class="f-label">Telefono numeris *</label>
                 <input type="tel" id="giftBuyerPhone" class="f-input" placeholder="+370 6XX XXXXX" required>
               </div>
             </div>
             <div class="f-group" style="margin-bottom: 0;">
-              <label class="f-label" id="buyerEmailLabel">Jūsų el. paštas (pirkimo patvirtinimui):</label>
+              <label class="f-label">Jūsų el. paštas (kur išsiųsti kuponą) *</label>
               <input type="email" id="giftBuyerEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
-            </div>
-          </div>
-
-          <!-- DOVANOS GAVĖJO BLOKAS (RODOMAS KAI giftTarget === 'friend') -->
-          <div id="friendGiftSection" style="background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.35); border-radius: var(--radius-sm); padding: 1.1rem; margin-bottom: 1.25rem;">
-            <span style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fbbf24; margin-bottom: 0.75rem; display: block;">🎁 Dovanos gavėjo duomenys:</span>
-            <div class="form-row" style="margin-bottom: 0.75rem;">
-              <div class="form-col">
-                <label class="f-label">Draugo (gavėjo) vardas:</label>
-                <input type="text" id="giftRecipient" class="f-input" placeholder="Pvz. Paulius">
-              </div>
-              <div class="form-col">
-                <label class="f-label">Draugo el. paštas (kur nusiųsti kuponą):</label>
-                <input type="email" id="giftFriendEmail" class="f-input" placeholder="draugas@pavyzdys.lt">
-              </div>
-            </div>
-            <div class="f-group" style="margin-bottom: 0;">
-              <label class="f-label">Asmeninis palinkėjimas draugui (bus įrašytas į kuponą):</label>
-              <input type="text" id="giftGreeting" class="f-input" placeholder="Pvz.: Su gimtadieniu! Eik išsikrauti ir pasiausti :)">
             </div>
           </div>
 
@@ -2228,28 +2187,7 @@
 
     /* DOVANŲ KUPONAI */
     function toggleGiftTarget() {
-      const target = document.querySelector('input[name="giftTarget"]:checked')?.value || 'friend';
-      const friendSec = document.getElementById('friendGiftSection');
-      const friendEmailInput = document.getElementById('giftFriendEmail');
-      const friendNameInput = document.getElementById('giftRecipient');
-      const buyerEmailLabel = document.getElementById('buyerEmailLabel');
-
-      if (target === 'friend') {
-        if (friendSec) friendSec.style.display = 'block';
-        if (friendEmailInput) friendEmailInput.required = true;
-        if (friendNameInput) friendNameInput.required = true;
-        if (buyerEmailLabel) buyerEmailLabel.textContent = 'Jūsų el. paštas (pirkimo patvirtinimui):';
-      } else {
-        if (friendSec) friendSec.style.display = 'none';
-        if (friendEmailInput) {
-          friendEmailInput.required = false;
-          friendEmailInput.value = '';
-        }
-        if (friendNameInput) {
-          friendNameInput.required = false;
-        }
-        if (buyerEmailLabel) buyerEmailLabel.textContent = 'Jūsų el. paštas (kupono gavimui):';
-      }
+      // Funkcija palikta suderinamumui
     }
 
     function openGiftModal(amount, title) {
@@ -2264,7 +2202,6 @@
       document.getElementById('giftAmount').value = amount;
       document.getElementById('giftPriceDisplay').textContent = amount + ' €';
       document.getElementById('giftModalTitle').textContent = `Užsakyti: ${amount} € ${title}`;
-      toggleGiftTarget();
       modal.style.display = 'block';
       modal.scrollIntoView({ behavior: 'smooth' });
     }
@@ -2289,14 +2226,10 @@
         return;
       }
 
-      const target = document.querySelector('input[name="giftTarget"]:checked')?.value || 'friend';
       const amount = document.getElementById('giftAmount').value;
       const buyerName = document.getElementById('giftBuyerName').value;
       const buyerPhone = document.getElementById('giftBuyerPhone').value;
       const buyerEmail = document.getElementById('giftBuyerEmail').value;
-      const recipientName = (target === 'friend') ? document.getElementById('giftRecipient').value : buyerName;
-      const friendEmail = (target === 'friend') ? document.getElementById('giftFriendEmail').value : '';
-      const greeting = (target === 'friend') ? document.getElementById('giftGreeting').value : '';
 
       btn.disabled = true;
       btn.textContent = 'Generuojamas kuponas...';
@@ -2304,13 +2237,9 @@
       try {
         const payload = {
           amount,
-          giftTarget: target,
           buyerName,
           buyerPhone,
-          buyerEmail,
-          recipientName,
-          friendEmail,
-          greeting
+          buyerEmail
         };
 
         const res = await fetch('kuponas.php', {
@@ -2330,23 +2259,13 @@
 
         const code = data.coupon?.code || ('TH-KUP-' + Math.floor(1000 + Math.random() * 9000));
 
-        if (target === 'friend') {
-          summaryText.innerHTML = `
-            <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
-            <strong>Vertė:</strong> ${amount} €<br>
-            <strong>Gavėjas:</strong> ${recipientName} (el. paštas: <strong>${friendEmail}</strong>)<br>
-            <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
-            <span style="color:#4ade80;">✓ Dovanų kuponas su Jūsų palinkėjimu sėkmingai išsiųstas gavėjui <strong>${friendEmail}</strong>!<br>Pirkimo patvirtinimas išsiųstas Jums į <strong>${buyerEmail}</strong>.</span>
-          `;
-        } else {
-          summaryText.innerHTML = `
-            <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
-            <strong>Vertė:</strong> ${amount} €<br>
-            <strong>Gavėjas:</strong> ${buyerName}<br>
-            <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
-            <span style="color:#4ade80;">✓ Dovanų kuponas sėkmingai sugeneruotas ir išsiųstas į Jūsų el. paštą <strong>${buyerEmail}</strong>!</span>
-          `;
-        }
+        summaryText.innerHTML = `
+          <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
+          <strong>Vertė:</strong> ${amount} €<br>
+          <strong>Pirkėjas:</strong> ${buyerName}<br>
+          <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
+          <span style="color:#4ade80;">✓ Dovanų kuponas sėkmingai sugeneruotas ir išsiųstas į Jūsų el. paštą <strong>${buyerEmail}</strong>!</span>
+        `;
       } catch (err) {
         alert('Įvyko tinklo ryšio klaida. Prašome pabandyti dar kartą.');
       } finally {
