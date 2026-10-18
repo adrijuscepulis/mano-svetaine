@@ -1951,8 +1951,12 @@
               <div class="calc-price" id="calcPrice">30 €</div>
             </div>
 
-            <!-- SUTIKIMAS SU TAISYKLĖMIS IR PRIVATUMO POLITIKA -->
-            <div class="f-group" style="margin-bottom: 1.25rem;">
+            <!-- SUTIKIMAI IR PATVIRTINIMAI -->
+            <div class="f-group" style="margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.65rem;">
+              <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; line-height: 1.5;">
+                <input type="checkbox" id="resAgeAgree" required style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;">
+                <span>Patvirtinu, jog esu vyresnis nei 16 *</span>
+              </label>
               <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; line-height: 1.5;">
                 <input type="checkbox" id="resTermsAgree" required style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;">
                 <span>Susipažinau ir sutinku su <a href="taisykles.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Pirkimo–pardavimo taisyklėmis</a> bei <a href="privatumas.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Privatumo politika</a> *</span>
@@ -2602,6 +2606,13 @@
       const box = document.getElementById('resSuccess');
       const sum = document.getElementById('resSummary');
       const btn = document.getElementById('submitBtn');
+
+      const ageAgree = document.getElementById('resAgeAgree');
+      if (!ageAgree || !ageAgree.checked) {
+        alert('Prašome pažymėti varnelę, jog patvirtinate, kad esate vyresnis(-ė) nei 16.');
+        ageAgree?.focus();
+        return;
+      }
 
       const termsAgree = document.getElementById('resTermsAgree');
       if (!termsAgree || !termsAgree.checked) {
