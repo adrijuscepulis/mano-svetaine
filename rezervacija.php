@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Europe/Vilnius');
 header('Content-Type: application/json; charset=utf-8');
 
 // Pagalbinė funkcija: lietuviškos datos konvertavimas į ISO YYYY-MM-DD
@@ -129,9 +130,31 @@ if (file_exists($dataFile)) {
 }
 
 // -------------------------------------------------------------
+// APSAUGA NUO PRAĖJUSIO LAIKO IR PRAEITIES DATŲ
+// -------------------------------------------------------------
+$todayIso = date('Y-m-d');
+$currentHour = intval(date('G')); // 0-23 val. Lietuvos laiku
+
+if ($isoDate < $todayIso) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Negalima rezervuoti praeities datos. Prašome pasirinkti šiandienos arba ateities dieną.'
+    ]);
+    exit;
+}
+
+$startHour = intval($time);
+if ($isoDate === $todayIso && $startHour <= $currentHour) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Pasirinktas laikas (' . sprintf('%02d:00', $startHour) . ' val.) jau praėjo. Prašome pasirinkti vėlesnį laiką.'
+    ]);
+    exit;
+}
+
+// -------------------------------------------------------------
 // APSAUGA NUO DVIGUBO UŽSAKYMO (SLOT CAPACITY VALIDATION)
 // -------------------------------------------------------------
-$startHour = intval($time);
 $t1 = sprintf('%02d:00', $startHour);
 $t2 = sprintf('%02d:00', $startHour + 1);
 $tEnd = sprintf('%02d:00', $startHour + 2);

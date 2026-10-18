@@ -2374,17 +2374,35 @@
       const timeSelect = document.getElementById('resTime');
       if (!timeSelect) return;
 
+      const prevSelectedVal = timeSelect.value;
+
       const actEl = document.querySelector('input[name="resActivity"]:checked');
       const act = actEl ? actEl.value : 'Pykčio kambarys';
       const isRage = act.includes('Pykčio kambarys');
       const isAxe = act.includes('Kirvių mėtymas');
       const isKombo = act.includes('KOMBO');
 
+      // Dinamiškai atnaujiname trukmės etiketę
+      const timeLabel = document.querySelector('label[for="resTime"]');
+      if (timeLabel) {
+        timeLabel.textContent = isKombo ? '4. Valanda (2 val. sesija):' : '4. Valanda (1 val. sesija):';
+      }
+
       const yyyy = targetDate.getFullYear();
       const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
       const dd = String(targetDate.getDate()).padStart(2, '0');
       const isoKey = `${yyyy}-${mm}-${dd}`;
       const daySlots = bookedSlotsData[isoKey] || {};
+
+      // Realaus laiko sekimas: ar tikrinama šiandiena ir kokia dabar valanda
+      const now = new Date();
+      const todayYear = now.getFullYear();
+      const todayMonth = now.getMonth();
+      const todayDate = now.getDate();
+      const currentHour = now.getHours();
+
+      const isToday = (yyyy === todayYear && targetDate.getMonth() === todayMonth && targetDate.getDate() === todayDate);
+      const isPastDay = new Date(yyyy, targetDate.getMonth(), targetDate.getDate()).getTime() < new Date(todayYear, todayMonth, todayDate).getTime();
 
       const dayOfWeek = targetDate.getDay();
       timeSelect.innerHTML = '';
@@ -2399,6 +2417,7 @@
       // KOMBO trunka 2 valandas, todėl paskutinė pradžia – likus 2 val. iki uždarymo:
       let endHour = isKombo ? (closingHour - 2) : (closingHour - 1);
       let firstAvailable = null;
+      let availableCount = 0;
 
       for (let h = startHour; h <= endHour; h++) {
         const hourStr = (h < 10 ? '0' : '') + h + ':00';
@@ -2409,6 +2428,9 @@
 
         const opt = document.createElement('option');
         opt.value = hourStr;
+
+        // Realaus laiko patikrinimas: jei šiandien ir valanda h <= einamosios valandos, laikas jau praėjo
+        const isPastSlot = isPastDay || (isToday && h <= currentHour);
 
         const slot1 = daySlots[hourStr] || null;
         const slot2 = daySlots[hNextStr] || null;
@@ -2429,32 +2451,47 @@
           }
         }
 
-        if (isKombo) {
-          if (isBooked) {
-            opt.disabled = true;
-            opt.textContent = `${hourStr} - ${endHourStr} val. (2 val. UŽIMTA)`;
-            opt.style.color = '#ef4444';
-            opt.style.background = '#18181b';
-          } else {
-            opt.textContent = `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`;
-            if (!firstAvailable) firstAvailable = hourStr;
-          }
+        if (isPastSlot) {
+          opt.disabled = true;
+          opt.textContent = `${hourStr} - ${endHourStr} val. (Laikas praėjo)`;
+          opt.style.color = '#71717a';
+          opt.style.background = '#18181b';
+        } else if (isBooked) {
+          opt.disabled = true;
+          opt.textContent = isKombo
+            ? `${hourStr} - ${endHourStr} val. (2 val. UŽIMTA)`
+            : `${hourStr} - ${endHourStr} val. (UŽIMTA)`;
+          opt.style.color = '#ef4444';
+          opt.style.background = '#18181b';
         } else {
-          if (isBooked) {
-            opt.disabled = true;
-            opt.textContent = `${hourStr} - ${endHourStr} val. (UŽIMTA)`;
-            opt.style.color = '#ef4444';
-            opt.style.background = '#18181b';
-          } else {
-            opt.textContent = `${hourStr} - ${endHourStr} val. (1 val.)`;
-            if (!firstAvailable) firstAvailable = hourStr;
-          }
+          opt.textContent = isKombo
+            ? `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`
+            : `${hourStr} - ${endHourStr} val. (1 val.)`;
+          if (!firstAvailable) firstAvailable = hourStr;
+          availableCount++;
         }
+
         timeSelect.appendChild(opt);
       }
 
-      if (firstAvailable) {
-        timeSelect.value = firstAvailable;
+      if (availableCount === 0) {
+        const noSlotOpt = document.createElement('option');
+        noSlotOpt.value = '';
+        noSlotOpt.disabled = true;
+        noSlotOpt.selected = true;
+        noSlotOpt.textContent = isToday
+          ? 'Šiandien laisvų laikų nebėra (pasirinkite kitą dieną)'
+          : 'Šią dieną laisvų laikų nebėra (pasirinkite kitą dieną)';
+        noSlotOpt.style.color = '#ef4444';
+        timeSelect.prepend(noSlotOpt);
+        timeSelect.value = '';
+      } else {
+        const prevOpt = Array.from(timeSelect.options).find(o => o.value === prevSelectedVal && !o.disabled);
+        if (prevOpt) {
+          timeSelect.value = prevSelectedVal;
+        } else if (firstAvailable) {
+          timeSelect.value = firstAvailable;
+        }
       }
     }
 
@@ -2482,7 +2519,8 @@
       const dateText = document.getElementById('calSelectedText').textContent;
       const timeSelect = document.getElementById('resTime');
       const time = timeSelect.value;
-      const timeOptionText = timeSelect.options[timeSelect.selectedIndex]?.text || `${time} val.`;
+      const selectedOption = timeSelect.options[timeSelect.selectedIndex];
+      const timeOptionText = selectedOption?.text || `${time} val.`;
       const lane = (act.includes('Kirvių') || act.includes('KOMBO')) ? document.getElementById('resLane').value : '';
       const extraDishes = (!act.includes('Kirvių mėtymas')) ? document.getElementById('resExtraDishes').value : 0;
       const prc = document.getElementById('calcPrice').textContent;
@@ -2491,6 +2529,23 @@
         alert('Prašome pasirinkti datą iš kalendoriaus!');
         toggleCalendar();
         return;
+      }
+
+      if (!time || (selectedOption && selectedOption.disabled)) {
+        alert('Prašome pasirinkti galiojantį laisvą laiką!');
+        return;
+      }
+
+      // Papildomas realaus laiko patikrinimas prieš siunčiant
+      const nowCheck = new Date();
+      const todayIsoStr = `${nowCheck.getFullYear()}-${String(nowCheck.getMonth() + 1).padStart(2, '0')}-${String(nowCheck.getDate()).padStart(2, '0')}`;
+      if (date === todayIsoStr) {
+        const startH = parseInt(time, 10);
+        if (startH <= nowCheck.getHours()) {
+          alert('Pasirinktas laikas jau praėjo. Prašome pasirinkti vėlesnį laiką.');
+          if (selectedDate) populateTimeSlots(selectedDate);
+          return;
+        }
       }
 
       btn.disabled = true;
@@ -2577,6 +2632,28 @@
     // Sinchronizuojame užimtų laikų žemėlapį iš serverio
     fetchBookedSlots().then(() => {
       if (selectedDate) populateTimeSlots(selectedDate);
+    });
+
+    // Realaus laiko sekimas: kas 30 sekundžių atnaujiname laikus, jei pasirinkta šiandiena
+    setInterval(() => {
+      if (selectedDate) {
+        const now = new Date();
+        const isToday = (
+          selectedDate.getFullYear() === now.getFullYear() &&
+          selectedDate.getMonth() === now.getMonth() &&
+          selectedDate.getDate() === now.getDate()
+        );
+        if (isToday) {
+          populateTimeSlots(selectedDate);
+        }
+      }
+    }, 30000);
+
+    // Grįžus į naršyklės skirtuką, atnaujiname laikus ir užimtumą
+    window.addEventListener('focus', () => {
+      fetchBookedSlots().then(() => {
+        if (selectedDate) populateTimeSlots(selectedDate);
+      });
     });
 
     // Helovyno iššokančio pranešimo funkcijos
