@@ -1,6 +1,8 @@
 <?php
 date_default_timezone_set('Europe/Vilnius');
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 
 // Pagalbinė funkcija: lietuviškos datos konvertavimas į ISO YYYY-MM-DD
 function normalizeDateToIso($dateStr) {
@@ -48,27 +50,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $act = $r['activity'] ?? '';
         $l = $r['lane'] ?? '';
+        $isBlock = (!empty($r['is_block']) || ($r['status'] ?? '') === 'Uždaryta' || stripos($act, 'Uždaryt') !== false);
 
         if (!isset($bookedMap[$iso])) {
             $bookedMap[$iso] = [];
         }
+        if (!isset($bookedMap[$iso][$t1])) {
+            $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+        }
 
-        if (stripos($act, 'Pykčio') !== false) {
-            if (!isset($bookedMap[$iso][$t1])) {
-                $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+        // Administratoriaus uždaryti laikai (blokuota ranka iš admin pulto)
+        if ($isBlock) {
+            if (stripos($act, 'Pykčio') !== false) {
+                $bookedMap[$iso][$t1]['rage'] = max($bookedMap[$iso][$t1]['rage'], 1);
+                $bookedMap[$iso][$t1]['is_rage_full'] = true;
+            } elseif (stripos($act, 'Kirvių') !== false) {
+                if (stripos($l, '1') !== false) {
+                    $bookedMap[$iso][$t1]['axe']++;
+                    $bookedMap[$iso][$t1]['lanes'][] = 'Takelis 1';
+                } elseif (stripos($l, '2') !== false) {
+                    $bookedMap[$iso][$t1]['axe']++;
+                    $bookedMap[$iso][$t1]['lanes'][] = 'Takelis 2';
+                } else {
+                    $bookedMap[$iso][$t1]['axe'] = 2;
+                    $bookedMap[$iso][$t1]['is_axe_full'] = true;
+                }
+            } else {
+                // Uždarytas laikas visoms pramogoms
+                $bookedMap[$iso][$t1]['rage'] = 1;
+                $bookedMap[$iso][$t1]['axe'] = 2;
+                $bookedMap[$iso][$t1]['is_rage_full'] = true;
+                $bookedMap[$iso][$t1]['is_axe_full'] = true;
+                $bookedMap[$iso][$t1]['is_full'] = true;
             }
+            continue;
+        }
+
+        // Įprasta lankytojų arba rankinė rezervacija:
+        if (stripos($act, 'Pykčio') !== false) {
             $bookedMap[$iso][$t1]['rage']++;
         } elseif (stripos($act, 'Kirvių') !== false) {
-            if (!isset($bookedMap[$iso][$t1])) {
-                $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
-            }
             $bookedMap[$iso][$t1]['axe']++;
             if ($l) $bookedMap[$iso][$t1]['lanes'][] = $l;
         } elseif (stripos($act, 'KOMBO') !== false) {
             // Pirma darome Kirvių mėtymą (1-oji valanda: $t1)
-            if (!isset($bookedMap[$iso][$t1])) {
-                $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
-            }
             $bookedMap[$iso][$t1]['axe']++;
             $bookedMap[$iso][$t1]['lanes'][] = $l ?: 'Takelis 1';
 
@@ -130,15 +155,24 @@ if (file_exists($dataFile)) {
 }
 
 // -------------------------------------------------------------
-// APSAUGA NUO PRAĖJUSIO LAIKO IR PRAEITIES DATŲ
+// APSAUGA NUO PRAĖJUSIO LAIKO, PRAEITIES DATŲ IR 2 MĖNESIŲ LIMITAS
 // -------------------------------------------------------------
 $todayIso = date('Y-m-d');
 $currentHour = intval(date('G')); // 0-23 val. Lietuvos laiku
+$maxIsoDate = date('Y-m-d', strtotime('+2 months'));
 
 if ($isoDate < $todayIso) {
     echo json_encode([
         'success' => false,
         'message' => 'Negalima rezervuoti praeities datos. Prašome pasirinkti šiandienos arba ateities dieną.'
+    ]);
+    exit;
+}
+
+if ($isoDate > $maxIsoDate) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Rezervacijos priimamos ne daugiau kaip 2 mėnesiams į priekį (iki ' . $maxIsoDate . ').'
     ]);
     exit;
 }
@@ -173,9 +207,30 @@ foreach ($all as $ex) {
     $exT2 = sprintf('%02d:00', $exStartH + 1);
     $exAct = $ex['activity'] ?? '';
     $exLane = $ex['lane'] ?? '';
+    $exIsBlock = (!empty($ex['is_block']) || ($ex['status'] ?? '') === 'Uždaryta' || stripos($exAct, 'Uždaryt') !== false);
 
     if (!isset($slotsOccupied[$exT1])) $slotsOccupied[$exT1] = ['rage' => 0, 'axe' => 0, 'lanes' => []];
     if (!isset($slotsOccupied[$exT2])) $slotsOccupied[$exT2] = ['rage' => 0, 'axe' => 0, 'lanes' => []];
+
+    if ($exIsBlock) {
+        if (stripos($exAct, 'Pykčio') !== false) {
+            $slotsOccupied[$exT1]['rage'] = max($slotsOccupied[$exT1]['rage'], 1);
+        } elseif (stripos($exAct, 'Kirvių') !== false) {
+            if (stripos($exLane, '1') !== false) {
+                $slotsOccupied[$exT1]['axe']++;
+                $slotsOccupied[$exT1]['lanes'][] = 'Takelis 1';
+            } elseif (stripos($exLane, '2') !== false) {
+                $slotsOccupied[$exT1]['axe']++;
+                $slotsOccupied[$exT1]['lanes'][] = 'Takelis 2';
+            } else {
+                $slotsOccupied[$exT1]['axe'] = 2;
+            }
+        } else {
+            $slotsOccupied[$exT1]['rage'] = 1;
+            $slotsOccupied[$exT1]['axe'] = 2;
+        }
+        continue;
+    }
 
     if (stripos($exAct, 'Pykčio') !== false) {
         $slotsOccupied[$exT1]['rage']++;

@@ -2284,13 +2284,23 @@
     });
 
     function calPrevMonth() {
-      currentCalDate.setMonth(currentCalDate.getMonth() - 1);
-      renderCalendar();
+      const today = new Date();
+      const minMonthDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      const targetMonthDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1);
+      if (targetMonthDate >= minMonthDate) {
+        currentCalDate = targetMonthDate;
+        renderCalendar();
+      }
     }
 
     function calNextMonth() {
-      currentCalDate.setMonth(currentCalDate.getMonth() + 1);
-      renderCalendar();
+      const today = new Date();
+      const maxMonthDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+      const targetMonthDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 1);
+      if (targetMonthDate <= maxMonthDate) {
+        currentCalDate = targetMonthDate;
+        renderCalendar();
+      }
     }
 
     function renderCalendar() {
@@ -2305,6 +2315,31 @@
 
       const today = new Date();
       today.setHours(0,0,0,0);
+
+      // Rezervuoti galima tik iki 2 mėnesių į priekį
+      const maxDate = new Date(today);
+      maxDate.setMonth(maxDate.getMonth() + 2);
+      maxDate.setHours(23, 59, 59, 999);
+
+      // Navigacijos mygtukų valdymas (apribojimas iki 2 mėn į priekį ir ne į praeitį)
+      const prevBtn = document.querySelector('.cal-header button:first-child');
+      const nextBtn = document.querySelector('.cal-header button:last-child');
+      const minMonthDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      const maxMonthDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+      const curMonthDate = new Date(year, month, 1);
+
+      if (prevBtn) {
+        const isMin = (curMonthDate <= minMonthDate);
+        prevBtn.disabled = isMin;
+        prevBtn.style.opacity = isMin ? '0.3' : '1';
+        prevBtn.style.cursor = isMin ? 'not-allowed' : 'pointer';
+      }
+      if (nextBtn) {
+        const isMax = (curMonthDate >= maxMonthDate);
+        nextBtn.disabled = isMax;
+        nextBtn.style.opacity = isMax ? '0.3' : '1';
+        nextBtn.style.cursor = isMax ? 'not-allowed' : 'pointer';
+      }
 
       const firstDayIndex = new Date(year, month, 1).getDay();
       const startOffset = (firstDayIndex === 0 ? 7 : firstDayIndex) - 1;
@@ -2324,7 +2359,8 @@
         const thisDate = new Date(year, month, day);
         thisDate.setHours(0,0,0,0);
 
-        if (thisDate < today) {
+        // Tikriname ar data nėra praeityje ir ne toliau kaip 2 mėnesiai
+        if (thisDate < today || thisDate > maxDate) {
           dElem.classList.add('disabled');
         } else {
           if (thisDate.getTime() === today.getTime()) dElem.classList.add('today');
@@ -2353,14 +2389,17 @@
       document.getElementById('calTrigger').classList.remove('active');
 
       renderCalendar();
-      populateTimeSlots(selectedDate);
+      // Kiekvieną kartą pasirinkus dieną, sinchronizuojame naujausius užimtus laikus iš serverio
+      fetchBookedSlots().then(() => {
+        populateTimeSlots(selectedDate);
+      });
     }
 
     let bookedSlotsData = {};
 
     async function fetchBookedSlots() {
       try {
-        const res = await fetch('rezervacija.php');
+        const res = await fetch('rezervacija.php?t=' + Date.now(), { cache: 'no-store' });
         const d = await res.json();
         if (d && d.booked) {
           bookedSlotsData = d.booked;
@@ -2528,6 +2567,16 @@
       if (!date) {
         alert('Prašome pasirinkti datą iš kalendoriaus!');
         toggleCalendar();
+        return;
+      }
+
+      // Tikriname, ar data neviršija 2 mėnesių į priekį
+      const maxAllowedDate = new Date();
+      maxAllowedDate.setMonth(maxAllowedDate.getMonth() + 2);
+      maxAllowedDate.setHours(23, 59, 59, 999);
+      const chosenDate = new Date(date + 'T00:00:00');
+      if (chosenDate > maxAllowedDate) {
+        alert('Rezervacijos priimamos ne daugiau kaip 2 mėnesiams į priekį!');
         return;
       }
 
