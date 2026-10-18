@@ -662,19 +662,10 @@ function renderRescheduledReservationClientHtml($res, $oldDate = '', $oldTime = 
 function renderVoucherHtml($coupon) {
     $code = htmlspecialchars($coupon['code'] ?? '');
     $amount = htmlspecialchars($coupon['amount'] ?? 30);
-    $buyerName = htmlspecialchars(explode(' (', $coupon['buyer'] ?? '')[0] ?: ($coupon['buyer'] ?? ''));
-    $targetName = htmlspecialchars($coupon['recipient'] ?? '');
-    $greeting = htmlspecialchars($coupon['greeting'] ?? '');
     $expiresAt = htmlspecialchars($coupon['expires_at'] ?? '');
-    $isFriend = (!empty($greeting) || (isset($coupon['target_type']) && stripos($coupon['target_type'], 'draugui') !== false));
 
-    if ($isFriend) {
-        $introGreeting = '<p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $targetName . '</strong>!</p>
-        <p style="font-size: 15px; color: #334155;"><strong>' . $buyerName . '</strong> Jums padovanojo <strong>' . $amount . ' €</strong> vertės pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą!</p>';
-    } else {
-        $introGreeting = '<p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $buyerName . '</strong>!</p>
-        <p style="font-size: 15px; color: #334155;">Nuoširdžiai dėkojame, kad įsigijote pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą! Žemiau pateikiamas Jūsų kuponas:</p>';
-    }
+    $introGreeting = '<p style="font-size: 16px; margin-top: 0;">Sveiki!</p>
+    <p style="font-size: 15px; color: #334155;">Nuoširdžiai dėkojame, kad įsigijote pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą! Žemiau pateikiamas Jūsų kuponas:</p>';
 
     return '<!DOCTYPE html>
 <html>
@@ -690,21 +681,16 @@ function renderVoucherHtml($coupon) {
 
     <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
       ' . $introGreeting . '
-      
-      ' . (!empty($greeting) ? '
-      <div style="background-color: #fffbeb; border: 1px dashed #f59e0b; border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-style: italic; color: #78350f;">
-        <span style="font-weight: bold; font-style: normal; display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #b45309; margin-bottom: 4px;">Asmeninis palinkėjimas Jums:</span>
-        „' . nl2br($greeting) . '“
-      </div>' : '') . '
 
       <!-- KUPONO KORTELĖ -->
-      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 22px; color: #ffffff; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2);">
-        <span style="font-size: 12px; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">UNIKALUS KUPONO KODAS</span>
-        <div style="font-size: 28px; font-weight: 900; letter-spacing: 4px; font-family: monospace; color: #ffffff; background: rgba(0,0,0,0.4); padding: 10px 16px; border-radius: 8px; display: inline-block; border: 1px dashed rgba(245, 158, 11, 0.5); margin-bottom: 12px;">
-          ' . $code . '
+      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 24px; color: #ffffff; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2);">
+        <span style="font-size: 12px; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">OFICIALUS DOVANŲ KUPONAS</span>
+        <div style="font-size: 42px; font-weight: 900; color: #ff6a00; line-height: 1; margin: 8px 0 14px 0;">
+          ' . $amount . ' €
         </div>
-        <div style="font-size: 18px; font-weight: 700; color: #34d399; margin-bottom: 4px;">
-          Vertė: ' . $amount . ' €
+        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px;">UNIKALUS KUPONO KODAS</div>
+        <div style="font-size: 24px; font-weight: 900; letter-spacing: 3px; font-family: monospace; color: #ffffff; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 8px; display: inline-block; border: 1px dashed rgba(245, 158, 11, 0.5); margin-bottom: 12px;">
+          ' . $code . '
         </div>
         <div style="font-size: 13px; color: #94a3b8;">
           Galioja 6 mėnesius iki: <strong style="color: #ffffff;">' . $expiresAt . '</strong>
@@ -717,22 +703,22 @@ function renderVoucherHtml($coupon) {
           <tr>
             <td align="center" bgcolor="#f59e0b" style="border-radius: 8px;">
               <a href="' . getThrowHouseBaseUrl() . '/kuponas_print.php?code=' . urlencode($code) . '&print=1" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #f59e0b; color: #000000 !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; text-align: center; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
-                🖨️ Atsisiųsti PDF / Spausdinti kuponą ➔
+                🖨️ Atsisiųsti PDF / Spausdinti kuponą (A4) ➔
               </a>
             </td>
           </tr>
         </table>
         <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
-          Galite atsispausdinti ant popieriaus arba išsisaugoti kaip PDF failą
+          Galite atsispausdinti A4 formatu ant popieriaus arba išsisaugoti kaip PDF failą
         </div>
       </div>
 
       <!-- INSTRUKCIJA KAIP PANAUDOTI -->
       <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
-        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📌 KAIP PANAUDOTI KUPONĄ:</span>
-        <p style="margin: 0; font-size: 14px; color: #475569;">
-          Kupono turėtojas gali pasirinkti bet kurią „ThrowHouse Šiauliai“ siūlomą pramogą (Pykčio kambarį arba Kirvių mėtymą).<br><br>
-          Dėl apsilankymo laiko suderinimo prašome kreiptis tiesiogiai į administraciją ir nurodyti savo kupono kodą <strong>' . $code . '</strong>:<br>
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📌 REZERVACIJA TIK ASMENIŠKAI SUSISIEKUS:</span>
+        <p style="margin: 0; font-size: 14px; color: #475569; line-height: 1.5;">
+          Su dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
+          Paskambinkite arba parašykite ir nurodykite savo kupono kodą <strong>' . $code . '</strong>:<br>
           📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: bold; text-decoration: none;">+370 619 88009</a><br>
           ✉️ El. paštu: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; font-weight: bold; text-decoration: none;">throwhousee@gmail.com</a>
         </p>

@@ -1,5 +1,5 @@
 <?php
-// kuponas_print.php - Spausdinimui ir PDF išsaugojimui paruoštas „ThrowHouse Šiauliai“ dovanų kuponas
+// kuponas_print.php - A4 formato ThrowHouse dovanų kuponas spausdinimui ir PDF išsaugojimui
 header('Content-Type: text/html; charset=utf-8');
 
 $code = trim($_GET['code'] ?? '');
@@ -24,15 +24,12 @@ if (!empty($code)) {
     }
 }
 
-// Jei kupono pagal kodą nerado (arba bandomasis režimas)
+// Jei kupono pagal kodą nerado (arba tiesioginė peržiūra)
 if (!$coupon) {
     $amount = intval($_GET['amount'] ?? 50);
-    $name = htmlspecialchars($_GET['name'] ?? 'Dovanų kupono turėtojas');
     $coupon = [
         'code' => !empty($code) ? htmlspecialchars($code) : 'TH-KUP-' . rand(1000, 9999),
         'amount' => $amount,
-        'buyer' => $name,
-        'recipient' => $name,
         'created_at' => date('Y-m-d'),
         'expires_at' => date('Y-m-d', strtotime('+6 months')),
         'status' => 'Aktyvus'
@@ -42,7 +39,6 @@ if (!$coupon) {
 $cCode = htmlspecialchars($coupon['code'] ?? 'TH-KUP-0000');
 $cAmount = htmlspecialchars($coupon['amount'] ?? 50);
 $cExpires = htmlspecialchars($coupon['expires_at'] ?? date('Y-m-d', strtotime('+6 months')));
-$cRecipient = htmlspecialchars(explode(' (', $coupon['recipient'] ?? $coupon['buyer'] ?? 'Dovanų kupono gavėjas')[0]);
 $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
 ?>
 <!DOCTYPE html>
@@ -53,16 +49,8 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #ff6a00;
-      --primary-glow: rgba(255, 106, 0, 0.4);
-      --accent: #f59e0b;
-      --bg-dark: #08050e;
-      --surface: #120b1e;
-    }
-
     * { box-sizing: border-box; }
 
     body {
@@ -75,16 +63,15 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* VIRŠUTINĖ VALDYMO JUOSTA (TIK EKRANE) */
+    /* VALDYMO JUOSTA EKRANE */
     .action-bar {
       width: 100%;
-      background: #130d22;
-      border-bottom: 1px solid rgba(255, 106, 0, 0.3);
-      padding: 1rem 1.5rem;
+      background: #110c1c;
+      border-bottom: 1px solid rgba(255, 106, 0, 0.35);
+      padding: 0.85rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -92,7 +79,7 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
 
     .action-btn {
@@ -127,209 +114,258 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
     }
 
     .voucher-stage {
-      padding: 2.5rem 1rem;
+      padding: 2rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 100%;
     }
 
-    .cut-guide {
-      font-size: 0.75rem;
-      color: #a1a1aa;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* KUPONO KORTELĖ */
-    .voucher-card {
+    /* A4 FORMATO KORTELĖ */
+    .a4-voucher {
       width: 100%;
-      max-width: 820px;
-      background: radial-gradient(circle at 15% 20%, #1f1230 0%, #0d0817 70%, #050308 100%);
-      border: 2px solid #ff6a00;
-      border-radius: 16px;
-      padding: 2rem 2.2rem;
+      max-width: 794px; /* Standartinis A4 plotis 96dpi (210mm) */
+      min-height: 1050px; /* Standartinis A4 aukštis (297mm) */
+      background: #0f0b18;
+      background: radial-gradient(circle at 50% 30%, #1c112e 0%, #0c0816 65%, #050308 100%);
+      border: 3px solid #ff6a00;
+      border-radius: 18px;
+      padding: 3rem 2.8rem;
       position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 106, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 45px rgba(255, 106, 0, 0.2);
     }
 
-    /* DEKORATYVINIAI KAMPELIAI */
-    .voucher-card::before {
+    /* VIDINIS RĖMELIS */
+    .a4-voucher::before {
       content: '';
       position: absolute;
-      top: 6px; left: 6px; right: 6px; bottom: 6px;
-      border: 1px dashed rgba(255, 106, 0, 0.3);
+      top: 14px; left: 14px; right: 14px; bottom: 14px;
+      border: 1px solid rgba(255, 106, 0, 0.4);
       border-radius: 12px;
       pointer-events: none;
     }
 
-    .corner-decor {
+    .corner-accent {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 32px;
+      height: 32px;
       border-color: #ff6a00;
       border-style: solid;
       pointer-events: none;
     }
-    .corner-tl { top: 12px; left: 12px; border-width: 3px 0 0 3px; }
-    .corner-tr { top: 12px; right: 12px; border-width: 3px 3px 0 0; }
-    .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 3px 3px; }
-    .corner-br { bottom: 12px; right: 12px; border-width: 0 3px 3px 0; }
+    .corner-tl { top: 22px; left: 22px; border-width: 3px 0 0 3px; }
+    .corner-tr { top: 22px; right: 22px; border-width: 3px 3px 0 0; }
+    .corner-bl { bottom: 22px; left: 22px; border-width: 0 0 3px 3px; }
+    .corner-br { bottom: 22px; right: 22px; border-width: 0 3px 3px 0; }
 
-    /* KUPONO VIRŠŪNĖ */
-    .v-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding-bottom: 1.25rem;
-      margin-bottom: 1.5rem;
+    /* 1. VIRŠUS */
+    .v-top {
+      text-align: center;
       position: relative;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-
-    .brand-title {
+    .v-logo {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.7rem;
+      font-size: 2.2rem;
       font-weight: 900;
-      letter-spacing: 1.5px;
+      letter-spacing: 2.5px;
       margin: 0;
       color: #fff;
     }
-    .brand-title span { color: #ff6a00; }
-    .brand-sub {
-      font-size: 0.75rem;
+    .v-logo span { color: #ff6a00; }
+    .v-sublogo {
+      font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: #94a3b8;
-      margin-top: 0.2rem;
       font-weight: 700;
+      margin-top: 0.35rem;
     }
 
-    .v-badge {
-      background: rgba(255, 106, 0, 0.12);
-      border: 1px solid #ff6a00;
-      color: #ff8533;
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* KŪNAS */
-    .v-body {
-      display: grid;
-      grid-template-columns: 1.6fr 1.1fr;
-      gap: 1.5rem;
-      align-items: center;
-      margin-bottom: 1.5rem;
+    /* 2. CENTRINĖ HERO DALIS: DOVANŲ KUPONAS IR SUMA */
+    .v-center-hero {
+      text-align: center;
+      padding: 2.5rem 1rem;
       position: relative;
     }
 
-    .v-greeting {
+    .v-title-badge {
+      display: inline-block;
       font-size: 0.85rem;
-      color: #a1a1aa;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.3rem;
-    }
-    .v-recipient {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.6rem;
+      letter-spacing: 3px;
       font-weight: 800;
-      color: #fff;
-      margin-bottom: 0.6rem;
-      line-height: 1.2;
-    }
-    .v-activities {
-      font-size: 0.9rem;
-      color: #cbd5e1;
-      line-height: 1.5;
-    }
-    .v-activities strong { color: #f59e0b; }
-
-    /* VERTĖS IR KODO BLOKAS */
-    .v-code-box {
-      background: rgba(0, 0, 0, 0.55);
+      color: #ff8533;
+      background: rgba(255, 106, 0, 0.12);
       border: 1px solid rgba(255, 106, 0, 0.4);
-      border-radius: 12px;
-      padding: 1.25rem;
-      text-align: center;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
+      padding: 0.4rem 1.4rem;
+      border-radius: 30px;
+      margin-bottom: 1.25rem;
     }
-    .v-value-label {
-      font-size: 0.75rem;
+
+    /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: DOVANŲ KUPONAS */
+    .v-hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.6rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ffffff;
       text-transform: uppercase;
-      color: #94a3b8;
-      letter-spacing: 1px;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.1;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: SUMA */
+    .v-hero-amount-wrap {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1.5rem 0;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #ff6a00;
+      border-radius: 20px;
+      padding: 1.25rem 3.5rem;
+      box-shadow: 0 8px 30px rgba(255, 106, 0, 0.25);
+    }
+    .v-amount-lbl {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #a1a1aa;
       font-weight: 700;
     }
-    .v-value {
+    .v-hero-amount {
       font-family: 'Outfit', sans-serif;
-      font-size: 2.8rem;
+      font-size: 5rem;
       font-weight: 900;
-      color: #4ade80;
+      color: #ff6a00;
       line-height: 1;
-      margin: 0.25rem 0 0.75rem 0;
-      text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+      margin: 0.25rem 0;
+      text-shadow: 0 0 25px rgba(255, 106, 0, 0.5);
+    }
+
+    /* KODAS */
+    .v-code-container {
+      margin-top: 1rem;
     }
     .v-code-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
-      color: #ff8533;
-      letter-spacing: 1.5px;
-      font-weight: 800;
-      margin-bottom: 0.3rem;
-    }
-    .v-code {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.35rem;
-      font-weight: 700;
       letter-spacing: 2px;
-      color: #fff;
-      background: rgba(255, 106, 0, 0.15);
-      border: 1px dashed #ff6a00;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
+      color: #94a3b8;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+    }
+    .v-code-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px dashed rgba(255, 106, 0, 0.6);
+      padding: 0.5rem 1.4rem;
+      border-radius: 8px;
       display: inline-block;
     }
 
-    /* REKVIZITAI IR INSTRUKCIJA */
-    .v-footer-info {
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      padding-top: 1rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 1rem;
-      font-size: 0.8rem;
-      color: #94a3b8;
-      line-height: 1.4;
+    /* 3. PRAMOGŲ IR SĄLYGŲ BLOKAS */
+    .v-details-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 1.5rem 1.8rem;
+      margin: 1.5rem 0;
       position: relative;
     }
-    .info-item strong {
-      display: block;
+
+    .v-activities-title {
+      font-size: 0.95rem;
+      font-weight: 800;
       color: #fff;
-      margin-bottom: 0.2rem;
-      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.6rem;
+    }
+    .v-activities-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .act-badge {
+      background: rgba(255, 106, 0, 0.08);
+      border: 1px solid rgba(255, 106, 0, 0.25);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+    .act-badge strong { color: #f59e0b; display: block; font-size: 0.95rem; margin-bottom: 2px; }
+
+    /* REZERVACIJA TIK ASMENIŠKAI */
+    .booking-warning-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid #ff6a00;
+      border-radius: 0 8px 8px 0;
+      padding: 0.9rem 1.2rem;
+      text-align: left;
+    }
+    .booking-warning-box strong {
+      color: #ff8533;
+      font-size: 0.95rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .booking-warning-box p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+    .booking-warning-box .contact-highlight {
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.95rem;
     }
 
-    .v-validity {
-      margin-top: 0.9rem;
+    /* 4. APATINĖ INFORMACIJA */
+    .v-footer-grid {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1.25rem;
+      display: grid;
+      grid-template-columns: 1.2fr 1.3fr 1fr;
+      gap: 1.25rem;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      line-height: 1.45;
+      position: relative;
+    }
+    .f-col strong {
+      display: block;
+      color: #fff;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .v-legal-notes {
+      margin-top: 1rem;
       text-align: center;
       font-size: 0.75rem;
       color: #71717a;
-      letter-spacing: 0.5px;
+      line-height: 1.4;
     }
-    .v-validity strong { color: #f59e0b; }
+    .v-legal-notes strong { color: #f59e0b; }
 
     /* ============================================================ */
-    /* SPAUSDINIMO (PRINT / PDF) STILIAI */
+    /* TIKRAI A4 SPAUSDINIMO (PRINT / PDF) TAISYKLĖS */
     /* ============================================================ */
     @media print {
       body {
@@ -340,50 +376,62 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      .no-print, .action-bar, .cut-guide {
+      .no-print, .action-bar {
         display: none !important;
       }
       .voucher-stage {
         padding: 0 !important;
-        margin: 0 auto !important;
+        margin: 0 !important;
+        width: 100% !important;
       }
-      .voucher-card {
-        background: #0f0a18 !important;
+      .a4-voucher {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 275mm !important;
+        height: 275mm !important;
+        background: #0f0b18 !important;
         color: #ffffff !important;
         box-shadow: none !important;
-        border: 2px solid #ff6a00 !important;
-        max-width: 100% !important;
+        border: 3px solid #ff6a00 !important;
+        border-radius: 12px !important;
         page-break-inside: avoid !important;
-        margin-top: 20px !important;
+        page-break-after: avoid !important;
+        padding: 2.5rem 2.2rem !important;
       }
-      .brand-title { color: #ffffff !important; }
-      .brand-title span { color: #ff6a00 !important; }
-      .v-recipient { color: #ffffff !important; }
-      .v-activities { color: #e2e8f0 !important; }
-      .v-value { color: #4ade80 !important; }
-      .v-code { color: #ffffff !important; background: rgba(255, 106, 0, 0.2) !important; }
-      .info-item strong { color: #ffffff !important; }
-      .info-item { color: #cbd5e1 !important; }
+      .v-logo { color: #ffffff !important; }
+      .v-logo span { color: #ff6a00 !important; }
+      .v-hero-title { color: #ffffff !important; }
+      .v-hero-amount { color: #ff6a00 !important; }
+      .v-code-val { color: #ffffff !important; background: rgba(255, 106, 0, 0.2) !important; }
+      .f-col strong { color: #ffffff !important; }
+      .f-col { color: #cbd5e1 !important; }
+      .act-badge { color: #ffffff !important; }
+      .act-badge strong { color: #f59e0b !important; }
+
       @page {
         size: A4 portrait;
-        margin: 1.5cm;
+        margin: 10mm;
       }
     }
 
-    @media (max-width: 650px) {
-      .v-body { grid-template-columns: 1fr; }
-      .v-footer-info { grid-template-columns: 1fr; }
+    @media (max-width: 700px) {
+      .a4-voucher { padding: 1.75rem 1.25rem; min-height: auto; }
+      .v-hero-title { font-size: 2.4rem; }
+      .v-hero-amount { font-size: 3.5rem; }
+      .v-hero-amount-wrap { padding: 1rem 1.8rem; }
+      .v-activities-list { grid-template-columns: 1fr; }
+      .v-footer-grid { grid-template-columns: 1fr; }
       .action-bar { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- VALDYMO MYGTUKAI (PASLEPIAMI SPAUSDINANT) -->
+  <!-- VALDYMO JUOSTA (TIK EKRANE) -->
   <div class="action-bar no-print">
     <div>
       <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #ff6a00;"><?= $cCode ?></span></div>
-      <div style="font-size: 0.78rem; color: #94a3b8;">Paruošta spausdinimui arba išsaugojimui kaip PDF failą</div>
+      <div style="font-size: 0.78rem; color: #94a3b8;">A4 formato failas – paruošta spausdinimui arba išsaugojimui į PDF</div>
     </div>
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
       <button onclick="window.print()" class="action-btn">
@@ -399,71 +447,95 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
   </div>
 
   <div class="voucher-stage">
-    <div class="cut-guide no-print">
-      ✂️ Kirpimo linija (spausdinant ant A4 lapo)
-    </div>
 
-    <!-- TIKRASIS SPAUSDINAMAS KUPONAS -->
-    <div class="voucher-card">
-      <div class="corner-decor corner-tl"></div>
-      <div class="corner-decor corner-tr"></div>
-      <div class="corner-decor corner-bl"></div>
-      <div class="corner-decor corner-br"></div>
+    <!-- TIKRASIS A4 FORMATO KUPONAS -->
+    <div class="a4-voucher">
+      <div class="corner-accent corner-tl"></div>
+      <div class="corner-accent corner-tr"></div>
+      <div class="corner-accent corner-bl"></div>
+      <div class="corner-accent corner-br"></div>
 
-      <!-- VIRŠUS -->
-      <div class="v-header">
-        <div>
-          <h1 class="brand-title">THROW<span>HOUSE</span></h1>
-          <div class="brand-sub">Šiauliai · Adrenalino ir Pramogų Erdvė</div>
+      <!-- 1. VIRŠUS -->
+      <div class="v-top">
+        <h1 class="v-logo">THROW<span>HOUSE</span></h1>
+        <div class="v-sublogo">Šiauliai · Adrenalino ir Pramogų Erdvė</div>
+      </div>
+
+      <!-- 2. CENTRINĖ HERO DALIS: DOVANŲ KUPONAS IR SUMA -->
+      <div class="v-center-hero">
+        <div class="v-title-badge">Oficialus Dovanų Sertifikatas</div>
+        
+        <!-- RYŠKIAI PER VIDURĮ -->
+        <div class="v-hero-title">DOVANŲ KUPONAS</div>
+
+        <!-- RYŠKI SUMA PER VIDURĮ -->
+        <div class="v-hero-amount-wrap">
+          <div class="v-amount-lbl">Kupono Vertė</div>
+          <div class="v-hero-amount"><?= $cAmount ?> €</div>
         </div>
-        <div class="v-badge">
-          🎁 Dovanų Kuponas
+
+        <div class="v-code-container">
+          <div class="v-code-label">Unikalus Registracijos Kodas</div>
+          <div class="v-code-val"><?= $cCode ?></div>
         </div>
       </div>
 
-      <!-- KŪNAS -->
-      <div class="v-body">
-        <div>
-          <div class="v-greeting">Šis kuponas priklauso:</div>
-          <div class="v-recipient"><?= $cRecipient ?></div>
-          <div class="v-activities">
-            Suteikia teisę pasinaudoti bet kuria „ThrowHouse Šiauliai“ pramoga:<br>
-            • <strong>Pykčio kambarys</strong> (streso iškrovos sesija)<br>
-            • <strong>Kirvių mėtymas</strong> (taiklumo ir azarto rungtys)<br>
-            • <strong>KOMBO paketas</strong> (abi pramogos kartu)
+      <!-- 3. PRAMOGŲ IR SĄLYGŲ BLOKAS -->
+      <div class="v-details-box">
+        <div class="v-activities-title">🎯 Šis kuponas galioja pasirinktai pramogai:</div>
+        <div class="v-activities-list">
+          <div class="act-badge">
+            <strong>Pykčio kambarys</strong>
+            Streso iškrovos sesija
+          </div>
+          <div class="act-badge">
+            <strong>Kirvių mėtymas</strong>
+            Taiklumo rungtys
+          </div>
+          <div class="act-badge">
+            <strong>KOMBO paketas</strong>
+            Abi pramogos kartu
           </div>
         </div>
 
-        <div class="v-code-box">
-          <div class="v-value-label">Kupono Vertė</div>
-          <div class="v-value"><?= $cAmount ?> €</div>
-          <div class="v-code-label">Unikalus Kodas</div>
-          <div class="v-code"><?= $cCode ?></div>
+        <!-- REZERVACIJA TIK ASMENIŠKAI -->
+        <div class="booking-warning-box">
+          <strong>⚠️ DĖMESIO – REZERVACIJA TIK ASMENIŠKAI SUSISIEKUS:</strong>
+          <p>
+            Su šiuo dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
+            Paskambinkite arba parašykite ir nurodykite kupono kodą <strong><?= $cCode ?></strong>:<br>
+            📞 Tel.: <span class="contact-highlight">+370 619 88009</span> &nbsp;&nbsp;|&nbsp;&nbsp;
+            ✉️ El. paštas: <span class="contact-highlight">throwhousee@gmail.com</span>
+          </p>
         </div>
       </div>
 
-      <!-- APATINĖ INFORMACIJA -->
-      <div class="v-footer-info">
-        <div class="info-item">
-          <strong>📍 Kur mus rasti:</strong>
-          Pramonės g. 15, Šiauliai (2-as a.)<br>
-          Įėjimas pro duris „Floristika“
+      <!-- 4. APATINIAI REKVIZITAI -->
+      <div>
+        <div class="v-footer-grid">
+          <div class="f-col">
+            <strong>📍 Kur mus rasti:</strong>
+            Pramonės g. 15, Šiauliai (2-as aukštas)<br>
+            Įėjimas pro duris pažymėtas „Floristika“
+          </div>
+          <div class="f-col">
+            <strong>🕒 Rezervacijos kontaktai:</strong>
+            Tel. +370 619 88009<br>
+            El. p. throwhousee@gmail.com
+          </div>
+          <div class="f-col">
+            <strong>📅 Galiojimo terminas:</strong>
+            Kuponas galioja 6 mėnesius<br>
+            (iki <strong><?= $cExpires ?></strong>)
+          </div>
         </div>
-        <div class="info-item">
-          <strong>📞 Rezervacija ir kontaktai:</strong>
-          Tel.: +370 619 88009<br>
-          El. p.: throwhousee@gmail.com
-        </div>
-        <div class="info-item">
-          <strong>🌐 Rezervacija internetu:</strong>
-          www.throwhouse.lt<br>
-          Išankstinė registracija būtina
+
+        <div class="v-legal-notes">
+          Saugumui užtikrinti visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai). Su atvira avalyne dalyvauti draudžiama.<br>
+          Kuponas į grynuosius pinigus nekeičiamas. „ThrowHouse Šiauliai“ © <?= date('Y') ?>
         </div>
       </div>
 
-      <div class="v-validity">
-        Kuponas galioja 6 mėnesius (iki <strong><?= $cExpires ?></strong>). Visiems dalyviams privaloma patogi, uždara avalynė. Kuponas į grynuosius pinigus nekeičiamas.
-      </div>
     </div>
   </div>
 
