@@ -463,13 +463,17 @@ if (!empty($_SESSION['admin_logged'])) {
             // Pridedame blokus visoms dienos darbo valandoms
             $dayOfWeek = date('w', strtotime($targetDate));
             $startH = 16;
-            $endH = 22;
+            $endH = 21;
             if ($dayOfWeek == 0) {
                 // Sekmadienis: 09:00 - 20:00 (valandos nuo 9 iki 19)
                 $startH = 9;
                 $endH = 19;
-            } elseif ($dayOfWeek == 5 || $dayOfWeek == 6) {
-                // Penktadienis - Šeštadienis: 09:00 - 24:00 (valandos nuo 9 iki 23)
+            } elseif ($dayOfWeek == 5) {
+                // Penktadienis: 16:00 - 24:00 (valandos nuo 16 iki 23)
+                $startH = 16;
+                $endH = 23;
+            } elseif ($dayOfWeek == 6) {
+                // Šeštadienis: 09:00 - 24:00 (valandos nuo 9 iki 23)
                 $startH = 9;
                 $endH = 23;
             }
@@ -1966,7 +1970,7 @@ if (!empty($_SESSION['admin_logged'])) {
       `;
 
       // Nustatome darbo valandas pagal savaitės dieną:
-      // I-IV: 16:00 - 21:00 (iki 22:00) | V-VI: 09:00 - 23:00 (iki 24:00) | VII: 09:00 - 19:00 (iki 20:00)
+      // I-IV: 16:00 - 21:00 (iki 22:00) | V: 16:00 - 23:00 (iki 24:00) | VI: 09:00 - 23:00 (iki 24:00) | VII: 09:00 - 19:00 (iki 20:00)
       const dayOfWeek = d.getDay();
       let startH = 16;
       let endH = 21;
@@ -1974,8 +1978,12 @@ if (!empty($_SESSION['admin_logged'])) {
         // Sekmadienis: 09:00 - 20:00
         startH = 9;
         endH = 19;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis - Šeštadienis: 09:00 - 24:00
+      } else if (dayOfWeek === 5) {
+        // Penktadienis: 16:00 - 24:00
+        startH = 16;
+        endH = 23;
+      } else if (dayOfWeek === 6) {
+        // Šeštadienis: 09:00 - 24:00
         startH = 9;
         endH = 23;
       }
@@ -2281,15 +2289,23 @@ if (!empty($_SESSION['admin_logged'])) {
 
       const dayOfWeek = d.getDay();
       let startH = 16;
-      let closingH = 23;
+      let closingH = 22;
       if (dayOfWeek === 0) {
         // Sekmadienis: 09:00 - 20:00
         startH = 9;
         closingH = 20;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis - Šeštadienis: 09:00 - 24:00
+      } else if (dayOfWeek === 5) {
+        // Penktadienis: 16:00 - 24:00
+        startH = 16;
+        closingH = 24;
+      } else if (dayOfWeek === 6) {
+        // Šeštadienis: 09:00 - 24:00
         startH = 9;
         closingH = 24;
+      } else {
+        // Darbo dienomis (I - IV): 16:00 - 22:00
+        startH = 16;
+        closingH = 22;
       }
       let endH = isKombo ? (closingH - 2) : (closingH - 1);
 

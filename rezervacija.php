@@ -80,15 +80,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (($r['status'] ?? '') === 'Atšaukta') continue;
         $iso = !empty($r['iso_date']) ? $r['iso_date'] : normalizeDateToIso($r['date'] ?? '');
         $rawT = trim($r['time'] ?? '');
-        if (!$iso || !$rawT) continue;
-
-        $startH = intval($rawT);
-        $t1 = sprintf('%02d:00', $startH);
-        $t2 = sprintf('%02d:00', $startH + 1);
+        if (!$iso) continue;
 
         $act = $r['activity'] ?? '';
         $l = $r['lane'] ?? '';
         $isBlock = (!empty($r['is_block']) || ($r['status'] ?? '') === 'Uždaryta' || str_starts_with($r['id'] ?? '', 'BLOCK-') || stripos($act, 'Uždaryt') !== false || stripos($r['name'] ?? '', 'Uždaryt') !== false || stripos($r['name'] ?? '', 'Nedirbame') !== false);
+
+        // Jei tai visos dienos blokas (uždaryta visa diena):
+        if ($isBlock && (!$rawT || stripos($rawT, 'diena') !== false || stripos($rawT, 'nedirbame') !== false)) {
+            if (!isset($bookedMap[$iso])) {
+                $bookedMap[$iso] = [];
+            }
+            for ($bh = 9; $bh <= 23; $bh++) {
+                $bT = sprintf('%02d:00', $bh);
+                $bookedMap[$iso][$bT] = [
+                    'rage' => 1,
+                    'axe' => 2,
+                    'lanes' => ['Takelis 1', 'Takelis 2'],
+                    'is_rage_full' => true,
+                    'is_axe_full' => true,
+                    'is_full' => true,
+                    'is_closed' => true,
+                    'is_rage_closed' => true,
+                    'is_axe_closed' => true
+                ];
+            }
+            continue;
+        }
+
+        if (!$rawT) continue;
+
+        $startH = intval($rawT);
+        $t1 = sprintf('%02d:00', $startH);
+        $t2 = sprintf('%02d:00', $startH + 1);
 
         if (!isset($bookedMap[$iso])) {
             $bookedMap[$iso] = [];

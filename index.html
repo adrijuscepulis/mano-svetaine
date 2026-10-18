@@ -693,12 +693,58 @@
       cursor: pointer;
       color: #e5e7eb;
       background: rgba(255, 255, 255, 0.03);
+      position: relative;
+      user-select: none;
+      transition: all 0.15s ease;
     }
 
-    .cal-day:hover:not(.disabled) { background: rgba(255, 106, 0, 0.25); color: #fff; }
+    .cal-day:hover:not(.disabled):not(.unavailable) { background: rgba(255, 106, 0, 0.25); color: #fff; }
     .cal-day.today { border: 1px solid rgba(255, 106, 0, 0.6); font-weight: 700; }
     .cal-day.selected { background: var(--accent) !important; color: #000 !important; font-weight: 800; box-shadow: 0 0 10px rgba(255, 106, 0, 0.5); }
     .cal-day.disabled { color: #4b5563; background: transparent; cursor: not-allowed; opacity: 0.4; }
+
+    /* Raudonu X užbrauktos dienos: kai nedirbame arba pilnai užimta */
+    .cal-day.unavailable {
+      position: relative !important;
+      cursor: not-allowed !important;
+      color: #f87171 !important;
+      background: rgba(239, 68, 68, 0.08) !important;
+      border: 1px solid rgba(239, 68, 68, 0.35) !important;
+      opacity: 0.85;
+      overflow: hidden;
+    }
+
+    .cal-day.unavailable::before,
+    .cal-day.unavailable::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 78%;
+      height: 2.5px;
+      background-color: #ef4444;
+      border-radius: 2px;
+      pointer-events: none;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.9);
+      z-index: 2;
+    }
+
+    .cal-day.unavailable::before {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .cal-day.unavailable::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    .cal-day.unavailable.today {
+      border: 1px solid rgba(239, 68, 68, 0.7) !important;
+    }
+
+    .cal-day.unavailable:hover {
+      background: rgba(239, 68, 68, 0.18) !important;
+      border-color: rgba(239, 68, 68, 0.7) !important;
+    }
 
     .pay-methods { display: flex; flex-direction: column; gap: 0.5rem; }
     .pay-lbl {
@@ -1903,6 +1949,17 @@
                     <span>Pr</span><span>An</span><span>Tr</span><span>Kt</span><span>Pn</span><span>Št</span><span>Sk</span>
                   </div>
                   <div class="cal-days" id="calDaysGrid"></div>
+                  <div class="cal-legend" style="display: flex; gap: 0.85rem; justify-content: center; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.72rem; color: var(--text-gray);">
+                    <span style="display: flex; align-items: center; gap: 0.35rem;">
+                      <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--accent);"></span> Pasirinkta
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 0.35rem;">
+                      <span style="position: relative; display: inline-block; width: 11px; height: 11px; border-radius: 2px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);">
+                        <span style="position: absolute; top: 4.5px; left: 1.5px; width: 8px; height: 1.5px; background: #ef4444; transform: rotate(45deg);"></span>
+                        <span style="position: absolute; top: 4.5px; left: 1.5px; width: 8px; height: 1.5px; background: #ef4444; transform: rotate(-45deg);"></span>
+                      </span> Užimta / Nedirbame
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -2112,6 +2169,9 @@
       calcTotal();
       if (typeof selectedDate !== 'undefined' && selectedDate) {
         populateTimeSlots(selectedDate);
+      }
+      if (typeof renderCalendar === 'function') {
+        renderCalendar();
       }
     }
 
@@ -2343,6 +2403,129 @@
       }
     }
 
+    function getDayAvailability(targetDate, activityName) {
+      if (!targetDate) return { isAvailable: false, reason: 'past' };
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const checkDate = new Date(targetDate);
+      checkDate.setHours(0, 0, 0, 0);
+
+      if (checkDate < today) {
+        return { isPast: true, isAvailable: false, reason: 'past' };
+      }
+
+      const yyyy = checkDate.getFullYear();
+      const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(checkDate.getDate()).padStart(2, '0');
+      const isoKey = `${yyyy}-${mm}-${dd}`;
+      const daySlots = bookedSlotsData[isoKey] || {};
+
+      const now = new Date();
+      const isToday = (checkDate.getTime() === today.getTime());
+      const currentHour = now.getHours();
+
+      const act = activityName || (document.querySelector('input[name="resActivity"]:checked')?.value || 'Pykčio kambarys');
+      const isRage = act.includes('Pykčio kambarys');
+      const isAxe = act.includes('Kirvių mėtymas');
+      const isKombo = act.includes('KOMBO');
+
+      const dayOfWeek = checkDate.getDay();
+      let startHour = 16;
+      let closingHour = 22;
+
+      if (dayOfWeek === 0) {
+        // Sekmadienis: 09:00 - 20:00
+        startHour = 9;
+        closingHour = 20;
+      } else if (dayOfWeek === 5) {
+        // Penktadienis: 16:00 - 24:00
+        startHour = 16;
+        closingHour = 24;
+      } else if (dayOfWeek === 6) {
+        // Šeštadienis: 09:00 - 24:00
+        startHour = 9;
+        closingHour = 24;
+      } else {
+        // Darbo dienomis (I - IV): 16:00 - 22:00
+        startHour = 16;
+        closingHour = 22;
+      }
+
+      let endHour = isKombo ? (closingHour - 2) : (closingHour - 1);
+      let totalSlots = 0;
+      let closedSlots = 0;
+      let bookedSlots = 0;
+      let availableSlots = 0;
+      let pastSlots = 0;
+
+      for (let h = startHour; h <= endHour; h++) {
+        totalSlots++;
+        const hourStr = (h < 10 ? '0' : '') + h + ':00';
+        const hNext = h + 1;
+        const hNextStr = (hNext < 10 ? '0' : '') + hNext + ':00';
+
+        const isPastSlot = isToday && (h <= currentHour);
+        if (isPastSlot) {
+          pastSlots++;
+          continue;
+        }
+
+        const slot1 = daySlots[hourStr] || null;
+        const slot2 = daySlots[hNextStr] || null;
+
+        let isBooked = false;
+        let isClosed = false;
+
+        if (isRage) {
+          if (slot1 && slot1.is_rage_full) {
+            isBooked = true;
+            if (slot1.is_rage_closed || slot1.is_closed) isClosed = true;
+          }
+        } else if (isAxe) {
+          if (slot1 && slot1.is_axe_full) {
+            isBooked = true;
+            if (slot1.is_axe_closed || slot1.is_closed) isClosed = true;
+          }
+        } else if (isKombo) {
+          const axeFull = slot1 && slot1.is_axe_full;
+          const rageFull = slot2 && slot2.is_rage_full;
+          if (axeFull || rageFull) {
+            isBooked = true;
+            if ((slot1 && (slot1.is_axe_closed || slot1.is_closed)) || (slot2 && (slot2.is_rage_closed || slot2.is_closed))) {
+              isClosed = true;
+            }
+          }
+        }
+
+        if (isClosed) {
+          closedSlots++;
+        } else if (isBooked) {
+          bookedSlots++;
+        } else {
+          availableSlots++;
+        }
+      }
+
+      if (availableSlots > 0) {
+        return { isAvailable: true, availableSlots };
+      }
+
+      let reason = 'full';
+      if (closedSlots > 0 && (closedSlots + bookedSlots + pastSlots >= totalSlots)) {
+        if (closedSlots >= (totalSlots - pastSlots) || closedSlots >= Math.ceil(totalSlots / 2)) {
+          reason = 'closed';
+        } else {
+          reason = 'full';
+        }
+      } else if (isToday && pastSlots >= totalSlots) {
+        reason = 'passed';
+      }
+
+      return { isAvailable: false, reason, closedSlots, bookedSlots, pastSlots, totalSlots };
+    }
+
     function renderCalendar() {
       const year = currentCalDate.getFullYear();
       const month = currentCalDate.getMonth();
@@ -2403,9 +2586,28 @@
         if (thisDate < today || thisDate > maxDate) {
           dElem.classList.add('disabled');
         } else {
-          if (thisDate.getTime() === today.getTime()) dElem.classList.add('today');
-          if (selectedDate && thisDate.getTime() === selectedDate.getTime()) dElem.classList.add('selected');
-          dElem.addEventListener('click', () => { selectCalendarDate(year, month, day); });
+          const avail = getDayAvailability(thisDate);
+          if (!avail.isAvailable) {
+            dElem.classList.add('unavailable');
+            const reasonTitle = avail.reason === 'closed'
+              ? 'Nedirbame (diena uždaryta)'
+              : (avail.reason === 'full' ? 'Visi laikai užimti' : 'Laisvų laikų nebėra');
+            dElem.title = `${reasonTitle}`;
+            if (thisDate.getTime() === today.getTime()) {
+              dElem.classList.add('today');
+            }
+            dElem.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const msg = avail.reason === 'closed'
+                ? 'Atsiprašome, šią dieną nedirbame. Prašome pasirinkti kitą datą!'
+                : 'Atsiprašome, visi šios dienos laikai jau rezervuoti. Prašome pasirinkti kitą datą!';
+              alert(msg);
+            });
+          } else {
+            if (thisDate.getTime() === today.getTime()) dElem.classList.add('today');
+            if (selectedDate && thisDate.getTime() === selectedDate.getTime()) dElem.classList.add('selected');
+            dElem.addEventListener('click', () => { selectCalendarDate(year, month, day); });
+          }
         }
         grid.appendChild(dElem);
       }
@@ -2444,6 +2646,7 @@
         if (d && d.booked) {
           bookedSlotsData = d.booked;
         }
+        renderCalendar();
       } catch (e) {
         console.log('Booked slots fetch err', e);
       }
@@ -2486,14 +2689,18 @@
       const dayOfWeek = targetDate.getDay();
       timeSelect.innerHTML = '';
       let startHour = 16;
-      let closingHour = 23;
+      let closingHour = 22;
 
       if (dayOfWeek === 0) {
         // Sekmadienis: 09:00 - 20:00
         startHour = 9;
         closingHour = 20;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis - Šeštadienis: 09:00 - 24:00
+      } else if (dayOfWeek === 5) {
+        // Penktadienis: 16:00 - 24:00
+        startHour = 16;
+        closingHour = 24;
+      } else if (dayOfWeek === 6) {
+        // Šeštadienis: 09:00 - 24:00
         startHour = 9;
         closingHour = 24;
       } else {
