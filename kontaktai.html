@@ -747,6 +747,15 @@
       });
     }
 
+    // Automatinis temos parinkimas pagal nuorodą (?tema=kuponas)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tema') === 'kuponas') {
+      const subjSelect = document.getElementById('cSubject');
+      if (subjSelect) {
+        subjSelect.value = '🎁 Dovanų kuponų klausimas';
+      }
+    }
+
     // Kontaktų formos siuntimas
     async function handleContactSubmit(event) {
       event.preventDefault();
