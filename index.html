@@ -2264,7 +2264,12 @@
           <strong>Vertė:</strong> ${amount} €<br>
           <strong>Pirkėjas:</strong> ${buyerName}<br>
           <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
-          <span style="color:#4ade80;">✓ Dovanų kuponas sėkmingai sugeneruotas ir išsiųstas į Jūsų el. paštą <strong>${buyerEmail}</strong>!</span>
+          <span style="color:#4ade80; font-weight:700;">✓ Dovanų kuponas sėkmingai sugeneruotas ir išsiųstas į Jūsų el. paštą <strong>${buyerEmail}</strong>!</span><br><br>
+          <div style="margin-top: 10px; margin-bottom: 8px;">
+            <a href="kuponas_print.php?code=${encodeURIComponent(code)}" target="_blank" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; padding:0.8rem 1.5rem; font-weight:800; border-radius:8px; box-shadow:0 4px 15px rgba(255,106,0,0.4);">
+              🖨️ Atsisiųsti / Spausdinti PDF kuponą ➔
+            </a>
+          </div>
         `;
       } catch (err) {
         alert('Įvyko tinklo ryšio klaida. Prašome pabandyti dar kartą.');

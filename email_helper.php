@@ -711,6 +711,22 @@ function renderVoucherHtml($coupon) {
         </div>
       </div>
 
+      <!-- ATSISIŲSTI / SPAUSDINTI PDF MYGTUKAS -->
+      <div style="text-align: center; margin: 18px 0 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+          <tr>
+            <td align="center" bgcolor="#f59e0b" style="border-radius: 8px;">
+              <a href="' . getThrowHouseBaseUrl() . '/kuponas_print.php?code=' . urlencode($code) . '&print=1" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #f59e0b; color: #000000 !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; text-align: center; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+                🖨️ Atsisiųsti PDF / Spausdinti kuponą ➔
+              </a>
+            </td>
+          </tr>
+        </table>
+        <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
+          Galite atsispausdinti ant popieriaus arba išsisaugoti kaip PDF failą
+        </div>
+      </div>
+
       <!-- INSTRUKCIJA KAIP PANAUDOTI -->
       <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
         <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📌 KAIP PANAUDOTI KUPONĄ:</span>

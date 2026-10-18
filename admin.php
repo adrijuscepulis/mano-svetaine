@@ -1451,13 +1451,18 @@ if (!empty($_SESSION['admin_logged'])) {
                         </span>
                       </td>
                       <td>
-                        <form method="POST">
-                          <input type="hidden" name="action" value="toggle_coupon">
-                          <input type="hidden" name="coupon_code" value="<?= htmlspecialchars($c['code'] ?? '') ?>">
-                          <button type="submit" class="btn <?= ($c['status'] ?? '') === 'Aktyvus' ? 'btn-danger' : 'btn-success' ?>" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
-                            <?= ($c['status'] ?? '') === 'Aktyvus' ? 'Pažymėti panaudotu' : 'Atstatyti aktyvų' ?>
-                          </button>
-                        </form>
+                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                          <a href="kuponas_print.php?code=<?= urlencode($c['code'] ?? '') ?>" target="_blank" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            🖨️ PDF / Spausdinti
+                          </a>
+                          <form method="POST" style="margin: 0;">
+                            <input type="hidden" name="action" value="toggle_coupon">
+                            <input type="hidden" name="coupon_code" value="<?= htmlspecialchars($c['code'] ?? '') ?>">
+                            <button type="submit" class="btn <?= ($c['status'] ?? '') === 'Aktyvus' ? 'btn-danger' : 'btn-success' ?>" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                              <?= ($c['status'] ?? '') === 'Aktyvus' ? 'Pažymėti panaudotu' : 'Atstatyti aktyvų' ?>
+                            </button>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   <?php endforeach; ?>
