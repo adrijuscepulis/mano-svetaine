@@ -2,8 +2,22 @@ DirectoryIndex index.html index.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Nukreipiame šakninį adresą į tikrąjį index.html
+
+  # 1. Priverstinis 301 nukreipimas į HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # 2. Priverstinis 301 nukreipimas iš www į be www (Canonical domenas)
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+  # 3. Nukreipiame šakninį adresą į index.html
   RewriteRule ^$ index.html [L]
+</IfModule>
+
+# Gzip / Deflate suspaudimas greitesniam puslapio užkrovimui (Google PageSpeed / Core Web Vitals)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml
 </IfModule>
 
 <FilesMatch "\.(html|htm|php)$">

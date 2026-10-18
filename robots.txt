@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin.php
+Disallow: /rezervacija.php
+Disallow: /opay_callback.php
+Disallow: /opay_helper.php
+Disallow: /email_helper.php
+Disallow: /pdf_helper.php
+Disallow: /kuponas.php
+Disallow: /*.json$
+Disallow: /*.txt$
+Disallow: /*.log$
+
+Sitemap: https://throwhouse.lt/sitemap.xml
