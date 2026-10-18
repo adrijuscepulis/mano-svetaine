@@ -2475,11 +2475,18 @@
         const slot2 = daySlots[hNextStr] || null;
 
         let isBooked = false;
+        let isClosed = false;
 
         if (isRage) {
-          if (slot1 && slot1.is_rage_full) isBooked = true;
+          if (slot1 && slot1.is_rage_full) {
+            isBooked = true;
+            if (slot1.is_rage_closed || slot1.is_closed) isClosed = true;
+          }
         } else if (isAxe) {
-          if (slot1 && slot1.is_axe_full) isBooked = true;
+          if (slot1 && slot1.is_axe_full) {
+            isBooked = true;
+            if (slot1.is_axe_closed || slot1.is_closed) isClosed = true;
+          }
         } else if (isKombo) {
           // 1-oji valanda: Kirviai (reikia bent 1 laisvo kirvių takelio)
           const axeFull = slot1 && slot1.is_axe_full;
@@ -2487,6 +2494,9 @@
           const rageFull = slot2 && slot2.is_rage_full;
           if (axeFull || rageFull) {
             isBooked = true;
+            if ((slot1 && (slot1.is_axe_closed || slot1.is_closed)) || (slot2 && (slot2.is_rage_closed || slot2.is_closed))) {
+              isClosed = true;
+            }
           }
         }
 
@@ -2494,6 +2504,11 @@
           opt.disabled = true;
           opt.textContent = `${hourStr} - ${endHourStr} val. (Laikas praėjo)`;
           opt.style.color = '#71717a';
+          opt.style.background = '#18181b';
+        } else if (isClosed) {
+          opt.disabled = true;
+          opt.textContent = `${hourStr} - ${endHourStr} val. (NEDIRBAME)`;
+          opt.style.color = '#ef4444';
           opt.style.background = '#18181b';
         } else if (isBooked) {
           opt.disabled = true;

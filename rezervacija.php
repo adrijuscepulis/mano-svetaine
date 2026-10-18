@@ -50,20 +50,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $act = $r['activity'] ?? '';
         $l = $r['lane'] ?? '';
-        $isBlock = (!empty($r['is_block']) || ($r['status'] ?? '') === 'Uždaryta' || stripos($act, 'Uždaryt') !== false);
+        $isBlock = (!empty($r['is_block']) || ($r['status'] ?? '') === 'Uždaryta' || str_starts_with($r['id'] ?? '', 'BLOCK-') || stripos($act, 'Uždaryt') !== false || stripos($r['name'] ?? '', 'Uždaryt') !== false || stripos($r['name'] ?? '', 'Nedirbame') !== false);
 
         if (!isset($bookedMap[$iso])) {
             $bookedMap[$iso] = [];
         }
         if (!isset($bookedMap[$iso][$t1])) {
-            $bookedMap[$iso][$t1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_rage_full' => false, 'is_axe_full' => false, 'is_full' => false];
+            $bookedMap[$iso][$t1] = [
+                'rage' => 0, 
+                'axe' => 0, 
+                'lanes' => [], 
+                'is_rage_full' => false, 
+                'is_axe_full' => false, 
+                'is_full' => false,
+                'is_closed' => false,
+                'is_rage_closed' => false,
+                'is_axe_closed' => false
+            ];
         }
 
-        // Administratoriaus uždaryti laikai (blokuota ranka iš admin pulto)
+        // Administratoriaus uždaryti laikai (blokuota ranka iš admin pulto – NEDIRBAME)
         if ($isBlock) {
             if (stripos($act, 'Pykčio') !== false) {
                 $bookedMap[$iso][$t1]['rage'] = max($bookedMap[$iso][$t1]['rage'], 1);
                 $bookedMap[$iso][$t1]['is_rage_full'] = true;
+                $bookedMap[$iso][$t1]['is_rage_closed'] = true;
             } elseif (stripos($act, 'Kirvių') !== false) {
                 if (stripos($l, '1') !== false) {
                     $bookedMap[$iso][$t1]['axe']++;
@@ -74,14 +85,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 } else {
                     $bookedMap[$iso][$t1]['axe'] = 2;
                     $bookedMap[$iso][$t1]['is_axe_full'] = true;
+                    $bookedMap[$iso][$t1]['is_axe_closed'] = true;
                 }
             } else {
-                // Uždarytas laikas visoms pramogoms
+                // Uždarytas laikas visoms pramogoms (Nedirbame)
                 $bookedMap[$iso][$t1]['rage'] = 1;
                 $bookedMap[$iso][$t1]['axe'] = 2;
                 $bookedMap[$iso][$t1]['is_rage_full'] = true;
                 $bookedMap[$iso][$t1]['is_axe_full'] = true;
                 $bookedMap[$iso][$t1]['is_full'] = true;
+                $bookedMap[$iso][$t1]['is_closed'] = true;
+                $bookedMap[$iso][$t1]['is_rage_closed'] = true;
+                $bookedMap[$iso][$t1]['is_axe_closed'] = true;
             }
             continue;
         }
@@ -207,14 +222,15 @@ foreach ($all as $ex) {
     $exT2 = sprintf('%02d:00', $exStartH + 1);
     $exAct = $ex['activity'] ?? '';
     $exLane = $ex['lane'] ?? '';
-    $exIsBlock = (!empty($ex['is_block']) || ($ex['status'] ?? '') === 'Uždaryta' || stripos($exAct, 'Uždaryt') !== false);
+    $exIsBlock = (!empty($ex['is_block']) || ($ex['status'] ?? '') === 'Uždaryta' || str_starts_with($ex['id'] ?? '', 'BLOCK-') || stripos($exAct, 'Uždaryt') !== false || stripos($ex['name'] ?? '', 'Uždaryt') !== false || stripos($ex['name'] ?? '', 'Nedirbame') !== false);
 
-    if (!isset($slotsOccupied[$exT1])) $slotsOccupied[$exT1] = ['rage' => 0, 'axe' => 0, 'lanes' => []];
-    if (!isset($slotsOccupied[$exT2])) $slotsOccupied[$exT2] = ['rage' => 0, 'axe' => 0, 'lanes' => []];
+    if (!isset($slotsOccupied[$exT1])) $slotsOccupied[$exT1] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_closed' => false, 'is_rage_closed' => false, 'is_axe_closed' => false];
+    if (!isset($slotsOccupied[$exT2])) $slotsOccupied[$exT2] = ['rage' => 0, 'axe' => 0, 'lanes' => [], 'is_closed' => false, 'is_rage_closed' => false, 'is_axe_closed' => false];
 
     if ($exIsBlock) {
         if (stripos($exAct, 'Pykčio') !== false) {
             $slotsOccupied[$exT1]['rage'] = max($slotsOccupied[$exT1]['rage'], 1);
+            $slotsOccupied[$exT1]['is_rage_closed'] = true;
         } elseif (stripos($exAct, 'Kirvių') !== false) {
             if (stripos($exLane, '1') !== false) {
                 $slotsOccupied[$exT1]['axe']++;
@@ -224,10 +240,14 @@ foreach ($all as $ex) {
                 $slotsOccupied[$exT1]['lanes'][] = 'Takelis 2';
             } else {
                 $slotsOccupied[$exT1]['axe'] = 2;
+                $slotsOccupied[$exT1]['is_axe_closed'] = true;
             }
         } else {
             $slotsOccupied[$exT1]['rage'] = 1;
             $slotsOccupied[$exT1]['axe'] = 2;
+            $slotsOccupied[$exT1]['is_closed'] = true;
+            $slotsOccupied[$exT1]['is_rage_closed'] = true;
+            $slotsOccupied[$exT1]['is_axe_closed'] = true;
         }
         continue;
     }
@@ -253,6 +273,13 @@ $lanes1 = $slotsOccupied[$t1]['lanes'] ?? [];
 $rage2 = $slotsOccupied[$t2]['rage'] ?? 0;
 
 if (stripos($activity, 'Pykčio') !== false) {
+    if (!empty($slotsOccupied[$t1]['is_rage_closed']) || !empty($slotsOccupied[$t1]['is_closed'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinktu laiku ($t1 val.) nedirbame! Prašome pasirinkti kitą laiką."
+        ]);
+        exit;
+    }
     if ($rage1 >= 1) {
         echo json_encode([
             'success' => false,
@@ -262,6 +289,13 @@ if (stripos($activity, 'Pykčio') !== false) {
     }
     $time = "$t1 - $t2";
 } elseif (stripos($activity, 'Kirvių') !== false) {
+    if (!empty($slotsOccupied[$t1]['is_axe_closed']) || !empty($slotsOccupied[$t1]['is_closed'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinktu laiku ($t1 val.) nedirbame! Prašome pasirinkti kitą laiką."
+        ]);
+        exit;
+    }
     if ($axe1 >= 2) {
         echo json_encode([
             'success' => false,
@@ -276,6 +310,13 @@ if (stripos($activity, 'Pykčio') !== false) {
     }
     $time = "$t1 - $t2";
 } elseif ($isKombo) {
+    if (!empty($slotsOccupied[$t1]['is_axe_closed']) || !empty($slotsOccupied[$t1]['is_closed']) || !empty($slotsOccupied[$t2]['is_rage_closed']) || !empty($slotsOccupied[$t2]['is_closed'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Atsiprašome, pasirinktu laiku ($t1 - $tEnd val.) nedirbame! Prašome pasirinkti kitą laiką."
+        ]);
+        exit;
+    }
     // 1-oji valanda: Kirviai
     if ($axe1 >= 2) {
         echo json_encode([

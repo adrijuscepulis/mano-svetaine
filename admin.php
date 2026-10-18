@@ -712,13 +712,27 @@ if (!empty($_SESSION['admin_logged'])) {
   </div>
 
 <?php else: 
-  // Skaičiuojama statistika
-  $totalRes = count($reservations);
+  // Atskiriame tikras klientų rezervacijas nuo administratoriaus uždarytų laikų (nedirbame)
+  function isReservationBlock($r) {
+    if (!empty($r['is_block'])) return true;
+    if (($r['status'] ?? '') === 'Uždaryta') return true;
+    if (str_starts_with($r['id'] ?? '', 'BLOCK-')) return true;
+    $act = $r['activity'] ?? '';
+    if (stripos($act, 'Uždaryt') !== false) return true;
+    $name = $r['name'] ?? '';
+    if (stripos($name, 'Uždarytas') !== false || stripos($name, 'Nedirbame') !== false) return true;
+    return false;
+  }
+
+  $clientReservations = array_values(array_filter($reservations, fn($r) => !isReservationBlock($r)));
+  $closedBlocks = array_values(array_filter($reservations, fn($r) => isReservationBlock($r)));
+
+  $totalRes = count($clientReservations);
   $totalCoupons = count($coupons);
   $activeCoupons = count(array_filter($coupons, fn($c) => ($c['status'] ?? '') === 'Aktyvus'));
   
   $totalIncome = 0;
-  foreach ($reservations as $r) {
+  foreach ($clientReservations as $r) {
     if (($r['status'] ?? '') !== 'Atšaukta') {
       $totalIncome += intval(preg_replace('/[^0-9]/', '', $r['price'] ?? '0'));
     }
@@ -741,8 +755,11 @@ if (!empty($_SESSION['admin_logged'])) {
     <!-- STATISTIKA -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Visos rezervacijos</div>
+        <div class="stat-label">Klientų rezervacijos</div>
         <div class="stat-value"><?= $totalRes ?></div>
+        <?php if (!empty($closedBlocks)): ?>
+          <div style="font-size: 0.75rem; color: #f87171; margin-top: 4px;">🔒 Uždaryti laikai: <?= count($closedBlocks) ?> val. (nedirbame)</div>
+        <?php endif; ?>
       </div>
       <div class="stat-card">
         <div class="stat-label">Bendra apyvarta (Rezervacijos)</div>
@@ -909,8 +926,8 @@ if (!empty($_SESSION['admin_logged'])) {
     <?php if ($currentTab === 'rezervacijos'): ?>
       <div class="table-card">
         <div class="table-head">
-          <h3>Visos rezervacijos</h3>
-          <span style="font-size: 0.85rem; color: var(--muted);">Iš viso: <?= count($reservations) ?></span>
+          <h3>Klientų rezervacijos</h3>
+          <span style="font-size: 0.85rem; color: var(--muted);">Iš viso: <?= count($clientReservations) ?></span>
         </div>
         <div style="overflow-x: auto;">
           <table>
@@ -928,12 +945,12 @@ if (!empty($_SESSION['admin_logged'])) {
               </tr>
             </thead>
             <tbody>
-              <?php if (empty($reservations)): ?>
+              <?php if (empty($clientReservations)): ?>
                 <tr>
                   <td colspan="9" style="text-align: center; padding: 3rem; color: var(--muted);">Rezervacijų sąrašas tuščias.</td>
                 </tr>
               <?php else: ?>
-                <?php foreach (array_reverse($reservations) as $r): ?>
+                <?php foreach (array_reverse($clientReservations) as $r): ?>
                   <tr>
                     <td><code><?= htmlspecialchars($r['id'] ?? '') ?></code></td>
                     <td><strong><?= htmlspecialchars($r['date'] ?? '') ?></strong><br><span style="color: var(--accent);"><?= htmlspecialchars($r['time'] ?? '') ?> val.</span></td>
@@ -1208,6 +1225,19 @@ if (!empty($_SESSION['admin_logged'])) {
     // Papildome objektus normalizuota data
     ALL_RESERVATIONS.forEach(r => { r.computed_iso = getIso(r); });
 
+    // Pagalbinė funkcija: ar įrašas yra administratoriaus uždarytas laikas (nedirbame blokas)
+    function isBlockItem(r) {
+      if (!r) return false;
+      if (r.is_block) return true;
+      if (r.status === 'Uždaryta') return true;
+      if (String(r.id || '').startsWith('BLOCK-')) return true;
+      const act = String(r.activity || '').toLowerCase();
+      if (act.includes('uždaryt')) return true;
+      const name = String(r.name || '').toLowerCase();
+      if (name.includes('uždarytas') || name.includes('nedirbame')) return true;
+      return false;
+    }
+
     const LT_MONTHS_NAMES = [
       'Sausis', 'Vasaris', 'Kovas', 'Balandis', 'Gegužė', 'Birželis',
       'Liepa', 'Rugpjūtis', 'Rugsėjis', 'Spalis', 'Lapkritis', 'Gruodis'
@@ -1268,9 +1298,10 @@ if (!empty($_SESSION['admin_logged'])) {
 
         let badgesHtml = '';
         if (dayBookings.length > 0) {
-          const blocks = dayBookings.filter(r => r.is_block || r.status === 'Uždaryta' || (r.activity || '').includes('Uždaryt'));
-          const realBookings = dayBookings.filter(r => !r.is_block && r.status !== 'Uždaryta' && !(r.activity || '').includes('Uždaryt'));
+          const blocks = dayBookings.filter(r => isBlockItem(r));
+          const realBookings = dayBookings.filter(r => !isBlockItem(r));
 
+          // Klientų rezervacijos (TIK JEI YRA TIKRŲ REZERVACIJŲ!)
           if (realBookings.length > 0) {
             let hasRage = realBookings.some(r => (r.activity || '').includes('Pykčio'));
             let hasAxe = realBookings.some(r => (r.activity || '').includes('Kirvių'));
@@ -1282,8 +1313,9 @@ if (!empty($_SESSION['admin_logged'])) {
             if (hasKombo) badgesHtml += `<span class="cal-badge-pill pill-kombo">⚡ KOMBO</span>`;
           }
 
+          // Uždaryti laikai / Nedirbame rodomi atskirai (neskaičiuojami prie bendro "X rez." skaičiaus)
           if (blocks.length > 0) {
-            badgesHtml += `<span class="cal-badge-pill" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4);">🔒 ${blocks.length >= 7 ? 'Visa uždaryta' : blocks.length + ' užd.'}</span>`;
+            badgesHtml += `<span class="cal-badge-pill" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4);">🔒 ${blocks.length >= 7 ? 'Nedirbame' : blocks.length + ' val. nedirbame'}</span>`;
           }
         }
 
@@ -1326,14 +1358,19 @@ if (!empty($_SESSION['admin_logged'])) {
       const dayBookings = ALL_RESERVATIONS.filter(r => r.computed_iso === iso);
       const activeBookings = dayBookings.filter(r => r.status !== 'Atšaukta');
 
+      const blocks = activeBookings.filter(r => isBlockItem(r));
+      const clientBookings = activeBookings.filter(r => !isBlockItem(r));
+
       let dayTotal = 0;
-      activeBookings.forEach(r => {
+      clientBookings.forEach(r => {
         dayTotal += parseInt((r.price || '0').replace(/[^0-9]/g, '')) || 0;
       });
 
-      const blocksCount = activeBookings.filter(r => r.is_block || r.status === 'Uždaryta' || (r.activity || '').includes('Uždaryt')).length;
-      const clientCount = activeBookings.length - blocksCount;
-      subEl.textContent = `Klientų rezervacijų: ${clientCount} | Uždarytų laikų: ${blocksCount} | Numatoma apyvarta: ${dayTotal} €`;
+      subEl.innerHTML = `
+        <span style="color:#60a5fa; font-weight:600;">Klientų rezervacijos: ${clientBookings.length}</span>
+        ${blocks.length > 0 ? ` • <span style="color:#f87171; font-weight:600;">🔒 Nedirbame: ${blocks.length} val.</span>` : ''}
+        • <span style="color:var(--accent);">Numatoma apyvarta: ${dayTotal} €</span>
+      `;
 
       // Nustatome darbo valandas pagal savaitės dieną:
       // I-IV: 16:00 - 22:00 (iki 23:00) | V-VII: 09:00 - 23:00 (iki 24:00)
@@ -1361,7 +1398,7 @@ if (!empty($_SESSION['admin_logged'])) {
           const sH = parseInt(r.time, 10);
           const startStr = (sH < 10 ? '0' : '') + sH + ':00';
           const nextStr = ((sH + 1) < 10 ? '0' : '') + (sH + 1) + ':00';
-          const isBlk = (r.is_block || r.status === 'Uždaryta' || act.includes('Uždaryt'));
+          const isBlk = isBlockItem(r);
 
           if (isBlk && act.includes('Visos')) {
             if (hourStr === startStr) allBlockBooking = r;
@@ -1390,10 +1427,9 @@ if (!empty($_SESSION['admin_logged'])) {
           if (!axe2Booking) axe2Booking = allBlockBooking;
         }
 
-        const isRageBlocked = rageBooking && (rageBooking.is_block || rageBooking.status === 'Uždaryta' || (rageBooking.activity || '').includes('Uždaryt'));
-        const isAxe1Blocked = axe1Booking && (axe1Booking.is_block || axe1Booking.status === 'Uždaryta' || (axe1Booking.activity || '').includes('Uždaryt'));
-        const isAxe2Blocked = axe2Booking && (axe2Booking.is_block || axe2Booking.status === 'Uždaryta' || (axe2Booking.activity || '').includes('Uždaryt'));
-        const isAxeBlocked = isAxe1Blocked || isAxe2Blocked;
+        const isRageBlocked = rageBooking && isBlockItem(rageBooking);
+        const isAxe1Blocked = axe1Booking && isBlockItem(axe1Booking);
+        const isAxe2Blocked = axe2Booking && isBlockItem(axe2Booking);
         const isWholeHourBlocked = isRageBlocked && (isAxe1Blocked && isAxe2Blocked || (allBlockBooking !== null));
 
         // Pykčio kambario langelis
@@ -1401,7 +1437,7 @@ if (!empty($_SESSION['admin_logged'])) {
         if (isRageBlocked) {
           rageHtml = `
             <div class="slot-status" style="background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); display:flex; justify-content:space-between; align-items:center;">
-              <span>💥 🔒 Uždaryta (Admin)</span>
+              <span>💥 🔒 Nedirbame (Uždaryta)</span>
               <form method="POST" style="margin:0; display:inline;">
                 <input type="hidden" name="action" value="toggle_slot_block">
                 <input type="hidden" name="b_date" value="${iso}">
@@ -1415,7 +1451,7 @@ if (!empty($_SESSION['admin_logged'])) {
         } else if (rageBooking) {
           rageHtml = `
             <div class="slot-status status-booked" title="Užsakovas: ${rageBooking.name} (${rageBooking.phone})">
-              💥 Pyktis: ${rageBooking.name.split(' ')[0]} ${rageBooking.activity.includes('KOMBO') ? '(KOMBO)' : ''}
+              💥 Užimta: ${rageBooking.name.split(' ')[0]} ${rageBooking.activity.includes('KOMBO') ? '(KOMBO)' : ''}
             </div>
           `;
         } else {
@@ -1428,7 +1464,7 @@ if (!empty($_SESSION['admin_logged'])) {
                 <input type="hidden" name="b_time" value="${hourStr}">
                 <input type="hidden" name="b_target" value="rage">
                 <input type="hidden" name="b_block" value="1">
-                <button type="submit" class="btn btn-danger" style="font-size:0.68rem; padding:2px 6px;" title="Uždaryti pykčio kambarį šią valandą">🔒 Uždaryti</button>
+                <button type="submit" class="btn btn-danger" style="font-size:0.68rem; padding:2px 6px;" title="Uždaryti pykčio kambarį (Nedirbame)">🔒 Uždaryti</button>
               </form>
             </div>
           `;
@@ -1439,7 +1475,7 @@ if (!empty($_SESSION['admin_logged'])) {
         if (isAxe1Blocked && isAxe2Blocked) {
           axeHtml = `
             <div class="slot-status" style="background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); display:flex; justify-content:space-between; align-items:center;">
-              <span>🪓 🔒 Uždaryta (Admin)</span>
+              <span>🪓 🔒 Nedirbame (Uždaryta)</span>
               <form method="POST" style="margin:0; display:inline;">
                 <input type="hidden" name="action" value="toggle_slot_block">
                 <input type="hidden" name="b_date" value="${iso}">
@@ -1464,7 +1500,7 @@ if (!empty($_SESSION['admin_logged'])) {
                 <input type="hidden" name="b_time" value="${hourStr}">
                 <input type="hidden" name="b_target" value="axe">
                 <input type="hidden" name="b_block" value="1">
-                <button type="submit" class="btn btn-danger" style="font-size:0.68rem; padding:2px 6px;" title="Uždaryti kirvių takelius šią valandą">🔒 Uždaryti</button>
+                <button type="submit" class="btn btn-danger" style="font-size:0.68rem; padding:2px 6px;" title="Uždaryti kirvių takelius (Nedirbame)">🔒 Uždaryti</button>
               </form>
             </div>
           `;
@@ -1493,8 +1529,8 @@ if (!empty($_SESSION['admin_logged'])) {
               <input type="hidden" name="b_time" value="${hourStr}">
               <input type="hidden" name="b_target" value="all">
               <input type="hidden" name="b_block" value="1">
-              <button type="submit" class="btn btn-danger" style="font-size:0.75rem; padding:0.3rem 0.65rem;" title="Uždaryti visą šią valandą (abi pramogas)">
-                🔒 Uždaryti
+              <button type="submit" class="btn btn-danger" style="font-size:0.75rem; padding:0.3rem 0.65rem;" title="Uždaryti visą šią valandą (Nedirbame)">
+                🔒 Nedirbame
               </button>
             </form>
           `;
@@ -1511,100 +1547,110 @@ if (!empty($_SESSION['admin_logged'])) {
         hourlyEl.appendChild(row);
       }
 
-      // Dienos rezervacijų sąrašas
+      // Dienos sąrašas: atskiriame klientų rezervacijas nuo uždarytų laikų
       listEl.innerHTML = '';
       if (dayBookings.length === 0) {
         listEl.innerHTML = `<div style="color:var(--muted); font-size:0.85rem; padding:1rem; text-align:center;">Šią dieną rezervacijų ar uždarytų laikų nėra. Visi laikai laisvi!</div>`;
       } else {
-        dayBookings.forEach(r => {
-          const card = document.createElement('div');
-          card.className = 'res-card-item';
-          const isBlock = (r.is_block || r.status === 'Uždaryta' || (r.activity || '').includes('Uždaryt'));
-
-          if (isBlock) {
-            card.style.borderLeft = '3px solid #ef4444';
-            card.style.background = 'rgba(239, 68, 68, 0.06)';
-            card.innerHTML = `
-              <div class="res-card-top">
-                <div>
-                  <strong style="font-size:0.95rem; color:#fca5a5;">🔒 ${r.name || 'Uždarytas laikas'}</strong>
-                  <div style="font-size:0.85rem; color:var(--accent); font-weight:700; margin-top:2px;">
-                    🕒 ${r.time} val. • <code>${r.id}</code>
+        let clientHtml = '';
+        if (clientBookings.length === 0) {
+          clientHtml = `<div style="color:var(--muted); font-size:0.85rem; padding:0.6rem; background:rgba(255,255,255,0.02); border-radius:6px; margin-bottom:0.75rem;">Klientų rezervacijų šią dieną nėra.</div>`;
+        } else {
+          clientBookings.forEach(r => {
+            clientHtml += `
+              <div class="res-card-item">
+                <div class="res-card-top">
+                  <div>
+                    <strong style="font-size:1rem; color:#fff;">${r.name}</strong>
+                    <div style="font-size:0.85rem; color:var(--accent); font-weight:700; margin-top:2px;">
+                      🕒 ${r.time} val. • <code>${r.id}</code>
+                    </div>
                   </div>
+                  <span class="badge ${r.status === 'Įvykusi' ? 'badge-success' : (r.status === 'Atšaukta' ? 'badge-canceled' : 'badge-pending')}">
+                    ${r.status}
+                  </span>
                 </div>
-                <span class="badge badge-canceled">Uždaryta</span>
-              </div>
-              <div style="font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem;">
-                • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''}<br>
-                • <strong>Pastaba:</strong> ${r.note || 'Rankiniu būdu uždarytas administratoriaus'}
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.6rem;">
-                <form method="POST" style="display:inline-block;">
-                  <input type="hidden" name="action" value="delete_res">
-                  <input type="hidden" name="redirect_tab" value="kalendorius">
-                  <input type="hidden" name="redirect_date" value="${iso}">
-                  <input type="hidden" name="del_id" value="${r.id}">
-                  <button type="submit" class="btn btn-success" style="font-size:0.8rem; padding:0.3rem 0.75rem;">
-                    🔓 Atidaryti laiką (Pašalinti bloką)
-                  </button>
-                </form>
-                <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick='openEditModal(${JSON.stringify(r)})'>
-                  ✏️ Redaguoti
-                </button>
-              </div>
-            `;
-          } else {
-            card.innerHTML = `
-              <div class="res-card-top">
-                <div>
-                  <strong style="font-size:1rem; color:#fff;">${r.name}</strong>
-                  <div style="font-size:0.85rem; color:var(--accent); font-weight:700; margin-top:2px;">
-                    🕒 ${r.time} val. • <code>${r.id}</code>
-                  </div>
+                
+                <div style="font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem;">
+                  • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''} (${r.count || 1} asm., ${r.activity.includes('KOMBO') ? '2 val. sesija' : '1 val.'})<br>
+                  • <strong>Kontaktai:</strong> <a href="tel:${r.phone}" style="color:#34d399; font-weight:bold; text-decoration:none;">📞 ${r.phone}</a> | <a href="mailto:${r.email}" style="color:#60a5fa; text-decoration:none;">✉️ ${r.email}</a><br>
+                  • <strong>Mokėtina suma:</strong> <strong style="color:var(--accent);">${r.price}</strong>
                 </div>
-                <span class="badge ${r.status === 'Įvykusi' ? 'badge-success' : (r.status === 'Atšaukta' ? 'badge-canceled' : 'badge-pending')}">
-                  ${r.status}
-                </span>
-              </div>
-              
-              <div style="font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem;">
-                • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''} (${r.count} asm., ${r.activity.includes('KOMBO') ? '2 val. sesija' : '1 val.'})<br>
-                • <strong>Kontaktai:</strong> <a href="tel:${r.phone}" style="color:#34d399; font-weight:bold; text-decoration:none;">📞 ${r.phone}</a> | <a href="mailto:${r.email}" style="color:#60a5fa; text-decoration:none;">✉️ ${r.email}</a><br>
-                • <strong>Mokėtina suma:</strong> <strong style="color:var(--accent);">${r.price}</strong>
-              </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.6rem; flex-wrap:wrap; gap:0.4rem;">
-                <div>
-                  <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.6rem; margin-right:4px;" onclick='openEditModal(${JSON.stringify(r)})'>
-                    ✏️ Redaguoti
-                  </button>
-                  <form method="POST" style="display:inline-block;">
-                    <input type="hidden" name="action" value="update_res_status">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.6rem; flex-wrap:wrap; gap:0.4rem;">
+                  <div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.6rem; margin-right:4px;" onclick='openEditModal(${JSON.stringify(r)})'>
+                      ✏️ Redaguoti
+                    </button>
+                    <form method="POST" style="display:inline-block;">
+                      <input type="hidden" name="action" value="update_res_status">
+                      <input type="hidden" name="redirect_tab" value="kalendorius">
+                      <input type="hidden" name="redirect_date" value="${iso}">
+                      <input type="hidden" name="res_id" value="${r.id}">
+                      <select name="new_status" onchange="this.form.submit()" style="background:#090a0f; color:#fff; border:1px solid var(--border); padding:0.25rem 0.5rem; border-radius:6px; font-size:0.8rem;">
+                        <option value="Gauta" ${r.status === 'Gauta' ? 'selected' : ''}>Gauta</option>
+                        <option value="Patvirtinta" ${r.status === 'Patvirtinta' ? 'selected' : ''}>Patvirtinta</option>
+                        <option value="Įvykusi" ${r.status === 'Įvykusi' ? 'selected' : ''}>Įvykusi</option>
+                        <option value="Atšaukta" ${r.status === 'Atšaukta' ? 'selected' : ''}>Atšaukta (atlaisvina laiką)</option>
+                      </select>
+                    </form>
+                  </div>
+
+                  <form method="POST" style="display:inline-block;" onsubmit="return confirm('Ar tikrai norite visam laikui ištrinti šią rezervaciją?')">
+                    <input type="hidden" name="action" value="delete_res">
                     <input type="hidden" name="redirect_tab" value="kalendorius">
                     <input type="hidden" name="redirect_date" value="${iso}">
-                    <input type="hidden" name="res_id" value="${r.id}">
-                    <select name="new_status" onchange="this.form.submit()" style="background:#090a0f; color:#fff; border:1px solid var(--border); padding:0.25rem 0.5rem; border-radius:6px; font-size:0.8rem;">
-                      <option value="Gauta" ${r.status === 'Gauta' ? 'selected' : ''}>Gauta</option>
-                      <option value="Patvirtinta" ${r.status === 'Patvirtinta' ? 'selected' : ''}>Patvirtinta</option>
-                      <option value="Įvykusi" ${r.status === 'Įvykusi' ? 'selected' : ''}>Įvykusi</option>
-                      <option value="Atšaukta" ${r.status === 'Atšaukta' ? 'selected' : ''}>Atšaukta (atlaisvina laiką)</option>
-                      <option value="Uždaryta" ${r.status === 'Uždaryta' ? 'selected' : ''}>Uždaryta (blokuoja)</option>
-                    </select>
+                    <input type="hidden" name="del_id" value="${r.id}">
+                    <button type="submit" style="background:none; border:none; color:#ef4444; font-size:0.85rem; cursor:pointer;" title="Ištrinti rezervaciją">🗑️ Ištrinti</button>
                   </form>
                 </div>
-
-                <form method="POST" style="display:inline-block;" onsubmit="return confirm('Ar tikrai norite visam laikui ištrinti šią rezervaciją?')">
-                  <input type="hidden" name="action" value="delete_res">
-                  <input type="hidden" name="redirect_tab" value="kalendorius">
-                  <input type="hidden" name="redirect_date" value="${iso}">
-                  <input type="hidden" name="del_id" value="${r.id}">
-                  <button type="submit" style="background:none; border:none; color:#ef4444; font-size:0.85rem; cursor:pointer;">🗑️ Ištrinti</button>
-                </form>
               </div>
             `;
-          }
-          listEl.appendChild(card);
-        });
+          });
+        }
+
+        let blocksHtml = '';
+        if (blocks.length > 0) {
+          blocks.forEach(r => {
+            blocksHtml += `
+              <div class="res-card-item" style="border-left: 3px solid #ef4444; background: rgba(239, 68, 68, 0.06); margin-bottom: 0.6rem;">
+                <div class="res-card-top">
+                  <div>
+                    <strong style="font-size:0.95rem; color:#fca5a5;">🔒 Nedirbame (Uždarytas laikas)</strong>
+                    <div style="font-size:0.85rem; color:var(--accent); font-weight:700; margin-top:2px;">
+                      🕒 ${r.time} val. • <code>${r.id}</code>
+                    </div>
+                  </div>
+                  <span class="badge badge-canceled">Nedirbame</span>
+                </div>
+                <div style="font-size:0.85rem; color:var(--muted); line-height:1.5; margin-bottom:0.5rem;">
+                  • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''}<br>
+                  • <strong>Pastaba:</strong> ${r.note || 'Rankiniu būdu uždarytas administratoriaus'}
+                </div>
+                <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:0.5rem;">
+                  <form method="POST" style="display:inline-block; margin:0;">
+                    <input type="hidden" name="action" value="delete_res">
+                    <input type="hidden" name="redirect_tab" value="kalendorius">
+                    <input type="hidden" name="redirect_date" value="${iso}">
+                    <input type="hidden" name="del_id" value="${r.id}">
+                    <button type="submit" class="btn btn-success" style="font-size:0.8rem; padding:0.3rem 0.75rem;">
+                      🔓 Atidaryti laiką (Pašalinti bloką)
+                    </button>
+                  </form>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        listEl.innerHTML = `
+          <div style="margin-bottom:0.6rem; font-weight:600; font-size:0.88rem; color:#fff;">📋 Klientų rezervacijos (${clientBookings.length}):</div>
+          ${clientHtml}
+          ${blocks.length > 0 ? `
+            <div style="margin:1.2rem 0 0.6rem 0; font-weight:600; font-size:0.88rem; color:#fca5a5;">🔒 Uždaryti laikai / Nedirbame (${blocks.length} val.):</div>
+            ${blocksHtml}
+          ` : ''}
+        `;
       }
     }
 
