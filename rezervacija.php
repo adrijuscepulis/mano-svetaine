@@ -209,6 +209,19 @@ $t2 = sprintf('%02d:00', $startHour + 1);
 $tEnd = sprintf('%02d:00', $startHour + 2);
 $isKombo = (stripos($activity, 'KOMBO') !== false);
 
+$dayOfWeek = date('w', strtotime($isoDate));
+if ($dayOfWeek == 0) {
+    // Sekmadienis: 09:00 - 20:00
+    $maxStart = $isKombo ? 18 : 19;
+    if ($startHour < 9 || $startHour > $maxStart) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Sekmadieniais dirbame nuo 09:00 iki 20:00. Prašome pasirinkti galiojantį darbo laiką.'
+        ]);
+        exit;
+    }
+}
+
 $slotsOccupied = [];
 foreach ($all as $ex) {
     if (($ex['status'] ?? '') === 'Atšaukta') continue;

@@ -256,8 +256,17 @@ if (!empty($_SESSION['admin_logged'])) {
         if ($doBlock === 1) {
             // Pridedame blokus visoms dienos darbo valandoms
             $dayOfWeek = date('w', strtotime($targetDate));
-            $startH = ($dayOfWeek == 5 || $dayOfWeek == 6 || $dayOfWeek == 0) ? 9 : 16;
-            $endH = ($dayOfWeek == 5 || $dayOfWeek == 6 || $dayOfWeek == 0) ? 23 : 22;
+            $startH = 16;
+            $endH = 22;
+            if ($dayOfWeek == 0) {
+                // Sekmadienis: 09:00 - 20:00 (valandos nuo 9 iki 19)
+                $startH = 9;
+                $endH = 19;
+            } elseif ($dayOfWeek == 5 || $dayOfWeek == 6) {
+                // Penktadienis - Šeštadienis: 09:00 - 24:00 (valandos nuo 9 iki 23)
+                $startH = 9;
+                $endH = 23;
+            }
 
             for ($h = $startH; $h <= $endH; $h++) {
                 $hStr = sprintf('%02d:00', $h);
@@ -809,7 +818,7 @@ if (!empty($_SESSION['admin_logged'])) {
             <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.6;">
               • <strong>Pykčio kambarys:</strong> 1 vieta (maks. 1 rezervacija / val.)<br>
               • <strong>Kirvių mėtymas:</strong> 2 takeliai (maks. 2 rezervacijos / val.)<br>
-              • <strong>Darbo laikas:</strong> I–IV 16–23 val. | V–VII 09–24 val.
+              • <strong>Darbo laikas:</strong> V–VI: 09–24 val. | VII: 09–20 val. | I–IV: Nedirbame (Jau greitai!)
             </div>
           </div>
         </div>
@@ -1373,11 +1382,16 @@ if (!empty($_SESSION['admin_logged'])) {
       `;
 
       // Nustatome darbo valandas pagal savaitės dieną:
-      // I-IV: 16:00 - 22:00 (iki 23:00) | V-VII: 09:00 - 23:00 (iki 24:00)
+      // I-IV: 16:00 - 22:00 (iki 23:00) | V-VI: 09:00 - 23:00 (iki 24:00) | VII: 09:00 - 19:00 (iki 20:00)
       const dayOfWeek = d.getDay();
       let startH = 16;
       let endH = 22;
-      if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
+      if (dayOfWeek === 0) {
+        // Sekmadienis: 09:00 - 20:00
+        startH = 9;
+        endH = 19;
+      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
+        // Penktadienis - Šeštadienis: 09:00 - 24:00
         startH = 9;
         endH = 23;
       }
@@ -1681,8 +1695,18 @@ if (!empty($_SESSION['admin_logged'])) {
       const d = new Date(selectedIsoDate + 'T00:00:00');
       const isKombo = (document.getElementById('m_activity')?.value || '').includes('KOMBO');
 
-      let startH = (d.getDay() === 5 || d.getDay() === 6 || d.getDay() === 0) ? 9 : 16;
-      let closingH = (d.getDay() === 5 || d.getDay() === 6 || d.getDay() === 0) ? 24 : 23;
+      const dayOfWeek = d.getDay();
+      let startH = 16;
+      let closingH = 23;
+      if (dayOfWeek === 0) {
+        // Sekmadienis: 09:00 - 20:00
+        startH = 9;
+        closingH = 20;
+      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
+        // Penktadienis - Šeštadienis: 09:00 - 24:00
+        startH = 9;
+        closingH = 24;
+      }
       let endH = isKombo ? (closingH - 2) : (closingH - 1);
 
       for (let h = startH; h <= endH; h++) {
