@@ -2439,12 +2439,8 @@
         // Sekmadienis: 09:00 - 20:00
         startHour = 9;
         closingHour = 20;
-      } else if (dayOfWeek === 5) {
-        // Penktadienis: 16:00 - 24:00
-        startHour = 16;
-        closingHour = 24;
-      } else if (dayOfWeek === 6) {
-        // Šeštadienis: 09:00 - 24:00
+      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
+        // Penktadienis ir Šeštadienis (V-VI): 09:00 - 24:00
         startHour = 9;
         closingHour = 24;
       } else {
@@ -2695,12 +2691,8 @@
         // Sekmadienis: 09:00 - 20:00
         startHour = 9;
         closingHour = 20;
-      } else if (dayOfWeek === 5) {
-        // Penktadienis: 16:00 - 24:00
-        startHour = 16;
-        closingHour = 24;
-      } else if (dayOfWeek === 6) {
-        // Šeštadienis: 09:00 - 24:00
+      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
+        // Penktadienis ir Šeštadienis (V-VI): 09:00 - 24:00
         startHour = 9;
         closingHour = 24;
       } else {

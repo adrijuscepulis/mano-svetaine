@@ -21,7 +21,7 @@
   },
   "hours": {
     "workdays": "I-IV: 16:00 - 22:00",
-    "friday": "16:00 - 24:00",
+    "friday": "09:00 - 24:00",
     "saturday": "09:00 - 24:00",
     "sunday": "09:00 - 20:00",
     "note": "Rezervacija internetu privaloma iš anksto."
@@ -47,7 +47,7 @@
     },
     {
       "q": "Koks yra jūsų darbo laikas ir kada galima apsilankyti?",
-      "a": "Dirbame darbo dienomis (I-IV: 16:00 - 22:00), penktadieniais (16:00 - 24:00), šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Apsilankymui būtina išankstinė rezervacija internetu."
+      "a": "Dirbame darbo dienomis (I-IV: 16:00 - 22:00), penktadieniais ir šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Apsilankymui būtina išankstinė rezervacija internetu."
     },
     {
       "q": "Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?",
