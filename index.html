@@ -1800,8 +1800,8 @@
               <div>
                 <strong>Darbo laikas:</strong>
                 <span style="display: block; font-size: 0.82rem; color: var(--muted); margin-top: 2px;">
-                  <strong style="color:#fff;">V–VI:</strong> 09:00 – 24:00 | <strong style="color:#fff;">VII (Sekmadienis):</strong> 09:00 – 20:00<br>
-                  <strong style="color:#fff;">I–IV (Darbo dienomis):</strong> Nedirbame <span style="background:rgba(245,158,11,0.15); color:#f59e0b; padding:1px 6px; border-radius:10px; font-size:0.72rem; font-weight:700;">Jau greitai!</span>
+                  <strong style="color:#fff;">I–IV (Darbo dienomis):</strong> 16:00 – 22:00<br>
+                  <strong style="color:#fff;">V–VI:</strong> 09:00 – 24:00 | <strong style="color:#fff;">VII (Sekmadienis):</strong> 09:00 – 20:00
                 </span>
               </div>
             </div>
@@ -2038,8 +2038,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Dirbame savaitgaliais: <strong>Penktadieniais ir Šeštadieniais: 09:00 – 24:00</strong>, <strong>Sekmadieniais: 09:00 – 20:00</strong>.<br>
-            Darbo dienomis (I–IV) šiuo metu nedirbame – <strong>jau greitai atversime duris ir šiomis dienomis!</strong>
+            Dirbame <strong>Darbo dienomis (I–IV): 16:00 – 22:00</strong>, <strong>Penktadieniais ir Šeštadieniais (V–VI): 09:00 – 24:00</strong> bei <strong>Sekmadieniais (VII): 09:00 – 20:00</strong>. Apsilankymui būtina išankstinė rezervacija internetu!
           </div>
         </div>
 
@@ -2071,7 +2070,7 @@
         <a href="privatumas.html" style="color: var(--accent); font-weight: 700;">🔒 Privatumo politika</a>
       </div>
       <p style="margin-bottom: 0.6rem; font-size: 0.85rem; color: #94a3b8;" data-cms="hours_summary">
-        🕒 <strong>Darbo laikas:</strong> V–VI: 09:00–24:00 | VII: 09:00–20:00 | I–IV: Nedirbame <span style="color:#fbbf24; font-weight:700;">(Jau greitai!)</span>
+        🕒 <strong>Darbo laikas:</strong> I–IV: 16:00–22:00 | V–VI: 09:00–24:00 | VII: 09:00–20:00
       </p>
       <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | <span data-cms="address">Pramonės g. 15 (2 a.), Šiauliai</span> | Tel. <a href="tel:+37061988009" data-cms="phone">+370 619 88009</a> | El. p. <a href="mailto:throwhousee@gmail.com" data-cms="email">throwhousee@gmail.com</a></p>
     </div>
@@ -2498,9 +2497,9 @@
         startHour = 9;
         closingHour = 24;
       } else {
-        // Darbo dienomis (I - IV): 16:00 - 23:00 (valdoma rankiniu būdu per admin)
+        // Darbo dienomis (I - IV): 16:00 - 22:00
         startHour = 16;
-        closingHour = 23;
+        closingHour = 22;
       }
 
       // KOMBO trunka 2 valandas, todėl paskutinė pradžia – likus 2 val. iki uždarymo:

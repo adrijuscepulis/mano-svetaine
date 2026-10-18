@@ -127,7 +127,7 @@ function getDefaultSettings() {
             'tiktok_url' => 'https://www.tiktok.com/@throwhouse'
         ],
         'hours' => [
-            'workdays' => 'I-IV: Nedirbame (Jau greitai!)',
+            'workdays' => 'I-IV: 16:00 - 22:00',
             'friday' => '16:00 - 24:00',
             'saturday' => '09:00 - 24:00',
             'sunday' => '09:00 - 20:00',
@@ -154,7 +154,7 @@ function getDefaultSettings() {
             ],
             [
                 'q' => 'Koks yra jūsų darbo laikas ir kada galima apsilankyti?',
-                'a' => 'Dirbame penktadieniais (16:00 - 24:00), šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Darbo dienomis (I-IV) – nedirbame (jau greitai!). Apsilankymui būtina išankstinė rezervacija internetu.'
+                'a' => 'Dirbame darbo dienomis (I-IV: 16:00 - 22:00), penktadieniais (16:00 - 24:00), šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Apsilankymui būtina išankstinė rezervacija internetu.'
             ],
             [
                 'q' => 'Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?',
@@ -531,7 +531,7 @@ if (!empty($_SESSION['admin_logged'])) {
         $settings['prices']['pricing_subtitle'] = trim($_POST['p_pricing_subtitle'] ?? '');
 
         // Darbo laikas
-        $settings['hours']['workdays'] = trim($_POST['h_workdays'] ?? 'I-IV: Nedirbame (Jau greitai!)');
+        $settings['hours']['workdays'] = trim($_POST['h_workdays'] ?? 'I-IV: 16:00 - 22:00');
         $settings['hours']['friday'] = trim($_POST['h_friday'] ?? '16:00 - 24:00');
         $settings['hours']['saturday'] = trim($_POST['h_saturday'] ?? '09:00 - 24:00');
         $settings['hours']['sunday'] = trim($_POST['h_sunday'] ?? '09:00 - 20:00');
@@ -1075,7 +1075,7 @@ if (!empty($_SESSION['admin_logged'])) {
             <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.6;">
               • <strong>Pykčio kambarys:</strong> 1 vieta (maks. 1 rezervacija / val.)<br>
               • <strong>Kirvių mėtymas:</strong> 2 takeliai (maks. 2 rezervacijos / val.)<br>
-              • <strong>Darbo laikas:</strong> V–VI: 09–24 val. | VII: 09–20 val. | I–IV: Nedirbame (Jau greitai!)
+              • <strong>Darbo laikas:</strong> I–IV: 16–22 val. | V–VI: 09–24 val. | VII: 09–20 val.
             </div>
           </div>
         </div>
@@ -1477,7 +1477,7 @@ if (!empty($_SESSION['admin_logged'])) {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
               <div>
                 <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Darbo dienomis (I–IV):</label>
-                <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I-IV: Nedirbame (Jau greitai!)') ?>" required style="margin-bottom: 0;">
+                <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I-IV: 16:00 - 22:00') ?>" required style="margin-bottom: 0;">
               </div>
               <div>
                 <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Penktadieniais (V):</label>
@@ -1888,10 +1888,10 @@ if (!empty($_SESSION['admin_logged'])) {
       `;
 
       // Nustatome darbo valandas pagal savaitės dieną:
-      // I-IV: 16:00 - 22:00 (iki 23:00) | V-VI: 09:00 - 23:00 (iki 24:00) | VII: 09:00 - 19:00 (iki 20:00)
+      // I-IV: 16:00 - 21:00 (iki 22:00) | V-VI: 09:00 - 23:00 (iki 24:00) | VII: 09:00 - 19:00 (iki 20:00)
       const dayOfWeek = d.getDay();
       let startH = 16;
-      let endH = 22;
+      let endH = 21;
       if (dayOfWeek === 0) {
         // Sekmadienis: 09:00 - 20:00
         startH = 9;

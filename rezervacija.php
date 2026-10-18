@@ -255,6 +255,16 @@ if ($dayOfWeek == 0) {
         ]);
         exit;
     }
+} elseif ($dayOfWeek >= 1 && $dayOfWeek <= 4) {
+    // Darbo dienomis (I-IV): 16:00 - 22:00
+    $maxStart = $isKombo ? 20 : 21;
+    if ($startHour < 16 || $startHour > $maxStart) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Darbo dienomis (I–IV) dirbame nuo 16:00 iki 22:00. Prašome pasirinkti galiojantį darbo laiką.'
+        ]);
+        exit;
+    }
 }
 
 $slotsOccupied = [];

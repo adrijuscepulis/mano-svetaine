@@ -133,10 +133,10 @@
     if (!h) return;
 
     // Bendra darbo laiko eilutė
-    const summaryStr = `V-VI: 09:00-24:00 | VII: ${h.sunday || '09:00-20:00'} | ${h.workdays || 'I-IV: Nedirbame (Jau greitai!)'}`;
+    const summaryStr = `I-IV: ${h.workdays || '16:00-22:00'} | V-VI: 09:00-24:00 | VII: ${h.sunday || '09:00-20:00'}`;
 
     document.querySelectorAll('[data-cms="hours_summary"]').forEach(el => {
-      el.innerHTML = `⏱️ <strong>Darbo laikas:</strong> V-VI: 09:00-24:00 | VII: ${h.sunday || '09:00-20:00'} | ${h.workdays || 'I-IV: Nedirbame'} <span style="color:#fbbf24; font-weight:700;">(Jau greitai!)</span>`;
+      el.innerHTML = `⏱️ <strong>Darbo laikas:</strong> ${h.workdays || 'I-IV: 16:00-22:00'} | V-VI: 09:00-24:00 | VII: ${h.sunday || '09:00-20:00'}`;
     });
 
     document.querySelectorAll('[data-cms="hours_workdays"]').forEach(el => el.textContent = h.workdays);
