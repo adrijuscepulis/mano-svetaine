@@ -100,39 +100,8 @@ $subAdmin = "🎁 Naujas dovanų kuponas [$code] ($amount €) - $buyerName";
 $adminHtml = renderVoucherAdminHtml($coupon);
 $adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail, 'ThrowHouse Kuponai');
 
-// 4. FormSubmit atsarginis kanalas (užtikrina 100% pristatymą administratoriui ir autoresponse)
-$plainTextAutoresponse = "Sveiki, $targetName!\n\n"
-    . "Dovanų kuponas pramogų erdvėje „ThrowHouse Šiauliai“:\n"
-    . "• Kodas: $code\n"
-    . "• Vertė: $amount €\n"
-    . "• Galioja iki: $expiresAt (6 mėn.)\n\n"
-    . "📌 KAIP PANAUDOTI:\n"
-    . "Dėl kupono panaudojimo ir apsilankymo laiko suderinimo prašome kreiptis asmeniškai:\n"
-    . "• Tel.: +370 619 88009\n"
-    . "• El. paštu: throwhousee@gmail.com\n\n"
-    . "📍 Pramonės g. 15, Šiauliai (2-as a., įėjimas pro duris „Floristika“).";
-
-$formSubmitData = [
-    'Kupono_Kodas' => $code,
-    'Kupono_Verte' => $amount . ' €',
-    'Tipas' => $targetLabel,
-    'Pirkejo_Vardas' => $buyerName,
-    'Telefono_numeris' => $buyerPhone,
-    'Pirkejo_El_pastas' => $buyerEmail,
-    'email' => $targetEmail,
-    '_replyto' => $buyerEmail,
-    'Gavejas' => $targetName,
-    'Gavejo_El_pastas' => $targetEmail,
-    'Sveikinimas' => $greeting ?: 'Nėra',
-    'Galioja_iki' => $expiresAt,
-    '_subject' => "🎁 Naujas dovanų kuponas [$code] - $amount € ($targetLabel)",
-    '_template' => "table",
-    '_autoresponse' => $plainTextAutoresponse
-];
-$fsSent = sendFormSubmitRelay($formSubmitData);
-
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | Kuponas: $code | $amount € | Tipas: $targetLabel | Pirkejas: $buyerName ($buyerEmail) | Gavejas: $targetName ($targetEmail) | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | VoucherMail: " . ($voucherSent ? 'OK' : 'FAIL') . " | FormSubmit: " . ($fsSent ? 'OK' : 'FAIL') . "\n";
+$logEntry = date('Y-m-d H:i:s') . " | Kuponas: $code | $amount € | Tipas: $targetLabel | Pirkejas: $buyerName ($buyerEmail) | Gavejas: $targetName ($targetEmail) | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | VoucherMail: " . ($voucherSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/kuponas_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([

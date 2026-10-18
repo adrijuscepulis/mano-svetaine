@@ -144,18 +144,6 @@ $clientHtml = '<!DOCTYPE html>
 
 $clientSent = sendThrowHouseMail($email, $clientSub, $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
 
-// 3. FormSubmit atsarginis kanalas administratoriui
-sendFormSubmitRelay([
-    'Tema' => $subject,
-    'Vardas' => $name,
-    'Telefonas' => $phone,
-    'El_pastas' => $email,
-    'Zinute' => $message,
-    'email' => $email,
-    '_replyto' => $email,
-    '_subject' => "✉️ Nauja kontakto užklausa [$subject] - $name"
-]);
-
 // Žurnalas diagnostikai
 $logEntry = date('Y-m-d H:i:s') . " | Kontaktai: $subject | $name ($email, $phone) | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/kontaktai_log.txt', $logEntry, FILE_APPEND);

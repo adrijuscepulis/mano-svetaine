@@ -263,16 +263,10 @@ if (!empty($_SESSION['admin_logged'])) {
             $cancelSub = "Rezervacija atšaukta [{$updatedRes['id']}] – ThrowHouse Šiauliai";
             $sent = sendThrowHouseMail($updatedRes['email'], $cancelSub, $cancelHtml);
 
-            sendFormSubmitRelay([
-                'Užsakymo_ID' => $updatedRes['id'],
-                'Būsena' => 'ATŠAUKTA (Administratorius)',
-                'Klientas' => $updatedRes['name'] ?? '',
-                'Data' => $updatedRes['date'] ?? '',
-                'Laikas' => $updatedRes['time'] ?? '',
-                '_subject' => "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}"
-            ]);
+            $cancelAdminHtml = renderCancelledReservationAdminHtml($updatedRes);
+            sendThrowHouseMail('throwhousee@gmail.com', "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
 
-            $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui į {$updatedRes['email']}." : "";
+            $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui į {$updatedRes['email']}." : " (El. pašto siuntimas klientui nepavyko – sukonfigūruokite SMTP skiltyje El. paštas).";
         }
 
         $_SESSION['admin_flash'] = "Rezervacijos ($resId) statusas sėkmingai atnaujintas į: $newStatus.$mailNotice";
@@ -557,14 +551,8 @@ if (!empty($_SESSION['admin_logged'])) {
                 $cancelSub = "Rezervacija atšaukta [{$updatedRes['id']}] – ThrowHouse Šiauliai";
                 $sent = sendThrowHouseMail($updatedRes['email'], $cancelSub, $cancelHtml);
 
-                sendFormSubmitRelay([
-                    'Užsakymo_ID' => $updatedRes['id'],
-                    'Būsena' => 'ATŠAUKTA (Administratoriaus pultas)',
-                    'Klientas' => $updatedRes['name'] ?? '',
-                    'Data' => $updatedRes['date'] ?? '',
-                    'Laikas' => $updatedRes['time'] ?? '',
-                    '_subject' => "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}"
-                ]);
+                $cancelAdminHtml = renderCancelledReservationAdminHtml($updatedRes);
+                sendThrowHouseMail('throwhousee@gmail.com', "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
 
                 $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui ({$updatedRes['email']})." : "";
             } elseif ($newDate !== $oldDate || $newTime !== $oldTime) {
@@ -573,16 +561,8 @@ if (!empty($_SESSION['admin_logged'])) {
                 $rescheduleSub = "Atnaujintas rezervacijos laikas [{$updatedRes['id']}] – ThrowHouse Šiauliai";
                 $sent = sendThrowHouseMail($updatedRes['email'], $rescheduleSub, $rescheduleHtml);
 
-                sendFormSubmitRelay([
-                    'Užsakymo_ID' => $updatedRes['id'],
-                    'Būsena' => 'PAKEISTAS LAIKAS (Administratorius)',
-                    'Klientas' => $updatedRes['name'] ?? '',
-                    'Nauja_Data' => $newDate,
-                    'Naujas_Laikas' => $newTime,
-                    'Buvusi_Data' => $oldDate,
-                    'Buvęs_Laikas' => $oldTime,
-                    '_subject' => "🕒 Pakeistas rezervacijos laikas [{$updatedRes['id']}]: {$updatedRes['name']} ($newDate $newTime)"
-                ]);
+                $rescheduleAdminHtml = renderRescheduledReservationAdminHtml($updatedRes, $oldDate, $oldTime);
+                sendThrowHouseMail('throwhousee@gmail.com', "🕒 Pakeistas rezervacijos laikas [{$updatedRes['id']}]: {$updatedRes['name']} ($newDate $newTime)", $rescheduleAdminHtml);
 
                 $mailNotice = $sent ? " Pranešimas apie naują laiką išsiųstas klientui ({$updatedRes['email']})." : "";
             }
@@ -648,6 +628,74 @@ if (!empty($_SESSION['admin_logged'])) {
         saveSettingsData($settingsFile, $settingsDbFile, $settings);
         $_SESSION['admin_flash'] = "Svetainės nustatymai sėkmingai išsaugoti ir atnaujinti gyvai!";
         header('Location: admin.php?tab=nustatymai');
+        exit;
+    }
+
+    // 10. Išsaugoti el. pašto (SMTP) nustatymus
+    if (isset($_POST['action']) && $_POST['action'] === 'save_email_settings') {
+        require_once __DIR__ . '/email_helper.php';
+        $cfg = loadEmailConfig();
+        $cfg['smtp_enabled'] = !empty($_POST['smtp_enabled']);
+        $cfg['smtp_host'] = trim($_POST['smtp_host'] ?? 'smtp.gmail.com');
+        $cfg['smtp_port'] = intval($_POST['smtp_port'] ?? 465);
+        $cfg['smtp_user'] = trim($_POST['smtp_user'] ?? 'throwhousee@gmail.com');
+        if (isset($_POST['smtp_pass']) && trim($_POST['smtp_pass']) !== '') {
+            $cfg['smtp_pass'] = trim($_POST['smtp_pass']);
+        }
+        $cfg['admin_email'] = trim($_POST['admin_email'] ?? 'throwhousee@gmail.com');
+        saveEmailConfig($cfg);
+        $_SESSION['admin_flash'] = "El. pašto (SMTP) nustatymai sėkmingai išsaugoti!";
+        header('Location: admin.php?tab=email');
+        exit;
+    }
+
+    // 11. Išsiųsti bandomąjį el. laišką
+    if (isset($_POST['action']) && $_POST['action'] === 'send_test_email') {
+        require_once __DIR__ . '/email_helper.php';
+        $cfg = loadEmailConfig();
+        $targetEmail = trim($_POST['test_email'] ?? $cfg['admin_email'] ?? 'throwhousee@gmail.com');
+
+        $testHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif; background:#0b0f19; padding:20px; color:#fff;">
+          <div style="max-width:550px; margin:0 auto; background:#18102a; border:2px solid #ff6a00; border-radius:12px; padding:25px; text-align:center;">
+            <h1 style="color:#ff6a00; margin:0 0 10px 0;">THROW HOUSE ŠIAULIAI</h1>
+            <p style="font-size:16px; color:#4ade80; font-weight:bold;">✓ El. pašto sistema veikia sėkmingai!</p>
+            <p style="color:#e2e8f0; font-size:14px; line-height:1.5;">
+              Šis laiškas patvirtina, kad Jūsų serverio el. pašto siuntimas yra pilnai sukonfigūruotas. Klientai ir Jūs gausite visus reprezentatyvius laiškus.
+            </p>
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; margin-top:15px; font-size:13px; color:#94a3b8;">
+              Išsiuntimo laikas: ' . date('Y-m-d H:i:s') . '<br>
+              Gavėjas: ' . htmlspecialchars($targetEmail) . '
+            </div>
+          </div>
+        </body></html>';
+
+        if (!empty($cfg['smtp_enabled']) && !empty($cfg['smtp_pass'])) {
+            $smtpRes = sendSmtpMail(
+                $cfg['smtp_host'],
+                $cfg['smtp_port'],
+                $cfg['smtp_user'],
+                $cfg['smtp_pass'],
+                $targetEmail,
+                "Bandomasis laiškas iš ThrowHouse Šiauliai (" . date('H:i:s') . ")",
+                $testHtml,
+                'ThrowHouse Šiauliai',
+                $cfg['admin_email']
+            );
+            if ($smtpRes['success']) {
+                $_SESSION['admin_flash'] = "✓ SĖKMĖ: Bandomasis laiškas sėkmingai išsiųstas per SMTP į $targetEmail! Patikrinkite pašto dėžutę.";
+            } else {
+                $_SESSION['admin_flash_error'] = "⚠️ SMTP KLAIDA: " . ($smtpRes['error'] ?? 'Nepavyko išsiųsti');
+            }
+        } else {
+            $sent = sendThrowHouseMail($targetEmail, "Bandomasis laiškas iš ThrowHouse Šiauliai (" . date('H:i:s') . ")", $testHtml);
+            if ($sent) {
+                $_SESSION['admin_flash'] = "Bandomasis laiškas išsiųstas per standartinį PHP mail() į $targetEmail. (Rekomenduojama įvesti SMTP slaptažodį 100% garantijai į Inbox).";
+            } else {
+                $_SESSION['admin_flash_error'] = "⚠️ PHP mail() nepavyko. Įveskite Gmail programos slaptažodį žemiau esančioje formoje.";
+            }
+        }
+
+        header('Location: admin.php?tab=email');
         exit;
     }
 }
@@ -1066,6 +1114,8 @@ if (!empty($_SESSION['admin_logged'])) {
 
   $currentTab = $_GET['tab'] ?? 'kalendorius';
   $initialSelectedDate = $_GET['date'] ?? date('Y-m-d');
+  require_once __DIR__ . '/email_helper.php';
+  $emailCfg = loadEmailConfig();
 ?>
   <!-- ADMIN NAVIGACIJA -->
   <header class="header">
@@ -1128,6 +1178,7 @@ if (!empty($_SESSION['admin_logged'])) {
       <a href="admin.php?tab=rezervacijos" class="tab-btn <?= $currentTab === 'rezervacijos' ? 'active' : '' ?>">📋 Rezervacijų sąrašas (<?= $totalRes ?>)</a>
       <a href="admin.php?tab=kuponai" class="tab-btn <?= $currentTab === 'kuponai' ? 'active' : '' ?>">🎁 Dovanų kuponai (<?= $totalCoupons ?>)</a>
       <a href="admin.php?tab=nustatymai" class="tab-btn <?= $currentTab === 'nustatymai' ? 'active' : '' ?>">⚙️ Svetainės nustatymai (TVS)</a>
+      <a href="admin.php?tab=email" class="tab-btn <?= $currentTab === 'email' ? 'active' : '' ?>">📧 El. paštas (SMTP)</a>
     </div>
 
     <!-- ======================================================= -->
@@ -1696,6 +1747,127 @@ if (!empty($_SESSION['admin_logged'])) {
           div.scrollIntoView({ behavior: 'smooth' });
         }
       </script>
+    <?php endif; ?>
+
+    <!-- ======================================================= -->
+    <!-- 5 TAB: EL. PAŠTO IR SMTP NUSTATYMAI                     -->
+    <!-- ======================================================= -->
+    <?php if ($currentTab === 'email'): 
+      $logContent = file_exists(__DIR__ . '/mail_log.txt') ? file_get_contents(__DIR__ . '/mail_log.txt') : 'Žurnalas kol kas tuščias.';
+      $logLines = array_slice(array_reverse(explode("\n", trim($logContent))), 0, 20);
+    ?>
+      <div style="max-width: 900px; margin: 0 auto;">
+        
+        <div style="background: rgba(255, 106, 0, 0.08); border: 1px solid rgba(255, 106, 0, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
+          <div style="font-size: 2rem; line-height: 1;">📧</div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">El. pašto siuntimo ir SMTP nustatymai</h2>
+            <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin: 0;">
+              Sukonfigūruokite tiesioginį autentifikuotą Gmail arba kito teikėjo SMTP el. paštą.
+              Kai SMTP yra aktyvus, visi laiškai klientams (naujos rezervacijos patvirtinimas, atšaukimas, datos/laiko pakeitimas, dovanų kuponai) ir administratoriui bus išsiunčiami <strong>100% patikimai tiesiai į „Inbox“ (Gautieji)</strong> reprezentatyviu ThrowHouse firminiu dizainu be jokių klaidų.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+          
+          <!-- SMTP NUSTATYMŲ FORMA -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+              🔑 SMTP serverio konfigūracija
+            </h3>
+
+            <form method="POST">
+              <input type="hidden" name="action" value="save_email_settings">
+
+              <div style="margin-bottom: 1.25rem; background: rgba(255,255,255,0.03); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Įjungti autentifikuotą SMTP siuntimą</div>
+                  <div style="font-size: 0.8rem; color: var(--muted);">Rekomenduojama įjungti, kad laiškai nebūtų blokuojami Google/Hostinger DMARC apsaugų</div>
+                </div>
+                <input type="checkbox" name="smtp_enabled" value="1" <?= !empty($emailCfg['smtp_enabled']) ? 'checked' : '' ?> style="width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer;">
+              </div>
+
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem;">SMTP Serverio adresas (Host):</label>
+                  <input type="text" name="smtp_host" class="form-input" value="<?= htmlspecialchars($emailCfg['smtp_host'] ?? 'smtp.gmail.com') ?>" required style="margin-bottom: 0;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem;">Portas (465 = SSL):</label>
+                  <input type="number" name="smtp_port" class="form-input" value="<?= htmlspecialchars($emailCfg['smtp_port'] ?? '465') ?>" required style="margin-bottom: 0;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem;">SMTP Vartotojas / El. paštas:</label>
+                  <input type="email" name="smtp_user" class="form-input" value="<?= htmlspecialchars($emailCfg['smtp_user'] ?? 'throwhousee@gmail.com') ?>" required style="margin-bottom: 0;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem;">
+                    SMTP Slaptažodis (arba Google App Password):
+                  </label>
+                  <input type="password" name="smtp_pass" class="form-input" placeholder="<?= !empty($emailCfg['smtp_pass']) ? '•••••••••••••••• (išsaugotas)' : 'Įveskite 16-os ženklų Google App slaptažodį' ?>" style="margin-bottom: 0;">
+                </div>
+              </div>
+
+              <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem;">Administratoriaus el. paštas (gaus pranešimus):</label>
+                <input type="email" name="admin_email" class="form-input" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'throwhousee@gmail.com') ?>" required style="margin-bottom: 0;">
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
+                💾 Išsaugoti SMTP nustatymus
+              </button>
+            </form>
+          </div>
+
+          <!-- GMAIL APP PASSWORD INSTRUKCIJA -->
+          <div style="background: rgba(30, 20, 50, 0.6); border: 1px solid rgba(255,106,0,0.25); border-radius: 12px; padding: 1.25rem 1.5rem;">
+            <h4 style="color: #ff6a00; font-size: 0.95rem; font-weight: 700; margin-top: 0; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              💡 Kaip gauti Gmail programos slaptažodį (užtruks 1 minutę):
+            </h4>
+            <ol style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+              <li>Prisijunkite prie savo <strong>throwhousee@gmail.com</strong> Google paskyros ir atidarykite nuorodą: <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #ff6a00; text-decoration: underline; font-weight: 600;">myaccount.google.com/apppasswords</a></li>
+              <li>Jei prašo, įjunkite 2 žingsnių patvirtinimą (2-Step Verification).</li>
+              <li>Lauke „App name“ (programos pavadinimas) įrašykite pvz. <strong>ThrowHouse Svetainė</strong> ir spauskite <strong>Create</strong>.</li>
+              <li>Google parodys 16-os raidžių slaptažodį (pvz.: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #4ade80;">abcd efgh ijkl mnop</code>). Nukopijuokite jį, įklijuokite į viršuje esantį lauką <strong>SMTP Slaptažodis</strong> ir paspauskite „Išsaugoti SMTP nustatymus“.</li>
+            </ol>
+          </div>
+
+          <!-- BANDOMASIS SIUNTIMAS -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              🧪 Patikrinti el. pašto siuntimą
+            </h3>
+            <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem;">
+              Išsiųskite bandomąjį laišką į savo el. paštą, kad įsitikintumėte, jog nustatymai veikia nepriekaištingai:
+            </p>
+
+            <form method="POST" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <input type="hidden" name="action" value="send_test_email">
+              <input type="email" name="test_email" class="form-input" style="flex: 1; min-width: 250px; margin-bottom: 0;" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'throwhousee@gmail.com') ?>" placeholder="Gavėjo el. paštas" required>
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem;">
+                🚀 Siųsti bandomąjį laišką
+              </button>
+            </form>
+          </div>
+
+          <!-- SIUNTIMO ŽURNALAS (LOG) -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              📋 Paskutiniai siuntimo įrašai (Žurnalas)
+            </h3>
+            <div style="background: #050308; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.8rem; color: #94a3b8; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
+<?php foreach ($logLines as $line): ?>
+<?php if (trim($line) !== ''): ?><?= htmlspecialchars($line) . "\n" ?><?php endif; ?>
+<?php endforeach; ?>
+            </div>
+          </div>
+
+        </div>
+      </div>
     <?php endif; ?>
 
     <!-- MODALINIS LANGAS: REZERVACIJOS REDAGAVIMAS -->

@@ -1,0 +1,8 @@
+{
+  "smtp_enabled": true,
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 465,
+  "smtp_user": "throwhousee@gmail.com",
+  "smtp_pass": "",
+  "admin_email": "throwhousee@gmail.com"
+}

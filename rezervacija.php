@@ -492,29 +492,8 @@ $adminHtmlBody = renderNewReservationAdminHtml($reservation);
 $subAdmin = "🎯 Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)";
 $adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtmlBody, $email, 'ThrowHouse Rezervacijos');
 
-// 3. FormSubmit.co atsarginis kanalas (garantuotas pristatymas administratoriui + autoresponse klientui)
-$formSubmitData = [
-    'Užsakymo_ID' => $reservationId,
-    'Kliento_Vardas' => $name,
-    'Telefono_numeris' => $phone,
-    'Kliento_El_pastas' => $email,
-    'email' => $email,
-    '_replyto' => $email,
-    'Pramoga' => $activity . ($lane ? " ($lane)" : ""),
-    'Trukmė' => $durationLabel,
-    'Dalyviai' => $count . " asm.",
-    'Data' => $date,
-    'Laikas' => $time . " val.",
-    'Apmokėjimas' => $payMethod . " (apmokėta internetu)",
-    'Suma' => $price,
-    '_subject' => "🎯 Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)",
-    '_template' => "table",
-    '_autoresponse' => $clientTextBody
-];
-$fsSent = sendFormSubmitRelay($formSubmitData);
-
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data: $isoDate $time | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . " | FormSubmit: " . ($fsSent ? 'OK' : 'FAIL') . "\n";
+$logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data: $isoDate $time | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/rezervacija_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([

@@ -7,78 +7,224 @@ function getThrowHouseBaseUrl() {
     return $protocol . $host;
 }
 
-function getThrowHouseSenderEmail() {
-    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
-    $host = preg_replace('/:[0-9]+$/', '', $host);
-    $host = preg_replace('/^www\./i', '', $host);
-    if (!filter_var('test@' . $host, FILTER_VALIDATE_EMAIL)) {
-        $host = 'violet-dove-675017.hostingersite.com';
+/**
+ * Užkrauna el. pašto (SMTP) konfigūraciją
+ */
+function loadEmailConfig() {
+    $configFile = __DIR__ . '/email_config.json';
+    $configDbFile = __DIR__ . '/email_config_db.json';
+
+    $default = [
+        'smtp_enabled' => true,
+        'smtp_host' => 'smtp.gmail.com',
+        'smtp_port' => 465,
+        'smtp_user' => 'throwhousee@gmail.com',
+        'smtp_pass' => '',
+        'admin_email' => 'throwhousee@gmail.com'
+    ];
+
+    $data = [];
+    if (file_exists($configFile)) {
+        $data = json_decode(@file_get_contents($configFile), true) ?: [];
     }
-    return 'noreply@' . $host;
+    if (empty($data) && file_exists($configDbFile)) {
+        $data = json_decode(@file_get_contents($configDbFile), true) ?: [];
+    }
+
+    return array_merge($default, $data);
 }
 
 /**
- * Siunčia reprezentatyvų HTML laišką per PHP mail() su teisingomis antraštėmis
+ * Išsaugo el. pašto (SMTP) konfigūraciją
+ */
+function saveEmailConfig($data) {
+    $configFile = __DIR__ . '/email_config.json';
+    $configDbFile = __DIR__ . '/email_config_db.json';
+
+    $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    @file_put_contents($configFile, $json, LOCK_EX);
+    @file_put_contents($configDbFile, $json, LOCK_EX);
+    @chmod($configFile, 0666);
+    @chmod($configDbFile, 0666);
+    return true;
+}
+
+/**
+ * Tiesioginis SMTP siuntimas per PHP sockets (be jokių išorinių bibliotekų).
+ * Palaiko SSL (portas 465) ir STARTTLS (portas 587).
+ */
+function sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fromName = 'ThrowHouse Šiauliai', $replyTo = null) {
+    $timeout = 12;
+    $isSsl = ($port == 465);
+    $transport = $isSsl ? 'ssl://' . $host : 'tcp://' . $host;
+
+    $context = stream_context_create([
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        ]
+    ]);
+
+    $socket = @stream_socket_client($transport . ':' . $port, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
+    if (!$socket) {
+        return ['success' => false, 'error' => "Nepavyko prisijungti prie $host:$port ($errstr)"];
+    }
+
+    stream_set_timeout($socket, $timeout);
+
+    $readResponse = function($sock) {
+        $data = "";
+        while ($line = fgets($sock, 515)) {
+            $data .= $line;
+            if (strlen($line) >= 4 && substr($line, 3, 1) === " ") break;
+        }
+        return $data;
+    };
+
+    $sendCommand = function($sock, $cmd, $expectCode) use ($readResponse) {
+        fputs($sock, $cmd . "\r\n");
+        $resp = $readResponse($sock);
+        $code = substr($resp, 0, 3);
+        if ($code != $expectCode) {
+            return ['ok' => false, 'code' => $code, 'resp' => trim($resp)];
+        }
+        return ['ok' => true, 'code' => $code, 'resp' => trim($resp)];
+    };
+
+    $greeting = $readResponse($socket);
+    if (substr($greeting, 0, 3) !== '220') {
+        fclose($socket);
+        return ['success' => false, 'error' => "Serveris neatsakė 220: " . trim($greeting)];
+    }
+
+    $c = $sendCommand($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost'), '250');
+    if (!$c['ok']) {
+        $sendCommand($socket, "HELO " . ($_SERVER['SERVER_NAME'] ?? 'localhost'), '250');
+    }
+
+    if ($port == 587) {
+        $tls = $sendCommand($socket, "STARTTLS", '220');
+        if ($tls['ok']) {
+            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            $sendCommand($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost'), '250');
+        }
+    }
+
+    $auth = $sendCommand($socket, "AUTH LOGIN", '334');
+    if (!$auth['ok']) {
+        fclose($socket);
+        return ['success' => false, 'error' => "AUTH LOGIN nepalaikomas: {$auth['resp']}"];
+    }
+
+    $uRes = $sendCommand($socket, base64_encode($user), '334');
+    if (!$uRes['ok']) {
+        fclose($socket);
+        return ['success' => false, 'error' => "Vartotojo vardas atmestas: {$uRes['resp']}"];
+    }
+
+    $pRes = $sendCommand($socket, base64_encode($pass), '235');
+    if (!$pRes['ok']) {
+        fclose($socket);
+        return ['success' => false, 'error' => "Neteisingas slaptažodis arba atmesta autentifikacija: {$pRes['resp']}"];
+    }
+
+    $mf = $sendCommand($socket, "MAIL FROM:<$user>", '250');
+    if (!$mf['ok']) {
+        fclose($socket);
+        return ['success' => false, 'error' => "MAIL FROM klaida: {$mf['resp']}"];
+    }
+
+    $rcpt = $sendCommand($socket, "RCPT TO:<$to>", '250');
+    if (!$rcpt['ok']) {
+        fclose($socket);
+        return ['success' => false, 'error' => "Gavėjas atmestas ($to): {$rcpt['resp']}"];
+    }
+
+    $dRes = $sendCommand($socket, "DATA", '354');
+    if (!$dRes['ok']) {
+        fclose($socket);
+        return ['success' => false, 'error' => "DATA klaida: {$dRes['resp']}"];
+    }
+
+    $encodedSubject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
+    $encodedFromName = "=?UTF-8?B?" . base64_encode($fromName) . "?=";
+    $reply = $replyTo ?: $user;
+
+    $headers = "MIME-Version: 1.0\r\n"
+        . "From: $encodedFromName <$user>\r\n"
+        . "To: <$to>\r\n"
+        . "Reply-To: $reply\r\n"
+        . "Date: " . date('r') . "\r\n"
+        . "Subject: $encodedSubject\r\n"
+        . "Content-Type: text/html; charset=UTF-8\r\n"
+        . "Content-Transfer-Encoding: 8bit\r\n";
+
+    $payload = $headers . "\r\n" . $htmlBody . "\r\n.";
+    fputs($socket, $payload . "\r\n");
+    $dataSent = $readResponse($socket);
+
+    $sendCommand($socket, "QUIT", '221');
+    fclose($socket);
+
+    if (substr($dataSent, 0, 3) === '250') {
+        return ['success' => true];
+    }
+
+    return ['success' => false, 'error' => "Klaida siunčiant laišką: " . trim($dataSent)];
+}
+
+/**
+ * Pagrindinė funkcija: siunčia el. laišką per SMTP (arba per PHP mail)
  */
 function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gmail.com', $fromName = 'ThrowHouse Šiauliai') {
     if (empty($to) || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
 
-    $fromEmail = getThrowHouseSenderEmail();
-    $serverHost = preg_replace('/^noreply@/', '', $fromEmail);
+    $cfg = loadEmailConfig();
+
+    // 1. Jei įjungtas SMTP ir nurodytas slaptažodis – siunčiame per SMTP (100% patikimumas)
+    if (!empty($cfg['smtp_enabled']) && !empty($cfg['smtp_pass'])) {
+        $host = $cfg['smtp_host'] ?: 'smtp.gmail.com';
+        $port = intval($cfg['smtp_port'] ?: 465);
+        $user = $cfg['smtp_user'] ?: 'throwhousee@gmail.com';
+        $pass = trim($cfg['smtp_pass']);
+
+        $res = sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fromName, $replyTo);
+        $log = date('Y-m-d H:i:s') . " | SMTP | TO: $to | SUB: $subject | RES: " . ($res['success'] ? 'OK' : 'FAIL: ' . ($res['error'] ?? '')) . "\n";
+        @file_put_contents(__DIR__ . '/mail_log.txt', $log, FILE_APPEND);
+
+        if ($res['success']) {
+            return true;
+        }
+    }
+
+    // 2. Atsarginis variantas: standartinis PHP mail() su RFC suderinamomis antraštėmis
+    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'throwhouse.lt';
+    $serverHost = preg_replace('/:[0-9]+$/', '', $serverHost);
+    $serverHost = preg_replace('/^www\./i', '', $serverHost);
 
     $encodedSubject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
     $encodedFromName = "=?UTF-8?B?" . base64_encode($fromName) . "?=";
+    $fromEmail = "noreply@" . $serverHost;
 
     $headers = "MIME-Version: 1.0\r\n"
-        . "Date: " . date('r') . "\r\n"
-        . "Message-ID: <th-" . uniqid() . "-" . time() . "@" . $serverHost . ">\r\n"
         . "From: $encodedFromName <$fromEmail>\r\n"
         . "Reply-To: $replyTo\r\n"
-        . "Return-Path: <$fromEmail>\r\n"
-        . "Auto-Submitted: auto-generated\r\n"
-        . "X-Mailer: PHP/" . phpversion() . "\r\n"
+        . "Date: " . date('r') . "\r\n"
         . "Content-Type: text/html; charset=UTF-8\r\n"
         . "Content-Transfer-Encoding: 8bit\r\n";
 
-    $sent = @mail($to, $encodedSubject, $htmlBody, $headers, "-f" . $fromEmail);
+    $sent = @mail($to, $encodedSubject, $htmlBody, $headers);
+    if (!$sent) {
+        $sent = @mail($to, $encodedSubject, $htmlBody, $headers, "-f" . $fromEmail);
+    }
 
-    $logMsg = date('Y-m-d H:i:s') . " | MAIL | TO: $to | SUB: $subject | RES: " . ($sent ? 'OK' : 'FAIL') . "\n";
+    $logMsg = date('Y-m-d H:i:s') . " | PHP_MAIL | TO: $to | SUB: $subject | RES: " . ($sent ? 'OK' : 'FAIL') . "\n";
     @file_put_contents(__DIR__ . '/mail_log.txt', $logMsg, FILE_APPEND);
 
     return $sent;
-}
-
-/**
- * FormSubmit.co atsarginis kanalas – garantuoja 100% pristatymą į throwhousee@gmail.com
- */
-function sendFormSubmitRelay($data) {
-    if (!function_exists('curl_init')) {
-        return false;
-    }
-
-    $ch = curl_init("https://formsubmit.co/ajax/throwhousee@gmail.com");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'Origin: https://violet-dove-675017.hostingersite.com',
-        'Referer: https://violet-dove-675017.hostingersite.com/'
-    ]);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-    curl_setopt($ch, CURLOPT_TIMEOUT, 7);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    $resp = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    $logMsg = date('Y-m-d H:i:s') . " | FormSubmit Code: $httpCode | Resp: $resp\n";
-    @file_put_contents(__DIR__ . '/mail_log.txt', $logMsg, FILE_APPEND);
-
-    return ($httpCode >= 200 && $httpCode < 300);
 }
 
 // =========================================================================
