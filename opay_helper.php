@@ -18,7 +18,7 @@ function loadOpayConfig() {
     $defaults = [
         'opay_enabled'       => false,
         'sandbox'            => false,
-        'website_id'         => '',
+        'website_id'         => '8W2228Y2ZH',
         'signature_password' => ''
     ];
 
