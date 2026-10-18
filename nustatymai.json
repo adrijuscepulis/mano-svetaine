@@ -1,0 +1,65 @@
+{
+  "banner": {
+    "enabled": false,
+    "text": "🔥 Dėmesio: Šį savaitgalį dirbame ilgiau! Rezervuokite laiką iš anksto.",
+    "btn_text": "Rezervuoti laiką ➔",
+    "btn_link": "#rezervacija",
+    "bg_color": "#ff6a00",
+    "text_color": "#08050e"
+  },
+  "contacts": {
+    "phone": "+370 619 88009",
+    "phone_raw": "+37061988009",
+    "email": "throwhousee@gmail.com",
+    "address": "Pramonės g. 15, Šiauliai (2-as aukštas)",
+    "coordinates": "55.910730, 23.315700",
+    "google_maps_url": "https://www.google.com/maps?q=55.910730,23.315700",
+    "waze_url": "https://waze.com/ul?ll=55.910730,23.315700&navigate=yes",
+    "instagram_url": "https://www.instagram.com/throwhouse_siauliai",
+    "facebook_url": "https://www.facebook.com/throwhouse",
+    "tiktok_url": "https://www.tiktok.com/@throwhouse"
+  },
+  "hours": {
+    "workdays": "I-IV: Nedirbame (Jau greitai!)",
+    "friday": "16:00 - 24:00",
+    "saturday": "09:00 - 24:00",
+    "sunday": "09:00 - 20:00",
+    "note": "Rezervacija internetu privaloma iš anksto."
+  },
+  "prices": {
+    "rage_price": 30,
+    "rage_duration": "1 val.",
+    "rage_dishes": 30,
+    "rage_desc": "1 valandos streso iškrovos sesija",
+    "axe_price": 30,
+    "axe_duration": "1 val.",
+    "axe_desc": "1 valandos taiklumo ir azarto rungtys",
+    "combo_price": 50,
+    "combo_duration": "2 val.",
+    "combo_desc": "Kirvių mėtymas + Pykčio kambarys kartu!",
+    "extra_dish_price": 0.60,
+    "pricing_subtitle": "Visi apsaugos reikmenys, instruktažas ir reikalingas inventorius įskaičiuotas į kainą."
+  },
+  "faq": [
+    {
+      "q": "Kaip vyksta apsilankymas ir ką reikia turėti su savimi?",
+      "a": "Atvykite likus 5-10 min. iki savo rezervuoto laiko. Svarbiausia – patogi, visiškai uždara avalynė (sportbačiai). Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame nemokamai vietoje."
+    },
+    {
+      "q": "Koks yra jūsų darbo laikas ir kada galima apsilankyti?",
+      "a": "Dirbame penktadieniais (16:00 - 24:00), šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Darbo dienomis (I-IV) – nedirbame (jau greitai!). Apsilankymui būtina išankstinė rezervacija internetu."
+    },
+    {
+      "q": "Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?",
+      "a": "Taip, saugumas yra mūsų didžiausias prioritetas. Prieš kiekvieną sesiją instruktorius praveda saugumo instruktažą, suteikiame sertifikuotas apsaugos priemones, o kirvių mėtymo takeliai yra atskirti specialiomis apsauginėmis zonomis."
+    },
+    {
+      "q": "Kiek žmonių gali dalyvauti vienu metu?",
+      "a": "Pykčio kambaryje vienu metu gali būti iki 4 asmenų. Prie vieno kirvių mėtymo takelio – iki 4 asmenų (turime 2 atskirus takelius, tad iš viso iki 8 asmenų vienu metu). Didesnėms grupėms ar šventėms kreipkitės individualiai!"
+    },
+    {
+      "q": "Kaip veikia dovanų kuponai?",
+      "a": "Dovanų kuponą galite įsigyti tiesiogiai internetu, pasirinkę siuntimą sau arba tiesiai draugui su asmeniniu palinkėjimu. Kuponas galioja 6 mėnesius nuo pirkimo dienos."
+    }
+  ]
+}

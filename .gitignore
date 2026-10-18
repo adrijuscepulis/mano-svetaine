@@ -1,6 +1,8 @@
 # Serverio duomenų bazių failai (apsauga, kad Git niekada neperrašytų serverio duomenų)
 rezervacijos_db.json
 kuponai_db.json
+nustatymai_db.json
+*_db.json
 *_backup.json
 kontaktai_log.txt
 

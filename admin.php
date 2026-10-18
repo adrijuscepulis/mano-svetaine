@@ -30,17 +30,22 @@ if (isset($_POST['login_pass'])) {
 }
 
 // Failai duomenų saugojimui (pirminis ir apsaugotas DB failas, kurio Git niekada neperrašo)
-$resFile   = __DIR__ . '/rezervacijos.json';
-$resDbFile = __DIR__ . '/rezervacijos_db.json';
-$kupFile   = __DIR__ . '/kuponai.json';
-$kupDbFile = __DIR__ . '/kuponai_db.json';
+$resFile        = __DIR__ . '/rezervacijos.json';
+$resDbFile      = __DIR__ . '/rezervacijos_db.json';
+$kupFile        = __DIR__ . '/kuponai.json';
+$kupDbFile      = __DIR__ . '/kuponai_db.json';
+$settingsFile   = __DIR__ . '/nustatymai.json';
+$settingsDbFile = __DIR__ . '/nustatymai_db.json';
 
 // Saugus duomenų įrašymas su teisių užtikrinimu ir LOCK_EX
 function saveData($file, $data) {
     if (file_exists($file)) {
         @chmod($file, 0666);
     }
-    $json = json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    // Jei tai skaitinis sąrašas, perindeksuojame; jei asociatyvus masyvas (objektas), išsaugome raktus
+    $isIndexed = is_array($data) && (empty($data) || array_keys($data) === range(0, count($data) - 1));
+    $payload = $isIndexed ? array_values($data) : $data;
+    $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     $res = @file_put_contents($file, $json, LOCK_EX);
     if ($res === false) {
         $res = @file_put_contents($file, $json);
@@ -96,6 +101,101 @@ function loadCouponsData($kupFile, $kupDbFile) {
 function saveCouponsData($kupFile, $kupDbFile, $data) {
     $r1 = saveData($kupFile, $data);
     $r2 = saveData($kupDbFile, $data);
+    return ($r1 || $r2);
+}
+
+function getDefaultSettings() {
+    return [
+        'banner' => [
+            'enabled' => false,
+            'text' => '🔥 Dėmesio: Šį savaitgalį dirbame ilgiau! Rezervuokite laiką iš anksto.',
+            'btn_text' => 'Rezervuoti laiką ➔',
+            'btn_link' => '#rezervacija',
+            'bg_color' => '#ff6a00',
+            'text_color' => '#08050e'
+        ],
+        'contacts' => [
+            'phone' => '+370 619 88009',
+            'phone_raw' => '+37061988009',
+            'email' => 'throwhousee@gmail.com',
+            'address' => 'Pramonės g. 15, Šiauliai (2-as aukštas)',
+            'coordinates' => '55.910730, 23.315700',
+            'google_maps_url' => 'https://www.google.com/maps?q=55.910730,23.315700',
+            'waze_url' => 'https://waze.com/ul?ll=55.910730,23.315700&navigate=yes',
+            'instagram_url' => 'https://www.instagram.com/throwhouse_siauliai',
+            'facebook_url' => 'https://www.facebook.com/throwhouse',
+            'tiktok_url' => 'https://www.tiktok.com/@throwhouse'
+        ],
+        'hours' => [
+            'workdays' => 'I-IV: Nedirbame (Jau greitai!)',
+            'friday' => '16:00 - 24:00',
+            'saturday' => '09:00 - 24:00',
+            'sunday' => '09:00 - 20:00',
+            'note' => 'Rezervacija internetu privaloma iš anksto.'
+        ],
+        'prices' => [
+            'rage_price' => 30,
+            'rage_duration' => '1 val.',
+            'rage_dishes' => 30,
+            'rage_desc' => '1 valandos streso iškrovos sesija',
+            'axe_price' => 30,
+            'axe_duration' => '1 val.',
+            'axe_desc' => '1 valandos taiklumo ir azarto rungtys',
+            'combo_price' => 50,
+            'combo_duration' => '2 val.',
+            'combo_desc' => 'Kirvių mėtymas + Pykčio kambarys kartu!',
+            'extra_dish_price' => 0.60,
+            'pricing_subtitle' => 'Visi apsaugos reikmenys, instruktažas ir reikalingas inventorius įskaičiuotas į kainą.'
+        ],
+        'faq' => [
+            [
+                'q' => 'Kaip vyksta apsilankymas ir ką reikia turėti su savimi?',
+                'a' => 'Atvykite likus 5-10 min. iki savo rezervuoto laiko. Svarbiausia – patogi, visiškai uždara avalynė (sportbačiai). Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame nemokamai vietoje.'
+            ],
+            [
+                'q' => 'Koks yra jūsų darbo laikas ir kada galima apsilankyti?',
+                'a' => 'Dirbame penktadieniais (16:00 - 24:00), šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Darbo dienomis (I-IV) – nedirbame (jau greitai!). Apsilankymui būtina išankstinė rezervacija internetu.'
+            ],
+            [
+                'q' => 'Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?',
+                'a' => 'Taip, saugumas yra mūsų didžiausias prioritetas. Prieš kiekvieną sesiją instruktorius praveda saugumo instruktažą, suteikiame sertifikuotas apsaugos priemones, o kirvių mėtymo takeliai yra atskirti specialiomis apsauginėmis zonomis.'
+            ],
+            [
+                'q' => 'Kiek žmonių gali dalyvauti vienu metu?',
+                'a' => 'Pykčio kambaryje vienu metu gali būti iki 4 asmenų. Prie vieno kirvių mėtymo takelio – iki 4 asmenų (turime 2 atskirus takelius, tad iš viso iki 8 asmenų vienu metu). Didesnėms grupėms ar šventėms kreipkitės individualiai!'
+            ],
+            [
+                'q' => 'Kaip veikia dovanų kuponai?',
+                'a' => 'Dovanų kuponą galite įsigyti tiesiogiai internetu, pasirinkę siuntimą sau arba tiesiai draugui su asmeniniu palinkėjimu. Kuponas galioja 6 mėnesius nuo pirkimo dienos.'
+            ]
+        ]
+    ];
+}
+
+function loadSettingsData($settingsFile, $settingsDbFile) {
+    $default = getDefaultSettings();
+    $main = file_exists($settingsFile) ? (json_decode(@file_get_contents($settingsFile), true) ?: []) : [];
+    $db = file_exists($settingsDbFile) ? (json_decode(@file_get_contents($settingsDbFile), true) ?: []) : [];
+
+    if (!empty($db) && is_array($db)) {
+        $data = array_replace_recursive($default, $db);
+        if (empty($main)) {
+            saveData($settingsFile, $data);
+        }
+    } elseif (!empty($main) && is_array($main)) {
+        $data = array_replace_recursive($default, $main);
+        saveData($settingsDbFile, $data);
+    } else {
+        $data = $default;
+        saveData($settingsFile, $data);
+        saveData($settingsDbFile, $data);
+    }
+    return is_array($data) ? $data : $default;
+}
+
+function saveSettingsData($settingsFile, $settingsDbFile, $data) {
+    $r1 = saveData($settingsFile, $data);
+    $r2 = saveData($settingsDbFile, $data);
     return ($r1 || $r2);
 }
 
@@ -408,6 +508,64 @@ if (!empty($_SESSION['admin_logged'])) {
         saveReservationsData($resFile, $resDbFile, $reservations);
         $_SESSION['admin_flash'] = "Rezervacija ($editId) sėkmingai atnaujinta!";
         header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
+        exit;
+    }
+
+    // 9. Išsaugoti visus svetainės nustatymus (TVS / CMS)
+    if (isset($_POST['action']) && $_POST['action'] === 'save_site_settings') {
+        $settings = loadSettingsData($settingsFile, $settingsDbFile);
+
+        // Baneris
+        $settings['banner']['enabled'] = !empty($_POST['banner_enabled']);
+        $settings['banner']['text'] = trim($_POST['banner_text'] ?? '');
+        $settings['banner']['btn_text'] = trim($_POST['banner_btn_text'] ?? '');
+        $settings['banner']['btn_link'] = trim($_POST['banner_btn_link'] ?? '#rezervacija');
+        $settings['banner']['bg_color'] = trim($_POST['banner_bg_color'] ?? '#ff6a00');
+        $settings['banner']['text_color'] = trim($_POST['banner_text_color'] ?? '#08050e');
+
+        // Kainos
+        $settings['prices']['rage_price'] = intval($_POST['p_rage_price'] ?? 30);
+        $settings['prices']['axe_price'] = intval($_POST['p_axe_price'] ?? 30);
+        $settings['prices']['combo_price'] = intval($_POST['p_combo_price'] ?? 50);
+        $settings['prices']['extra_dish_price'] = floatval($_POST['p_extra_dish_price'] ?? 0.60);
+        $settings['prices']['pricing_subtitle'] = trim($_POST['p_pricing_subtitle'] ?? '');
+
+        // Darbo laikas
+        $settings['hours']['workdays'] = trim($_POST['h_workdays'] ?? 'I-IV: Nedirbame (Jau greitai!)');
+        $settings['hours']['friday'] = trim($_POST['h_friday'] ?? '16:00 - 24:00');
+        $settings['hours']['saturday'] = trim($_POST['h_saturday'] ?? '09:00 - 24:00');
+        $settings['hours']['sunday'] = trim($_POST['h_sunday'] ?? '09:00 - 20:00');
+        $settings['hours']['note'] = trim($_POST['h_note'] ?? '');
+
+        // Kontaktai
+        $settings['contacts']['phone'] = trim($_POST['c_phone'] ?? '');
+        $settings['contacts']['phone_raw'] = preg_replace('/[^0-9+]/', '', $settings['contacts']['phone']);
+        $settings['contacts']['email'] = trim($_POST['c_email'] ?? '');
+        $settings['contacts']['address'] = trim($_POST['c_address'] ?? '');
+        $settings['contacts']['google_maps_url'] = trim($_POST['c_google_maps_url'] ?? '');
+        $settings['contacts']['waze_url'] = trim($_POST['c_waze_url'] ?? '');
+        $settings['contacts']['instagram_url'] = trim($_POST['c_instagram_url'] ?? '');
+        $settings['contacts']['facebook_url'] = trim($_POST['c_facebook_url'] ?? '');
+        $settings['contacts']['tiktok_url'] = trim($_POST['c_tiktok_url'] ?? '');
+
+        // D.U.K.
+        if (isset($_POST['faq_q']) && is_array($_POST['faq_q'])) {
+            $faqArr = [];
+            foreach ($_POST['faq_q'] as $idx => $q) {
+                $qClean = trim($q);
+                $aClean = trim($_POST['faq_a'][$idx] ?? '');
+                if ($qClean !== '' && $aClean !== '') {
+                    $faqArr[] = ['q' => $qClean, 'a' => $aClean];
+                }
+            }
+            if (!empty($faqArr)) {
+                $settings['faq'] = $faqArr;
+            }
+        }
+
+        saveSettingsData($settingsFile, $settingsDbFile, $settings);
+        $_SESSION['admin_flash'] = "Svetainės nustatymai sėkmingai išsaugoti ir atnaujinti gyvai!";
+        header('Location: admin.php?tab=nustatymai');
         exit;
     }
 }
@@ -887,6 +1045,7 @@ if (!empty($_SESSION['admin_logged'])) {
       <a href="admin.php?tab=kalendorius" class="tab-btn <?= $currentTab === 'kalendorius' ? 'active' : '' ?>">📅 Rezervacijų kalendorius</a>
       <a href="admin.php?tab=rezervacijos" class="tab-btn <?= $currentTab === 'rezervacijos' ? 'active' : '' ?>">📋 Rezervacijų sąrašas (<?= $totalRes ?>)</a>
       <a href="admin.php?tab=kuponai" class="tab-btn <?= $currentTab === 'kuponai' ? 'active' : '' ?>">🎁 Dovanų kuponai (<?= $totalCoupons ?>)</a>
+      <a href="admin.php?tab=nustatymai" class="tab-btn <?= $currentTab === 'nustatymai' ? 'active' : '' ?>">⚙️ Svetainės nustatymai (TVS)</a>
     </div>
 
     <!-- ======================================================= -->
@@ -1210,6 +1369,251 @@ if (!empty($_SESSION['admin_logged'])) {
           </form>
         </div>
       </div>
+    <?php endif; ?>
+
+    <!-- ======================================================= -->
+    <!-- 4 TAB: SVETAINĖS NUSTATYMAI (TVS / CMS)                 -->
+    <!-- ======================================================= -->
+    <?php if ($currentTab === 'nustatymai'): 
+      $cfg = loadSettingsData($settingsFile, $settingsDbFile);
+      $b = $cfg['banner'] ?? [];
+      $p = $cfg['prices'] ?? [];
+      $h = $cfg['hours'] ?? [];
+      $c = $cfg['contacts'] ?? [];
+      $faq = $cfg['faq'] ?? [];
+    ?>
+      <div style="max-width: 980px; margin: 0 auto;">
+        
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
+          <div style="font-size: 2rem; line-height: 1;">⚙️</div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">Svetainės Turinio Valdymas (TVS)</h2>
+            <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5;">
+              Čia galite bet kada pakeisti bet kurį svetainės elementą: kainas, darbo laiką, kontaktus ar įjungti ryškų pranešimų banerį viršuje.
+              Paspaudus <strong>„Išsaugoti nustatymus“</strong>, visa internetinė svetainė atsinaujins akimirksniu gyvai!
+            </p>
+          </div>
+        </div>
+
+        <form method="POST">
+          <input type="hidden" name="action" value="save_site_settings">
+
+          <!-- 1. PRANEŠIMŲ JUOSTA (TOP BANNER) -->
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                📢 1. Pranešimų juosta (Baneris svetainės viršuje)
+              </h3>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid var(--border);">
+                <input type="checkbox" name="banner_enabled" value="1" <?= !empty($b['enabled']) ? 'checked' : '' ?> style="width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">Įjungti banerį svetainėje</span>
+              </label>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Pranešimo tekstas:</label>
+              <input type="text" name="banner_text" class="form-input" value="<?= htmlspecialchars($b['text'] ?? '') ?>" placeholder="pvz. 🔥 Dėmesio: Šį savaitgalį dirbame ilgiau! Rezervuokite laiką iš anksto." style="margin-bottom: 0;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 120px; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Mygtuko tekstas (nebūtina):</label>
+                <input type="text" name="banner_btn_text" class="form-input" value="<?= htmlspecialchars($b['btn_text'] ?? '') ?>" placeholder="pvz. Rezervuoti laiką ➔" style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Mygtuko nuoroda:</label>
+                <input type="text" name="banner_btn_link" class="form-input" value="<?= htmlspecialchars($b['btn_link'] ?? '#rezervacija') ?>" placeholder="#rezervacija arba URL" style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Fono spalva:</label>
+                <input type="color" name="banner_bg_color" value="<?= htmlspecialchars($b['bg_color'] ?? '#ff6a00') ?>" style="width: 100%; height: 42px; border: 1px solid var(--border); border-radius: 8px; background: transparent; cursor: pointer;">
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. PRAMOGŲ KAINOS -->
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                💰 2. Pramogų kainos ir sąlygos
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem;">Pakeitus kainas čia, jos automatiškai atsinaujina kainyne, dovanų kuponuose ir rezervacijos skaičiuoklėje.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Pykčio kambarys (€):</label>
+                <input type="number" step="1" name="p_rage_price" class="form-input" value="<?= htmlspecialchars($p['rage_price'] ?? 30) ?>" required style="margin-bottom: 0; font-weight: 700;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Kirvių mėtymas (€):</label>
+                <input type="number" step="1" name="p_axe_price" class="form-input" value="<?= htmlspecialchars($p['axe_price'] ?? 30) ?>" required style="margin-bottom: 0; font-weight: 700;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">KOMBO paketas (€):</label>
+                <input type="number" step="1" name="p_combo_price" class="form-input" value="<?= htmlspecialchars($p['combo_price'] ?? 50) ?>" required style="margin-bottom: 0; font-weight: 700; color: var(--accent);">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Papildomas indas (€/vnt):</label>
+                <input type="number" step="0.05" name="p_extra_dish_price" class="form-input" value="<?= htmlspecialchars($p['extra_dish_price'] ?? 0.60) ?>" required style="margin-bottom: 0;">
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Kainyno paantraštė (po antrašte „Pramogų kainos“):</label>
+              <input type="text" name="p_pricing_subtitle" class="form-input" value="<?= htmlspecialchars($p['pricing_subtitle'] ?? 'Visi apsaugos reikmenys, instruktažas ir reikalingas inventorius įskaičiuotas į kainą.') ?>" style="margin-bottom: 0;">
+            </div>
+          </div>
+
+          <!-- 3. DARBO LAIKAS -->
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                🕒 3. Darbo laikas
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem;">Rodoma viršutiniame baneryje, aprašymuose, footeryje ir kontaktų puslapyje.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Darbo dienomis (I–IV):</label>
+                <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I-IV: Nedirbame (Jau greitai!)') ?>" required style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Penktadieniais (V):</label>
+                <input type="text" name="h_friday" class="form-input" value="<?= htmlspecialchars($h['friday'] ?? '16:00 - 24:00') ?>" required style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Šeštadieniais (VI):</label>
+                <input type="text" name="h_saturday" class="form-input" value="<?= htmlspecialchars($h['saturday'] ?? '09:00 - 24:00') ?>" required style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Sekmadieniais (VII):</label>
+                <input type="text" name="h_sunday" class="form-input" value="<?= htmlspecialchars($h['sunday'] ?? '09:00 - 20:00') ?>" required style="margin-bottom: 0;">
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Papildoma pastaba (neprivaloma):</label>
+              <input type="text" name="h_note" class="form-input" value="<?= htmlspecialchars($h['note'] ?? '') ?>" placeholder="pvz. Rezervacija internetu privaloma iš anksto." style="margin-bottom: 0;">
+            </div>
+          </div>
+
+          <!-- 4. KONTAKTAI IR REKVIZITAI -->
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                📞 4. Kontaktai ir socialiniai tinklai
+              </h3>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Telefono numeris:</label>
+                <input type="text" name="c_phone" class="form-input" value="<?= htmlspecialchars($c['phone'] ?? '+370 619 88009') ?>" required style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">El. pašto adresas:</label>
+                <input type="email" name="c_email" class="form-input" value="<?= htmlspecialchars($c['email'] ?? 'throwhousee@gmail.com') ?>" required style="margin-bottom: 0;">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Fizinis adresas:</label>
+              <input type="text" name="c_address" class="form-input" value="<?= htmlspecialchars($c['address'] ?? 'Pramonės g. 15, Šiauliai (2-as aukštas)') ?>" required style="margin-bottom: 0;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Google Maps nuoroda:</label>
+                <input type="text" name="c_google_maps_url" class="form-input" value="<?= htmlspecialchars($c['google_maps_url'] ?? '') ?>" style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Waze navigacijos nuoroda:</label>
+                <input type="text" name="c_waze_url" class="form-input" value="<?= htmlspecialchars($c['waze_url'] ?? '') ?>" style="margin-bottom: 0;">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Instagram nuoroda:</label>
+                <input type="text" name="c_instagram_url" class="form-input" value="<?= htmlspecialchars($c['instagram_url'] ?? '') ?>" style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Facebook nuoroda:</label>
+                <input type="text" name="c_facebook_url" class="form-input" value="<?= htmlspecialchars($c['facebook_url'] ?? '') ?>" style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">TikTok nuoroda:</label>
+                <input type="text" name="c_tiktok_url" class="form-input" value="<?= htmlspecialchars($c['tiktok_url'] ?? '') ?>" style="margin-bottom: 0;">
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. D.U.K. (KLAUSIMAI IR ATSAKYMAI) -->
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+              <div>
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                  ❓ 5. Dažniausiai užduodami klausimai (D.U.K.)
+                </h3>
+                <p style="font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem;">Galite redaguoti esamus arba pridėti naujų klausimų.</p>
+              </div>
+              <button type="button" onclick="addFaqRow()" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Pridėti klausimą</button>
+            </div>
+
+            <div id="faqItemsContainer">
+              <?php foreach ($faq as $i => $item): ?>
+                <div class="faq-admin-card" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; position: relative;">
+                  <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">&times;</button>
+                  <div style="margin-bottom: 0.6rem; padding-right: 2rem;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 0.2rem;">Klausimas #<?= $i + 1 ?>:</label>
+                    <input type="text" name="faq_q[]" class="form-input" value="<?= htmlspecialchars($item['q'] ?? '') ?>" required style="margin-bottom: 0;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 0.2rem;">Atsakymas:</label>
+                    <textarea name="faq_a[]" class="form-input" rows="2" required style="margin-bottom: 0; font-family: inherit; font-size: 0.85rem;"><?= htmlspecialchars($item['a'] ?? '') ?></textarea>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+
+          <!-- IŠSAUGOJIMO MYGTUKAS -->
+          <div style="position: sticky; bottom: 1.5rem; z-index: 50; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(12px); border: 1px solid var(--border); padding: 1.25rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem; display: block;">Išsaugoti visus svetainės pakeitimus</strong>
+              <span style="color: var(--muted); font-size: 0.8rem;">Pakeitimai įsigalioja lankytojams iškart.</span>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1.05rem; font-weight: 800;">
+              💾 IŠSAUGOTI NUSTATYMUS ➔
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <script>
+        function addFaqRow() {
+          const container = document.getElementById('faqItemsContainer');
+          const count = container.querySelectorAll('.faq-admin-card').length + 1;
+          const div = document.createElement('div');
+          div.className = 'faq-admin-card';
+          div.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; position: relative;';
+          div.innerHTML = `
+            <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">&times;</button>
+            <div style="margin-bottom: 0.6rem; padding-right: 2rem;">
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 0.2rem;">Naujas klausimas #${count}:</label>
+              <input type="text" name="faq_q[]" class="form-input" placeholder="Įveskite klausimą..." required style="margin-bottom: 0;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 0.2rem;">Atsakymas:</label>
+              <textarea name="faq_a[]" class="form-input" rows="2" placeholder="Įveskite atsakymą..." required style="margin-bottom: 0; font-family: inherit; font-size: 0.85rem;"></textarea>
+            </div>
+          `;
+          container.appendChild(div);
+          div.scrollIntoView({ behavior: 'smooth' });
+        }
+      </script>
     <?php endif; ?>
 
     <!-- MODALINIS LANGAS: REZERVACIJOS REDAGAVIMAS -->
