@@ -474,8 +474,12 @@ saveAllReservations($dataFile, $dataDbFile, $all);
 if ($isOpayActive) {
     $priceNum = floatval(preg_replace('/[^0-9\.]/', '', str_replace(',', '.', $price)));
     $amountCents = (int)round($priceNum * 100);
-    if ($amountCents <= 0) {
-        $amountCents = 3000;
+
+    // Bandomasis režimas: Pykčio kambario apmokėjimui nustatome 1.00 € (100 centų)
+    if (stripos($activity, 'Pykčio') !== false) {
+        $amountCents = 100; // 1.00 € testinis apmokėjimas
+    } elseif ($amountCents <= 0) {
+        $amountCents = 100;
     }
 
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'https://';
