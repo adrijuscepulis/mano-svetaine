@@ -1717,7 +1717,9 @@
             <div class="gift-amount" id="giftCard30Price">30 €</div>
             <p class="gift-desc">1 valandos sesija pasirinktinai: Pykčio kambarys (su 30 indų) arba Kirvių mėtymas.</p>
           </div>
-          <button class="btn btn-secondary btn-block" onclick="openGiftModal(30, 'Pramogos Kuponas')">Pirkti kuponą</button>
+          <a href="tel:+37061988009" class="btn btn-secondary btn-block" style="text-decoration: none; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
+            📞 Užsakyti tel. +370 619 88009
+          </a>
         </div>
 
         <!-- 50 € -->
@@ -1729,62 +1731,30 @@
             <div class="gift-amount" id="giftCard50Price">50 €</div>
             <p class="gift-desc">Abi pramogos kartu! Ir kirvių mėtymas, ir pilnavertis pykčio kambarys (30 indų).</p>
           </div>
-          <button class="btn btn-primary btn-block" onclick="openGiftModal(50, 'KOMBO Kuponas')">Pirkti kuponą</button>
+          <a href="tel:+37061988009" class="btn btn-primary btn-block" style="text-decoration: none; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
+            📞 Užsakyti tel. +370 619 88009
+          </a>
         </div>
       </div>
 
-      <!-- KUPONO PIRKIMO MODALAS / FORMA -->
-      <div id="giftModal" class="form-wrap" style="display: none; max-width: 600px; margin: 0 auto; border: 1px solid var(--accent);">
-        <h3 style="font-family:'Outfit'; font-size: 1.5rem; margin-bottom: 0.5rem;" id="giftModalTitle">Dovanų kupono pirkimas</h3>
-        <p style="color: var(--text-gray); font-size: 0.875rem; margin-bottom: 1.5rem;">Užpildykite kontaktinius duomenis ir apmokėkite. Dovanų kuponą iškart atsiųsime į Jūsų nurodytą el. paštą.</p>
-
-        <form id="giftForm" onsubmit="submitGiftCoupon(event)">
-          <input type="hidden" id="giftAmount" value="30">
-
-          <!-- PIRKĖJO KONTAKTAI -->
-          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.1rem; margin-bottom: 1.25rem;">
-            <div class="form-row" style="margin-bottom: 0.75rem;">
-              <div class="form-col">
-                <label class="f-label">Vardas ir Pavardė *</label>
-                <input type="text" id="giftBuyerName" class="f-input" placeholder="Jūsų vardas ir pavardė" required>
-              </div>
-              <div class="form-col">
-                <label class="f-label">Telefono numeris *</label>
-                <input type="tel" id="giftBuyerPhone" class="f-input" placeholder="+370 6XX XXXXX" required>
-              </div>
-            </div>
-            <div class="f-group" style="margin-bottom: 0;">
-              <label class="f-label">Jūsų el. paštas (kur išsiųsti kuponą) *</label>
-              <input type="email" id="giftBuyerEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
-            </div>
-          </div>
-
-          <div class="calc-box">
-            <div>
-              <strong>Kupono vertė apmokėjimui:</strong>
-              <span class="calc-note">Galioja 6 mėn. nuo pirkimo</span>
-            </div>
-            <div class="calc-price" id="giftPriceDisplay">30 €</div>
-          </div>
-
-          <!-- SUTIKIMAS SU TAISYKLĖMIS IR PRIVATUMO POLITIKA -->
-          <div class="f-group" style="margin-bottom: 1.25rem;">
-            <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; line-height: 1.5;">
-              <input type="checkbox" id="giftTermsAgree" required style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;">
-              <span>Susipažinau ir sutinku su <a href="taisykles.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Pirkimo–pardavimo taisyklėmis</a> bei <a href="privatumas.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Privatumo politika</a> *</span>
-            </label>
-          </div>
-
-          <div class="gift-modal-actions">
-            <button type="submit" id="giftSubmitBtn" class="btn btn-primary" style="flex: 2;">Apmokėti ir gauti kuponą ➔</button>
-            <button type="button" class="btn btn-secondary" onclick="closeGiftModal()" style="flex: 1;">Atšaukti</button>
-          </div>
-        </form>
-
-        <div id="giftSuccess" class="success-alert" style="display: none;">
-          <h4>✓ Dovanų kuponas sėkmingai sugeneruotas!</h4>
-          <div id="giftSummaryText"></div>
-          <button class="btn btn-secondary btn-sm" onclick="closeGiftModal()">Uždaryti</button>
+      <!-- ASMENINIS SUSISIEKIMAS DĖL KUPONO -->
+      <div style="max-width: 680px; margin: 2rem auto 0 auto; background: linear-gradient(135deg, rgba(255, 106, 0, 0.12) 0%, rgba(15, 23, 42, 0.7) 100%); border: 2px solid var(--accent); border-radius: var(--radius); padding: 2rem 1.8rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+        <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🎁 📞</div>
+        <h3 style="font-family: var(--font-head); font-size: 1.45rem; margin-bottom: 0.65rem; color: #ffffff;">Dovanų kuponų užsakymas – susisiekite asmeniškai</h3>
+        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.4rem;">
+          Dovanų kuponus ruošiame ir išduodame <strong>asmeniškai susisiekus</strong>.<br>
+          Paskambinkite arba parašykite mums – suderinsime norimą kupono vertę ir patogiausią perdavimo būdą:
+        </p>
+        <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+          <a href="tel:+37061988009" class="btn btn-primary" style="padding: 0.85rem 1.6rem; font-weight: 800; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            📞 Skambinti: +370 619 88009
+          </a>
+          <a href="mailto:throwhousee@gmail.com?subject=Dovanų%20kupono%20užsakymas" class="btn btn-secondary" style="padding: 0.85rem 1.6rem; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            ✉️ Rašyti: throwhousee@gmail.com
+          </a>
+        </div>
+        <div style="margin-top: 1.25rem; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.85rem;">
+          📍 Taip pat dovanų kuponą galite įsigyti atvykę pas mus į vietą: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong>
         </div>
       </div>
     </div>
@@ -2044,7 +2014,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Dovanų kuponą galite įsigyti tiesiogiai internetu (30 € arba 50 €). Kuponas su unikaliu kodu (pvz. TH-KUP-1234) iškart atsiunčiamas į el. paštą. Jis <strong>galioja 6 mėnesius</strong>, o dovanos gavėjas laiką gali patogiai užsirezervuoti mūsų svetainėje arba susisiekęs asmeniškai.
+            Dovanų kuponą galite patogiai įsigyti susisiekę su mumis asmeniškai telefonu <strong>+370 619 88009</strong> arba el. paštu <strong>throwhousee@gmail.com</strong> (30 €, 50 € ar kita pasirinkta suma). Taip pat kuponą galima įsigyti atvykus tiesiogiai pas mus į vietą (Pramonės g. 15, Šiauliai). Kuponas su unikaliu kodu galioja <strong>6 mėnesius</strong> nuo išdavimo dienos, o apsilankymo laikas derinamas asmeniškai susisiekus iš anksto.
           </div>
         </div>
 
