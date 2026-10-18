@@ -30,7 +30,7 @@ if (!$name || !$phone || !$email || !$message) {
 }
 
 $createdDate = date('Y-m-d H:i');
-$serverHost = $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
+$serverHost = $_SERVER['SERVER_NAME'] ?? 'throwhouse.lt';
 $fromEmail = "noreply@" . $serverHost;
 $dateHeader = date('r');
 
