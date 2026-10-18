@@ -1933,20 +1933,13 @@
 
             <!-- APMOKĖJIMAS -->
             <div class="f-group">
-              <label class="f-label">Apmokėjimo būdas (tik internetu):</label>
+              <label class="f-label">Apmokėjimo būdas:</label>
               <div class="pay-methods">
-                <label class="pay-lbl">
+                <label class="pay-lbl" style="border-color: var(--accent); background: rgba(255, 106, 0, 0.08);">
                   <input type="radio" name="resPay" value="banklink" checked>
-                  <span>🏦 Elektroninė bankininkystė (Swedbank, SEB, Luminor, Šiaulių bankas, Revolut, Paysera)</span>
-                </label>
-                <label class="pay-lbl">
-                  <input type="radio" name="resPay" value="card">
-                  <span>💳 Mokėjimo kortelė (Visa, Mastercard, Apple Pay, Google Pay)</span>
+                  <span>🏦 Elektroninė bankininkystė</span>
                 </label>
               </div>
-              <span style="display:block; font-size:0.78rem; color:#f59e0b; margin-top:0.4rem;">
-                🔒 Rezervacija patvirtinama iš anksto apmokėjus internetu. Atsiskaitymas atvykus į vietą nepriimamas.
-              </span>
             </div>
 
             <!-- KAINA IR MYGTUKAS -->
@@ -2668,8 +2661,7 @@
       btn.disabled = true;
       btn.textContent = 'Tikrinama ir apdorojama...';
 
-      const payVal = document.querySelector('input[name="resPay"]:checked')?.value || 'banklink';
-      const payLabel = (payVal === 'card') ? 'Mokėjimo kortelė (Visa / Mastercard)' : 'Elektroninė bankininkystė (Banklink)';
+      const payLabel = 'Elektroninė bankininkystė';
 
       try {
         const payload = {
@@ -2714,7 +2706,7 @@
           <strong>Pramoga:</strong> ${act} ${lane ? '(' + lane + ')' : ''} (${cnt} asm., ${durText})<br>
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
           <strong>Data ir laikas:</strong> ${dateText}, ${timeOptionText}<br>
-          <strong>Apmokėjimo būdas:</strong> ${payLabel} (apmokėta internetu)<br>
+          <strong>Apmokėjimo būdas:</strong> ${payLabel}<br>
           <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong><br><br>
           <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas sėkmingai išsiųstas į <strong>${email}</strong>!</span>
         `;
