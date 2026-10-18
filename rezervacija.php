@@ -77,7 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $bookedMap = [];
     foreach ($all as $r) {
-        if (($r['status'] ?? '') === 'Atšaukta') continue;
+        $st = $r['status'] ?? '';
+        if ($st === 'Atšaukta' || strpos($st, 'Neapmokėta') !== false || strpos($st, 'Atšaukta') !== false) continue;
+        if ($st === 'Laukiama apmokėjimo') {
+            $createdAtTs = !empty($r['created_at']) ? strtotime($r['created_at']) : 0;
+            if ($createdAtTs > 0 && (time() - $createdAtTs) > 25 * 60) {
+                continue; // Laikas atlaisvinamas, jei klientas per 25 min. neapmokėjo
+            }
+        }
         $iso = !empty($r['iso_date']) ? $r['iso_date'] : normalizeDateToIso($r['date'] ?? '');
         $rawT = trim($r['time'] ?? '');
         if (!$iso) continue;
@@ -293,7 +300,14 @@ if ($dayOfWeek == 0) {
 
 $slotsOccupied = [];
 foreach ($all as $ex) {
-    if (($ex['status'] ?? '') === 'Atšaukta') continue;
+    $exSt = $ex['status'] ?? '';
+    if ($exSt === 'Atšaukta' || strpos($exSt, 'Neapmokėta') !== false || strpos($exSt, 'Atšaukta') !== false) continue;
+    if ($exSt === 'Laukiama apmokėjimo') {
+        $createdAtTs = !empty($ex['created_at']) ? strtotime($ex['created_at']) : 0;
+        if ($createdAtTs > 0 && (time() - $createdAtTs) > 25 * 60) {
+            continue; // Atlaisviname laiką kitiems
+        }
+    }
     $exIso = !empty($ex['iso_date']) ? $ex['iso_date'] : normalizeDateToIso($ex['date'] ?? '');
     if ($exIso !== $isoDate) continue;
 
@@ -424,9 +438,18 @@ if (stripos($activity, 'Pykčio') !== false) {
 $durationLabel = $isKombo ? "2 val. sesija (1-oji val. Kirviai [$lane], 2-oji val. Pykčio kambarys)" : "1 val. sesija";
 
 // -------------------------------------------------------------
-// 3. Išsaugojimas serveryje
+// 3. Išsaugojimas serveryje ir OPAY apmokėjimo inicijavimas
 // -------------------------------------------------------------
+require_once __DIR__ . '/opay_helper.php';
+require_once __DIR__ . '/email_helper.php';
+
+$opayCfg = loadOpayConfig();
+$isOpayActive = !empty($opayCfg['opay_enabled']) && !empty($opayCfg['website_id']) && !empty($opayCfg['signature_password']);
+
 $reservationId = 'TH-' . strtoupper(substr(uniqid(), -6));
+$initialStatus = $isOpayActive ? 'Laukiama apmokėjimo' : 'Gauta';
+$payTitle = $isOpayActive ? 'OPAY elektroninė bankininkystė' : $payMethod;
+
 $reservation = [
     'id' => $reservationId,
     'created_at' => date('Y-m-d H:i:s'),
@@ -440,48 +463,57 @@ $reservation = [
     'iso_date' => $isoDate,
     'time' => $time,
     'price' => $price,
-    'payment' => $payMethod,
-    'status' => 'Gauta'
+    'payment' => $payTitle,
+    'status' => $initialStatus
 ];
 
 $all[] = $reservation;
 saveAllReservations($dataFile, $dataDbFile, $all);
 
-// -------------------------------------------------------------
-// 4. Tekstinis patvirtinimas klientui (FormSubmit Autoresponse)
-// -------------------------------------------------------------
-$clientTextBody = "Sveiki, $name!\n\n"
-    . "Nuoširdžiai dėkojame už Jūsų rezervaciją „ThrowHouse Šiauliai“ pramogų erdvėje!\n"
-    . "Jūsų užsakymas yra sėkmingai priimtas ir patvirtintas.\n\n"
-    . "📋 JŪSŲ REZERVACIJOS DUOMENYS:\n"
-    . "• Užsakymo numeris: $reservationId\n"
-    . "• Pasirinkta pramoga: $activity" . ($lane ? " ($lane)" : "") . "\n"
-    . "• Trukmė: $durationLabel\n"
-    . "• Dalyvių skaičius: $count asm.\n"
-    . "• Numatytas laikas: $date d., $time val.\n"
-    . "• Apmokėjimo būdas: $payMethod (apmokėta internetu)\n"
-    . "• Suma: $price\n\n"
-    . "📍 KUR MUS RASTI:\n"
-    . "• Adresas: Pramonės g. 15, Šiauliai (2-as aukštas)\n"
-    . "• Koordinatės: 55.910730, 23.315700\n"
-    . "• Google Maps: https://www.google.com/maps?q=55.910730,23.315700\n"
-    . "• Waze: https://waze.com/ul?ll=55.910730,23.315700&navigate=yes\n\n"
-    . "🚪 PATEKIMAS Į PATALPAS:\n"
-    . "Atvykus prie pastato (Pramonės g. 15), maloniai prašome užeiti pro duris, pažymėtas iškaba „Floristika“.\n"
-    . "Patekus į pastato vidų, eikite pro pirmąsias duris kairėje pusėje ir laiptais pakilkite į antrąjį aukštą – čia Jūsų lauks „ThrowHouse“ erdvė.\n\n"
-    . "👟 SVARBU – AVALYNĖ IR APRANGA:\n"
-    . "Saugumui užtikrinti visiems dalyviams BŪTINA patogi, visiškai uždara avalynė (sportbačiai ar auliniai batai).\n"
-    . "Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama.\n"
-    . "Visą reikalingą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame vietoje nemokamai!\n\n"
-    . "⏱️ REZERVACIJOS ATŠAUKIMAS AR PERKĖLIMAS (LIKUS 24 VAL.):\n"
-    . "Jeigu pasikeistų Jūsų planai, maloniai prašome apie atšaukimą arba laiko pakeitimą informuoti likus ne mažiau kaip 24 valandoms iki rezervuoto laiko pradžios.\n\n"
-    . "ℹ️ Prašome atvykti likus 5–10 min. iki sesijos pradžios trumpam saugumo instruktažui.\n\n"
-    . "Kilus klausimams, susisiekite: tel. +370 619 88009 arba el. paštu throwhousee@gmail.com.\n\n"
-    . "Laukiame Jūsų atvykstant!\n"
-    . "Pagarbiai, „ThrowHouse Šiauliai“ komanda";
+// Jei OPAY aktyvus - sukuriame mokėjimo transakciją ir nukreipiame klientą
+if ($isOpayActive) {
+    $priceNum = floatval(preg_replace('/[^0-9\.]/', '', str_replace(',', '.', $price)));
+    $amountCents = (int)round($priceNum * 100);
+    if ($amountCents <= 0) {
+        $amountCents = 3000;
+    }
 
-require_once __DIR__ . '/email_helper.php';
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'https://';
+    $host = $_SERVER['HTTP_HOST'] ?? 'throwhouse.lt';
+    $baseUrl = $protocol . $host;
+    $redirectUrl = $baseUrl . '/opay_return.php';
+    $callbackUrl = $baseUrl . '/opay_callback.php';
 
+    $opayRes = createOpayPaymentTransaction(
+        $reservationId,
+        $amountCents,
+        $name,
+        $email,
+        $phone,
+        $redirectUrl,
+        $callbackUrl
+    );
+
+    if (!empty($opayRes['success']) && !empty($opayRes['redirect_url'])) {
+        echo json_encode([
+            'success' => true,
+            'opay_redirect' => true,
+            'redirect_url' => $opayRes['redirect_url'],
+            'reservation_id' => $reservationId
+        ]);
+        exit;
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Nepavyko inicijuoti OPAY apmokėjimo: ' . ($opayRes['error'] ?? 'Nežinoma klaida') . '. Prašome susisiekti tiesiogiai.'
+        ]);
+        exit;
+    }
+}
+
+// -------------------------------------------------------------
+// 4. Standartinis tiesioginis patvirtinimas (kai OPAY išjungtas)
+// -------------------------------------------------------------
 // 1. Reprezentatyvus HTML laiškas klientui
 $clientHtmlBody = renderNewReservationClientHtml($reservation);
 $subClient = "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]";
@@ -498,6 +530,8 @@ $logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data:
 
 echo json_encode([
     'success' => true,
+    'opay_redirect' => false,
     'message' => 'Rezervacija sėkmingai priimta ir patvirtinta!',
     'reservation_id' => $reservationId
 ]);
+

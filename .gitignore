@@ -4,12 +4,15 @@ kuponai_db.json
 nustatymai_db.json
 email_config_db.json
 email_config.json
+opay_config_db.json
+opay_config.json
 *_db.json
 *_backup.json
 kontaktai_log.txt
 mail_log.txt
 rezervacija_log.txt
 kuponas_log.txt
+opay_log.txt
 
 # Laikini failai
 .DS_Store

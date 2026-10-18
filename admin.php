@@ -666,6 +666,22 @@ if (!empty($_SESSION['admin_logged'])) {
         exit;
     }
 
+    // 10.5. Išsaugoti OPAY mokėjimų nustatymus
+    if (isset($_POST['action']) && $_POST['action'] === 'save_opay_settings') {
+        require_once __DIR__ . '/opay_helper.php';
+        $cfg = loadOpayConfig();
+        $cfg['opay_enabled'] = !empty($_POST['opay_enabled']);
+        $cfg['sandbox'] = !empty($_POST['sandbox']);
+        $cfg['website_id'] = trim($_POST['website_id'] ?? '');
+        if (isset($_POST['signature_password']) && trim($_POST['signature_password']) !== '') {
+            $cfg['signature_password'] = trim($_POST['signature_password']);
+        }
+        saveOpayConfig($cfg);
+        $_SESSION['admin_flash'] = "OPAY mokėjimų vartų nustatymai sėkmingai išsaugoti!";
+        header('Location: admin.php?tab=opay');
+        exit;
+    }
+
     // 11. Išsiųsti bandomąjį el. laišką
     if (isset($_POST['action']) && $_POST['action'] === 'send_test_email') {
         require_once __DIR__ . '/email_helper.php';
@@ -882,6 +898,7 @@ if (!empty($_SESSION['admin_logged'])) {
     .badge-success { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
     .badge-pending { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
     .badge-canceled { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-opay { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
 
     /* ============================================================ */
     /* REALUS INTERAKTYVUS KALENDORIUS */
@@ -1133,6 +1150,10 @@ if (!empty($_SESSION['admin_logged'])) {
   $initialSelectedDate = $_GET['date'] ?? date('Y-m-d');
   require_once __DIR__ . '/email_helper.php';
   $emailCfg = loadEmailConfig();
+  require_once __DIR__ . '/opay_helper.php';
+  $opayCfg = loadOpayConfig();
+  $opayLogFile = __DIR__ . '/opay_log.txt';
+  $opayLogLines = file_exists($opayLogFile) ? array_slice(array_reverse(file($opayLogFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)), 0, 30) : [];
 ?>
   <!-- ADMIN NAVIGACIJA -->
   <header class="header">
@@ -1196,6 +1217,7 @@ if (!empty($_SESSION['admin_logged'])) {
       <a href="admin.php?tab=kuponai" class="tab-btn <?= $currentTab === 'kuponai' ? 'active' : '' ?>">🎁 Dovanų kuponai (<?= $totalCoupons ?>)</a>
       <a href="admin.php?tab=nustatymai" class="tab-btn <?= $currentTab === 'nustatymai' ? 'active' : '' ?>">⚙️ Svetainės nustatymai (TVS)</a>
       <a href="admin.php?tab=email" class="tab-btn <?= $currentTab === 'email' ? 'active' : '' ?>">📧 El. paštas (SMTP)</a>
+      <a href="admin.php?tab=opay" class="tab-btn <?= $currentTab === 'opay' ? 'active' : '' ?>">💳 OPAY Mokėjimai</a>
     </div>
 
     <!-- ======================================================= -->
@@ -1939,6 +1961,159 @@ if (!empty($_SESSION['admin_logged'])) {
 <?php foreach ($logLines as $line): ?>
 <?php if (trim($line) !== ''): ?><?= htmlspecialchars($line) . "\n" ?><?php endif; ?>
 <?php endforeach; ?>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <!-- ======================================================= -->
+    <!-- 6 TAB: OPAY MOKĖJIMŲ VARTAI IR INTEGRACIJA             -->
+    <!-- ======================================================= -->
+    <?php if ($currentTab === 'opay'): 
+      $isOpayOn = !empty($opayCfg['opay_enabled']);
+      $isSandbox = !empty($opayCfg['sandbox']);
+      $hasKeys = !empty($opayCfg['website_id']) && !empty($opayCfg['signature_password']);
+    ?>
+      <div style="max-width: 900px; margin: 0 auto;">
+        
+        <!-- BŪSENOS PRANEŠIMAS -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 1rem;">
+          <div style="font-size: 2.2rem; line-height: 1;">💳</div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0;">OPAY Mokėjimų vartai (El. bankininkystė)</h2>
+              <?php if ($isOpayOn && $hasKeys && !$isSandbox): ?>
+                <span class="badge badge-success" style="font-size: 0.82rem; padding: 0.35rem 0.85rem;">✓ AKTYVUS (GYVI MOKĖJIMAI)</span>
+              <?php elseif ($isOpayOn && $hasKeys && $isSandbox): ?>
+                <span class="badge badge-pending" style="font-size: 0.82rem; padding: 0.35rem 0.85rem;">⚠️ TESTINIS REŽIMAS (SANDBOX)</span>
+              <?php else: ?>
+                <span class="badge" style="background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); font-size: 0.82rem; padding: 0.35rem 0.85rem;">⏸️ IŠJUNGTAS</span>
+              <?php endif; ?>
+            </div>
+            <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin: 0.5rem 0 0 0;">
+              Integruokite tiesioginį atsiskaitymą per Lietuvos bankus (Swedbank, SEB, Revolut, Šiaulių bankas ir kt.) bei mokėjimo korteles.
+              Klientui atlikus rezervaciją, jis automatiškai nukreipiamas į OPAY mokėjimų puslapį, o gavus sėkmingą banko patvirtinimą, sistema akimirksniu patvirtina rezervaciją ir išsiunčia reprezentatyvius laiškus.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+          
+          <!-- OPAY NUSTATYMŲ FORMA -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              ⚙️ OPAY paskyros rekvizitai
+            </h3>
+
+            <form method="POST">
+              <input type="hidden" name="action" value="save_opay_settings">
+
+              <div style="margin-bottom: 1rem; background: rgba(255,255,255,0.03); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">Aktyvuoti OPAY mokėjimus svetainėje</div>
+                  <div style="font-size: 0.8rem; color: var(--muted);">Kai įjungta, registruodami rezervaciją klientai bus nukreipiami į apmokėjimą</div>
+                </div>
+                <input type="checkbox" name="opay_enabled" value="1" <?= !empty($opayCfg['opay_enabled']) ? 'checked' : '' ?> style="width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer;">
+              </div>
+
+              <div style="margin-bottom: 1.25rem; background: rgba(245,158,11,0.05); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid rgba(245,158,11,0.2); display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-weight: 700; color: #fbbf24; font-size: 0.95rem;">Testavimo režimas (Sandbox)</div>
+                  <div style="font-size: 0.8rem; color: var(--muted);">Pažymėkite TIK jei naudojate OPAY bandomąją aplinką (sandbox-api.opay.eu)</div>
+                </div>
+                <input type="checkbox" name="sandbox" value="1" <?= !empty($opayCfg['sandbox']) ? 'checked' : '' ?> style="width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer;">
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.35rem;">
+                  Svetainės ID (Website ID / Projekto ID):
+                </label>
+                <input type="text" name="website_id" class="form-input" value="<?= htmlspecialchars($opayCfg['website_id'] ?? '') ?>" placeholder="Pvz.: 8W23U89523 arba Jūsų svetainės kodas iš OPAY" style="margin-bottom: 0;">
+                <div style="font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem;">
+                  Šį kodą matysite savo OPAY savitarnoje (my.opay.eu) prie savo svetainės.
+                </div>
+              </div>
+
+              <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.35rem;">
+                  Pasirašymo slaptažodis (Signature Password):
+                </label>
+                <input type="password" name="signature_password" class="form-input" placeholder="<?= !empty($opayCfg['signature_password']) ? '•••••••••••••••• (išsaugotas)' : 'Įveskite slaptąjį pasirašymo slaptažodį' ?>" style="margin-bottom: 0;">
+                <div style="font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem;">
+                  Slaptas raktas, skirtas užtikrinti siunčiamų ir gaunamų banko pranešimų saugumą.
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 0.95rem;">
+                💾 Išsaugoti OPAY nustatymus
+              </button>
+            </form>
+          </div>
+
+          <!-- INTEGRACIJOS ADRESAI OPAY SISTEMAI -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+              🔗 Adresai, reikalingi OPAY sistemai
+            </h3>
+            <p style="color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
+              Jeigu OPAY savitarnoje arba vadybininkas prašo nurodyti Jūsų svetainės atsakomojo ryšio adresus (Webhook ir Return URL), nukopijuokite šias nuorodas:
+            </p>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                1. Grįžtamasis adresas (Redirect URL / Return URL):
+              </label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" readonly class="form-input" id="opayReturnUrl" value="https://throwhouse.lt/opay_return.php" style="margin-bottom: 0; background: #050308; color: #4ade80; font-family: monospace;">
+                <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById('opayReturnUrl').value); alert('Nukopijuota: ' + document.getElementById('opayReturnUrl').value);" style="white-space: nowrap; padding: 0.5rem 1rem;">📋 Kopijuoti</button>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                2. Pranešimų adresas (Webhook / Web Service URL / Callback):
+              </label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" readonly class="form-input" id="opayCallbackUrl" value="https://throwhouse.lt/opay_callback.php" style="margin-bottom: 0; background: #050308; color: #60a5fa; font-family: monospace;">
+                <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById('opayCallbackUrl').value); alert('Nukopijuota: ' + document.getElementById('opayCallbackUrl').value);" style="white-space: nowrap; padding: 0.5rem 1rem;">📋 Kopijuoti</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSTRUKCIJA: KUR RASTI DUOMENIS MY.OPAY.EU -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+              📖 Kaip rasti šiuos duomenis OPAY savitarnoje (my.opay.eu)?
+            </h3>
+            <ol style="color: var(--muted); font-size: 0.88rem; line-height: 1.7; padding-left: 1.25rem; margin: 0;">
+              <li>Prisijunkite prie savo OPAY savitarnos paskyros: <a href="https://my.opay.eu/" target="_blank" style="color: var(--accent); font-weight: 700;">https://my.opay.eu/</a></li>
+              <li>Kairiajame meniu spauskite <strong>„Projektai“</strong> arba <strong>„Svetainės“</strong> (arba „Valdymas ➔ Svetainės“).</li>
+              <li>Pasirinkite savo svetainę (ThrowHouse Šiauliai / <code>throwhouse.lt</code>) ir atverkite jos nustatymus.</li>
+              <li>Ten matysite:
+                <ul style="margin: 0.25rem 0 0.5rem 1.25rem;">
+                  <li><strong style="color: #fff;">Svetainės ID (Website ID)</strong> – nukopijuokite jį į viršutinį laukelį.</li>
+                  <li><strong style="color: #fff;">Pasirašymo slaptažodį (Signature Password)</strong> – jei jis dar nesukurtas, spauskite „Generuoti slaptažodį“ ir įklijuokite į antrąjį laukelį.</li>
+                </ul>
+              </li>
+              <li>Pažymėkite varnele <strong>„Aktyvuoti OPAY mokėjimus svetainėje“</strong> ir spauskite <strong>„Išsaugoti OPAY nustatymus“</strong>.</li>
+            </ol>
+          </div>
+
+          <!-- OPAY MOKĖJIMŲ IR CALLBACK ŽURNALAS -->
+          <div class="table-wrap" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              📋 Paskutiniai OPAY operacijų įrašai (Žurnalas)
+            </h3>
+            <div style="background: #050308; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.8rem; color: #94a3b8; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
+<?php if (empty($opayLogLines)): ?>
+(Įrašų dar nėra. Kai bus atliktas bandomasis arba gyvas apmokėjimas, čia matysite tikslius serverio pranešimus).
+<?php else: ?>
+<?php foreach ($opayLogLines as $line): ?>
+<?= htmlspecialchars($line) . "\n" ?>
+<?php endforeach; ?>
+<?php endif; ?>
             </div>
           </div>
 

@@ -2794,13 +2794,20 @@
 
         const data = await res.json();
 
-        // Jei laikas buvo užimtas (dvigubo užsakymo apsauga):
+        // Jei laikas buvo užimtas (dvigubo užsakymo apsauga) ar kita klaida:
         if (!data.success) {
           alert('⚠️ ' + data.message);
           btn.disabled = false;
           btn.textContent = 'Apmokėti ir patvirtinti rezervaciją ➔';
           await fetchBookedSlots();
           populateTimeSlots(selectedDate);
+          return;
+        }
+
+        // Jei OPAY aktyvus - nukreipiame klientą tiesiai į banko pasirinkimą / OPAY vartus:
+        if (data.opay_redirect && data.redirect_url) {
+          btn.textContent = 'Nukreipiama į banką / OPAY...';
+          window.location.href = data.redirect_url;
           return;
         }
 
