@@ -23,15 +23,20 @@ function loadEmailConfig() {
         'admin_email' => 'throwhousee@gmail.com'
     ];
 
-    $data = [];
-    if (file_exists($configFile)) {
-        $data = json_decode(@file_get_contents($configFile), true) ?: [];
-    }
-    if (empty($data) && file_exists($configDbFile)) {
-        $data = json_decode(@file_get_contents($configDbFile), true) ?: [];
+    $gitData = file_exists($configFile) ? (json_decode(@file_get_contents($configFile), true) ?: []) : [];
+    $dbData = file_exists($configDbFile) ? (json_decode(@file_get_contents($configDbFile), true) ?: []) : [];
+
+    // Prioritetas DB failui, kurio Git NIEKADA neperrašo
+    $merged = array_merge($default, $gitData, $dbData);
+
+    // Jeigu DB faile buvo išsaugotas slaptažodis, niekada neleiskite tuščiam Git failui jo ištrinti
+    if (!empty($dbData['smtp_pass'])) {
+        $merged['smtp_pass'] = $dbData['smtp_pass'];
+    } elseif (!empty($gitData['smtp_pass'])) {
+        $merged['smtp_pass'] = $gitData['smtp_pass'];
     }
 
-    return array_merge($default, $data);
+    return $merged;
 }
 
 /**
@@ -41,11 +46,18 @@ function saveEmailConfig($data) {
     $configFile = __DIR__ . '/email_config.json';
     $configDbFile = __DIR__ . '/email_config_db.json';
 
+    // Jei naujame masyve slaptažodis tuščias, bet anksčiau jau buvo išsaugotas – išlaikome esamą
+    $old = loadEmailConfig();
+    if (empty($data['smtp_pass']) && !empty($old['smtp_pass'])) {
+        $data['smtp_pass'] = $old['smtp_pass'];
+    }
+
     $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    @file_put_contents($configFile, $json, LOCK_EX);
     @file_put_contents($configDbFile, $json, LOCK_EX);
-    @chmod($configFile, 0666);
     @chmod($configDbFile, 0666);
+
+    @file_put_contents($configFile, $json, LOCK_EX);
+    @chmod($configFile, 0666);
     return true;
 }
 
