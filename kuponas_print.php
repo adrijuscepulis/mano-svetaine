@@ -1,5 +1,6 @@
 <?php
-// kuponas_print.php - A4 formato ThrowHouse dovanų kuponas spausdinimui ir PDF išsaugojimui
+// kuponas_print.php - A4 formato ThrowHouse dovanų kuponas (spausdinimui ir PDF atsisiuntimui)
+// Švarus, modernus, profesionalus A4 dizainas be jokių helovyno motyvų.
 header('Content-Type: text/html; charset=utf-8');
 
 $code = trim($_GET['code'] ?? '');
@@ -40,6 +41,20 @@ $cCode = htmlspecialchars($coupon['code'] ?? 'TH-KUP-0000');
 $cAmount = htmlspecialchars($coupon['amount'] ?? 50);
 $cExpires = htmlspecialchars($coupon['expires_at'] ?? date('Y-m-d', strtotime('+6 months')));
 $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
+
+// Tiesioginis PDF atsisiuntimas
+if (isset($_GET['download'])) {
+    require_once __DIR__ . '/pdf_helper.php';
+    $pdf = generateThrowHouseCouponPdf($cCode, $cAmount, $cExpires);
+    $filename = "ThrowHouse_Kuponas_" . preg_replace('/[^A-Za-z0-9\-]/', '', $cCode) . ".pdf";
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Content-Length: ' . strlen($pdf));
+    header('Cache-Control: private, max-age=0, must-revalidate');
+    header('Pragma: public');
+    echo $pdf;
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="lt">
@@ -56,8 +71,8 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
     body {
       margin: 0;
       padding: 0;
-      background: #08050e;
-      color: #fff;
+      background: #f1f5f9;
+      color: #0f172a;
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
       display: flex;
@@ -66,12 +81,12 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       -webkit-font-smoothing: antialiased;
     }
 
-    /* VALDYMO JUOSTA EKRANE */
+    /* VIRŠUTINĖ VALDYMO JUOSTA (TIK EKRANE) */
     .action-bar {
       width: 100%;
-      background: #110c1c;
-      border-bottom: 1px solid rgba(255, 106, 0, 0.35);
-      padding: 0.85rem 1.5rem;
+      background: #0f172a;
+      border-bottom: 2px solid #ff6a00;
+      padding: 0.85rem 1.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -79,15 +94,15 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
 
     .action-btn {
-      background: linear-gradient(135deg, #ff6a00, #ea580c);
-      color: #000;
+      background: #ff6a00;
+      color: #ffffff;
       font-weight: 800;
       font-size: 0.95rem;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 1.4rem;
       border-radius: 8px;
       border: none;
       cursor: pointer;
@@ -95,129 +110,133 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
-      box-shadow: 0 4px 15px rgba(255, 106, 0, 0.35);
-      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(255, 106, 0, 0.35);
+      transition: all 0.2s ease;
     }
     .action-btn:hover {
-      background: linear-gradient(135deg, #ff8533, #ff6a00);
+      background: #ea580c;
       transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 106, 0, 0.45);
     }
+
     .action-btn-secondary {
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: none;
     }
     .action-btn-secondary:hover {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.2);
       transform: translateY(-1px);
     }
 
     .voucher-stage {
-      padding: 2rem 1rem;
+      padding: 2.5rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 100%;
     }
 
-    /* A4 FORMATO KORTELĖ */
+    /* ============================================================ */
+    /* ŠVARUS, MODERNAUS STILIAUS A4 KUPONAS (ŠVIESUS IR ELEGANTIŠKAS) */
+    /* ============================================================ */
     .a4-voucher {
       width: 100%;
       max-width: 794px; /* Standartinis A4 plotis 96dpi (210mm) */
-      min-height: 1050px; /* Standartinis A4 aukštis (297mm) */
-      background: #0f0b18;
-      background: radial-gradient(circle at 50% 30%, #1c112e 0%, #0c0816 65%, #050308 100%);
-      border: 3px solid #ff6a00;
-      border-radius: 18px;
-      padding: 3rem 2.8rem;
+      min-height: 1080px; /* Standartinis A4 aukštis (297mm) */
+      background: #ffffff;
+      color: #0f172a;
+      border: 3px solid #1e293b;
+      border-radius: 16px;
+      padding: 3.5rem 3.2rem;
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 45px rgba(255, 106, 0, 0.2);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
     }
 
-    /* VIDINIS RĖMELIS */
+    /* VIDINIS AKCENTO RĖMELIS */
     .a4-voucher::before {
       content: '';
       position: absolute;
       top: 14px; left: 14px; right: 14px; bottom: 14px;
-      border: 1px solid rgba(255, 106, 0, 0.4);
+      border: 1.5px solid #ff6a00;
       border-radius: 12px;
       pointer-events: none;
     }
 
+    /* KAMPŲ AKCENTAI */
     .corner-accent {
       position: absolute;
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-color: #ff6a00;
       border-style: solid;
       pointer-events: none;
     }
-    .corner-tl { top: 22px; left: 22px; border-width: 3px 0 0 3px; }
-    .corner-tr { top: 22px; right: 22px; border-width: 3px 3px 0 0; }
-    .corner-bl { bottom: 22px; left: 22px; border-width: 0 0 3px 3px; }
-    .corner-br { bottom: 22px; right: 22px; border-width: 0 3px 3px 0; }
+    .corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
+    .corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
+    .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
+    .corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
 
-    /* 1. VIRŠUS */
+    /* 1. VIRŠŪNĖ: LOGO IR BRAND */
     .v-top {
       text-align: center;
       position: relative;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1.25rem;
+      border-bottom: 2px solid #f1f5f9;
     }
     .v-logo {
       font-family: 'Outfit', sans-serif;
-      font-size: 2.2rem;
+      font-size: 2.6rem;
       font-weight: 900;
-      letter-spacing: 2.5px;
+      letter-spacing: 2px;
       margin: 0;
-      color: #fff;
+      color: #0f172a;
     }
     .v-logo span { color: #ff6a00; }
     .v-sublogo {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 3px;
-      color: #94a3b8;
+      color: #64748b;
       font-weight: 700;
       margin-top: 0.35rem;
     }
 
-    /* 2. CENTRINĖ HERO DALIS: DOVANŲ KUPONAS IR SUMA */
+    /* 2. CENTRINĖ HERO DALIS: AIŠKIAI IR RYŠKIAI DOVANŲ KUPONAS IR SUMA */
     .v-center-hero {
       text-align: center;
-      padding: 2.5rem 1rem;
+      padding: 2rem 1rem;
       position: relative;
     }
 
-    .v-title-badge {
+    .v-badge {
       display: inline-block;
       font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 3px;
+      letter-spacing: 2.5px;
       font-weight: 800;
-      color: #ff8533;
-      background: rgba(255, 106, 0, 0.12);
-      border: 1px solid rgba(255, 106, 0, 0.4);
+      color: #ea580c;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
       padding: 0.4rem 1.4rem;
       border-radius: 30px;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
     /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: DOVANŲ KUPONAS */
     .v-hero-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 3.6rem;
+      font-size: 3.8rem;
       font-weight: 900;
-      letter-spacing: 3px;
-      color: #ffffff;
+      letter-spacing: 2px;
+      color: #0f172a;
       text-transform: uppercase;
       margin: 0 0 0.5rem 0;
-      line-height: 1.1;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      line-height: 1.05;
     }
 
     /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: SUMA */
@@ -225,61 +244,60 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      margin: 1.5rem 0;
-      background: rgba(0, 0, 0, 0.6);
-      border: 2px solid #ff6a00;
+      margin: 1.25rem 0;
+      background: #fffaf5;
+      border: 3px solid #ff6a00;
       border-radius: 20px;
-      padding: 1.25rem 3.5rem;
-      box-shadow: 0 8px 30px rgba(255, 106, 0, 0.25);
+      padding: 1.25rem 4rem;
+      box-shadow: 0 8px 24px rgba(255, 106, 0, 0.12);
     }
     .v-amount-lbl {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #a1a1aa;
-      font-weight: 700;
+      color: #64748b;
+      font-weight: 800;
     }
     .v-hero-amount {
       font-family: 'Outfit', sans-serif;
-      font-size: 5rem;
+      font-size: 5.2rem;
       font-weight: 900;
       color: #ff6a00;
       line-height: 1;
       margin: 0.25rem 0;
-      text-shadow: 0 0 25px rgba(255, 106, 0, 0.5);
     }
 
-    /* KODAS */
+    /* UNIKALUS KODAS */
     .v-code-container {
       margin-top: 1rem;
     }
     .v-code-label {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #94a3b8;
+      color: #64748b;
       font-weight: 800;
       margin-bottom: 0.4rem;
     }
     .v-code-val {
       font-family: 'Space Mono', monospace;
-      font-size: 1.7rem;
+      font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: 3px;
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px dashed rgba(255, 106, 0, 0.6);
-      padding: 0.5rem 1.4rem;
-      border-radius: 8px;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 2px dashed #ff6a00;
+      padding: 0.6rem 1.6rem;
+      border-radius: 10px;
       display: inline-block;
     }
 
     /* 3. PRAMOGŲ IR SĄLYGŲ BLOKAS */
     .v-details-box {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 14px;
-      padding: 1.5rem 1.8rem;
+      padding: 1.5rem 1.75rem;
       margin: 1.5rem 0;
       position: relative;
     }
@@ -287,85 +305,96 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
     .v-activities-title {
       font-size: 0.95rem;
       font-weight: 800;
-      color: #fff;
+      color: #0f172a;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.75rem;
+      text-align: center;
     }
     .v-activities-list {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 0.75rem;
+      gap: 0.85rem;
       margin-bottom: 1.25rem;
     }
     .act-badge {
-      background: rgba(255, 106, 0, 0.08);
-      border: 1px solid rgba(255, 106, 0, 0.25);
-      border-radius: 8px;
-      padding: 0.6rem 0.8rem;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.75rem 0.6rem;
       text-align: center;
       font-size: 0.85rem;
-      color: #e2e8f0;
+      color: #475569;
       font-weight: 600;
     }
-    .act-badge strong { color: #f59e0b; display: block; font-size: 0.95rem; margin-bottom: 2px; }
+    .act-badge strong {
+      color: #ff6a00;
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 3px;
+      font-weight: 800;
+    }
 
     /* REZERVACIJA TIK ASMENIŠKAI */
     .booking-warning-box {
-      background: rgba(245, 158, 11, 0.1);
-      border-left: 4px solid #ff6a00;
-      border-radius: 0 8px 8px 0;
-      padding: 0.9rem 1.2rem;
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-left: 5px solid #ff6a00;
+      border-radius: 0 10px 10px 0;
+      padding: 1rem 1.25rem;
       text-align: left;
     }
     .booking-warning-box strong {
-      color: #ff8533;
+      color: #b45309;
       font-size: 0.95rem;
       display: block;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.35rem;
     }
     .booking-warning-box p {
       margin: 0;
-      font-size: 0.88rem;
-      color: #cbd5e1;
-      line-height: 1.45;
+      font-size: 0.9rem;
+      color: #78350f;
+      line-height: 1.5;
     }
     .booking-warning-box .contact-highlight {
-      color: #ffffff;
+      color: #0f172a;
       font-weight: 800;
       font-size: 0.95rem;
     }
 
-    /* 4. APATINĖ INFORMACIJA */
+    /* 4. APATINIAI REKVIZITAI */
     .v-footer-grid {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 2px solid #f1f5f9;
       padding-top: 1.25rem;
       display: grid;
       grid-template-columns: 1.2fr 1.3fr 1fr;
       gap: 1.25rem;
-      font-size: 0.82rem;
-      color: #94a3b8;
-      line-height: 1.45;
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.5;
       position: relative;
     }
     .f-col strong {
       display: block;
-      color: #fff;
-      font-size: 0.85rem;
-      margin-bottom: 0.25rem;
+      color: #0f172a;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+      font-weight: 800;
     }
 
     .v-legal-notes {
-      margin-top: 1rem;
+      margin-top: 1.25rem;
       text-align: center;
-      font-size: 0.75rem;
-      color: #71717a;
-      line-height: 1.4;
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.45;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 0.85rem;
     }
-    .v-legal-notes strong { color: #f59e0b; }
+    .v-legal-notes strong { color: #d97706; }
 
     /* ============================================================ */
-    /* TIKRAI A4 SPAUSDINIMO (PRINT / PDF) TAISYKLĖS */
+    /* STANDARTINIO A4 SPAUSDINIMO (PRINT / PDF) TAISYKLĖS */
     /* ============================================================ */
     @media print {
       body {
@@ -389,25 +418,15 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
         max-width: 100% !important;
         min-height: 275mm !important;
         height: 275mm !important;
-        background: #0f0b18 !important;
-        color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
         box-shadow: none !important;
-        border: 3px solid #ff6a00 !important;
+        border: 3px solid #1e293b !important;
         border-radius: 12px !important;
         page-break-inside: avoid !important;
         page-break-after: avoid !important;
-        padding: 2.5rem 2.2rem !important;
+        padding: 2.8rem 2.4rem !important;
       }
-      .v-logo { color: #ffffff !important; }
-      .v-logo span { color: #ff6a00 !important; }
-      .v-hero-title { color: #ffffff !important; }
-      .v-hero-amount { color: #ff6a00 !important; }
-      .v-code-val { color: #ffffff !important; background: rgba(255, 106, 0, 0.2) !important; }
-      .f-col strong { color: #ffffff !important; }
-      .f-col { color: #cbd5e1 !important; }
-      .act-badge { color: #ffffff !important; }
-      .act-badge strong { color: #f59e0b !important; }
-
       @page {
         size: A4 portrait;
         margin: 10mm;
@@ -415,10 +434,10 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
     }
 
     @media (max-width: 700px) {
-      .a4-voucher { padding: 1.75rem 1.25rem; min-height: auto; }
-      .v-hero-title { font-size: 2.4rem; }
-      .v-hero-amount { font-size: 3.5rem; }
-      .v-hero-amount-wrap { padding: 1rem 1.8rem; }
+      .a4-voucher { padding: 2rem 1.4rem; min-height: auto; }
+      .v-hero-title { font-size: 2.6rem; }
+      .v-hero-amount { font-size: 3.8rem; }
+      .v-hero-amount-wrap { padding: 1rem 2rem; }
       .v-activities-list { grid-template-columns: 1fr; }
       .v-footer-grid { grid-template-columns: 1fr; }
       .action-bar { flex-direction: column; text-align: center; }
@@ -427,21 +446,21 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
 </head>
 <body>
 
-  <!-- VALDYMO JUOSTA (TIK EKRANE) -->
+  <!-- VIRŠUTINĖ JUOSTA (TIK EKRANE) -->
   <div class="action-bar no-print">
     <div>
       <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #ff6a00;"><?= $cCode ?></span></div>
-      <div style="font-size: 0.78rem; color: #94a3b8;">A4 formato failas – paruošta spausdinimui arba išsaugojimui į PDF</div>
+      <div style="font-size: 0.78rem; color: #94a3b8;">Oficialus A4 formato dovanų sertifikatas · ThrowHouse Šiauliai</div>
     </div>
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
-      <button onclick="window.print()" class="action-btn">
-        🖨️ Spausdinti / Išsaugoti kaip PDF
+      <a href="kuponas_print.php?code=<?= urlencode($cCode) ?>&download=1" class="action-btn">
+        📥 Atsisiųsti PDF failą
+      </a>
+      <button onclick="window.print()" class="action-btn action-btn-secondary">
+        🖨️ Spausdinti
       </button>
       <a href="index.html" class="action-btn action-btn-secondary">
         🌐 Eiti į svetainę
-      </a>
-      <a href="admin.php?tab=kuponai" class="action-btn action-btn-secondary">
-        ⚙️ Valdymo pultas
       </a>
     </div>
   </div>
@@ -455,15 +474,15 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
       <div class="corner-accent corner-bl"></div>
       <div class="corner-accent corner-br"></div>
 
-      <!-- 1. VIRŠUS -->
+      <!-- 1. VIRŠUS: PREKĖS ŽENKLAS -->
       <div class="v-top">
         <h1 class="v-logo">THROW<span>HOUSE</span></h1>
         <div class="v-sublogo">Šiauliai · Adrenalino ir Pramogų Erdvė</div>
       </div>
 
-      <!-- 2. CENTRINĖ HERO DALIS: DOVANŲ KUPONAS IR SUMA -->
+      <!-- 2. CENTRINĖ HERO DALIS: AIŠKIAI IR RYŠKIAI PER VIDURĮ DOVANŲ KUPONAS IR SUMA -->
       <div class="v-center-hero">
-        <div class="v-title-badge">Oficialus Dovanų Sertifikatas</div>
+        <div class="v-badge">Oficialus Dovanų Sertifikatas</div>
         
         <!-- RYŠKIAI PER VIDURĮ -->
         <div class="v-hero-title">DOVANŲ KUPONAS</div>
@@ -486,15 +505,15 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
         <div class="v-activities-list">
           <div class="act-badge">
             <strong>Pykčio kambarys</strong>
-            Streso iškrovos sesija
+            1 val. streso iškrovos sesija
           </div>
           <div class="act-badge">
             <strong>Kirvių mėtymas</strong>
-            Taiklumo rungtys
+            1 val. taiklumo rungtys
           </div>
           <div class="act-badge">
             <strong>KOMBO paketas</strong>
-            Abi pramogos kartu
+            Abi pramogos kartu!
           </div>
         </div>
 
@@ -510,13 +529,13 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
         </div>
       </div>
 
-      <!-- 4. APATINIAI REKVIZITAI -->
+      <!-- 4. APATINIAI REKVIZITAI IR SAUGUMAS -->
       <div>
         <div class="v-footer-grid">
           <div class="f-col">
             <strong>📍 Kur mus rasti:</strong>
             Pramonės g. 15, Šiauliai (2-as aukštas)<br>
-            Įėjimas pro duris pažymėtas „Floristika“
+            Įėjimas pro duris „Floristika“
           </div>
           <div class="f-col">
             <strong>🕒 Rezervacijos kontaktai:</strong>
@@ -531,7 +550,7 @@ $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
         </div>
 
         <div class="v-legal-notes">
-          Saugumui užtikrinti visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai). Su atvira avalyne dalyvauti draudžiama.<br>
+          Saugumui užtikrinti visiems dalyviams <strong>būtina patogi, visiškai uždara avalynė</strong> (sportbačiai). Su atvira avalyne dalyvauti griežtai draudžiama.<br>
           Kuponas į grynuosius pinigus nekeičiamas. „ThrowHouse Šiauliai“ © <?= date('Y') ?>
         </div>
       </div>

@@ -38,9 +38,7 @@ $coupon = [
 ];
 
 require_once __DIR__ . '/email_helper.php';
-
-$dataFile = __DIR__ . '/kuponai.json';
-$dataDbFile = __DIR__ . '/kuponai_db.json';
+require_once __DIR__ . '/pdf_helper.php';
 
 // Dvifazis saugojimas (apsauga nuo perrašymo)
 $all = [];
@@ -54,15 +52,25 @@ $jsonStr = json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UN
 @file_put_contents($dataFile, $jsonStr, LOCK_EX);
 @file_put_contents($dataDbFile, $jsonStr, LOCK_EX);
 
-// 1. Dovanų kupono HTML laiškas pirkėjui į el. paštą
+// Generuojame A4 formato PDF failą
+$pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt);
+$pdfAttachment = [
+    [
+        'filename' => "ThrowHouse_Kuponas_{$code}.pdf",
+        'data' => $pdfContent,
+        'type' => 'application/pdf'
+    ]
+];
+
+// 1. Dovanų kupono HTML laiškas pirkėjui į el. paštą su prisegtu PDF kuponu
 $subVoucher = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$code] ($amount €)";
 $voucherHtml = renderVoucherHtml($coupon);
-$voucherSent = sendThrowHouseMail($buyerEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai');
+$voucherSent = sendThrowHouseMail($buyerEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
 
-// 2. Pranešimas administratoriui
+// 2. Pranešimas administratoriui (taip pat prisegamas PDF kuponas)
 $subAdmin = "🎁 Naujas dovanų kuponas [$code] ($amount €) - $buyerName";
 $adminHtml = renderVoucherAdminHtml($coupon);
-$adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail, 'ThrowHouse Kuponai');
+$adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail, 'ThrowHouse Kuponai', $pdfAttachment);
 
 // Žurnalas diagnostikai
 $logEntry = date('Y-m-d H:i:s') . " | Kuponas: $code | $amount € | Pirkėjas: $buyerName ($buyerEmail) | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | VoucherMail: " . ($voucherSent ? 'OK' : 'FAIL') . "\n";

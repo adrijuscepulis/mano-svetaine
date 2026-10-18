@@ -65,7 +65,7 @@ function saveEmailConfig($data) {
  * Tiesioginis SMTP siuntimas per PHP sockets (be jokių išorinių bibliotekų).
  * Palaiko SSL (portas 465) ir STARTTLS (portas 587).
  */
-function sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fromName = 'ThrowHouse Šiauliai', $replyTo = null) {
+function sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fromName = 'ThrowHouse Šiauliai', $replyTo = null, $attachments = []) {
     $timeout = 12;
     $isSsl = ($port == 465);
     $transport = $isSsl ? 'ssl://' . $host : 'tcp://' . $host;
@@ -163,16 +163,50 @@ function sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fro
     $encodedFromName = "=?UTF-8?B?" . base64_encode($fromName) . "?=";
     $reply = $replyTo ?: $user;
 
-    $headers = "MIME-Version: 1.0\r\n"
-        . "From: $encodedFromName <$user>\r\n"
-        . "To: <$to>\r\n"
-        . "Reply-To: $reply\r\n"
-        . "Date: " . date('r') . "\r\n"
-        . "Subject: $encodedSubject\r\n"
-        . "Content-Type: text/html; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: 8bit\r\n";
+    if (!empty($attachments) && is_array($attachments)) {
+        $boundary = "==Multipart_Boundary_x" . md5(time() . mt_rand()) . "x";
 
-    $payload = $headers . "\r\n" . $htmlBody . "\r\n.";
+        $headers = "MIME-Version: 1.0\r\n"
+            . "From: $encodedFromName <$user>\r\n"
+            . "To: <$to>\r\n"
+            . "Reply-To: $reply\r\n"
+            . "Date: " . date('r') . "\r\n"
+            . "Subject: $encodedSubject\r\n"
+            . "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
+
+        $body = "--$boundary\r\n"
+            . "Content-Type: text/html; charset=UTF-8\r\n"
+            . "Content-Transfer-Encoding: 8bit\r\n\r\n"
+            . $htmlBody . "\r\n\r\n";
+
+        foreach ($attachments as $att) {
+            $filename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $att['filename'] ?? 'dokumentas.pdf');
+            $mimeType = $att['type'] ?? 'application/pdf';
+            $data = $att['data'] ?? '';
+            $encodedData = chunk_split(base64_encode($data));
+
+            $body .= "--$boundary\r\n"
+                . "Content-Type: $mimeType; name=\"$filename\"\r\n"
+                . "Content-Transfer-Encoding: base64\r\n"
+                . "Content-Disposition: attachment; filename=\"$filename\"\r\n\r\n"
+                . $encodedData . "\r\n\r\n";
+        }
+
+        $body .= "--$boundary--";
+        $payload = $headers . "\r\n" . $body . "\r\n.";
+    } else {
+        $headers = "MIME-Version: 1.0\r\n"
+            . "From: $encodedFromName <$user>\r\n"
+            . "To: <$to>\r\n"
+            . "Reply-To: $reply\r\n"
+            . "Date: " . date('r') . "\r\n"
+            . "Subject: $encodedSubject\r\n"
+            . "Content-Type: text/html; charset=UTF-8\r\n"
+            . "Content-Transfer-Encoding: 8bit\r\n";
+
+        $payload = $headers . "\r\n" . $htmlBody . "\r\n.";
+    }
+
     fputs($socket, $payload . "\r\n");
     $dataSent = $readResponse($socket);
 
@@ -189,7 +223,7 @@ function sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fro
 /**
  * Pagrindinė funkcija: siunčia el. laišką per SMTP (arba per PHP mail)
  */
-function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gmail.com', $fromName = 'ThrowHouse Šiauliai') {
+function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gmail.com', $fromName = 'ThrowHouse Šiauliai', $attachments = []) {
     if (empty($to) || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
@@ -203,8 +237,9 @@ function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gm
         $user = $cfg['smtp_user'] ?: 'throwhousee@gmail.com';
         $pass = trim($cfg['smtp_pass']);
 
-        $res = sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fromName, $replyTo);
-        $log = date('Y-m-d H:i:s') . " | SMTP | TO: $to | SUB: $subject | RES: " . ($res['success'] ? 'OK' : 'FAIL: ' . ($res['error'] ?? '')) . "\n";
+        $res = sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fromName, $replyTo, $attachments);
+        $attCount = !empty($attachments) ? count($attachments) : 0;
+        $log = date('Y-m-d H:i:s') . " | SMTP | TO: $to | ATT: $attCount | SUB: $subject | RES: " . ($res['success'] ? 'OK' : 'FAIL: ' . ($res['error'] ?? '')) . "\n";
         @file_put_contents(__DIR__ . '/mail_log.txt', $log, FILE_APPEND);
 
         if ($res['success']) {
@@ -221,16 +256,49 @@ function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gm
     $encodedFromName = "=?UTF-8?B?" . base64_encode($fromName) . "?=";
     $fromEmail = "noreply@" . $serverHost;
 
-    $headers = "MIME-Version: 1.0\r\n"
-        . "From: $encodedFromName <$fromEmail>\r\n"
-        . "Reply-To: $replyTo\r\n"
-        . "Date: " . date('r') . "\r\n"
-        . "Content-Type: text/html; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: 8bit\r\n";
+    if (!empty($attachments) && is_array($attachments)) {
+        $boundary = "==Multipart_Boundary_x" . md5(time() . mt_rand()) . "x";
+        $headers = "MIME-Version: 1.0\r\n"
+            . "From: $encodedFromName <$fromEmail>\r\n"
+            . "Reply-To: $replyTo\r\n"
+            . "Date: " . date('r') . "\r\n"
+            . "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
 
-    $sent = @mail($to, $encodedSubject, $htmlBody, $headers);
-    if (!$sent) {
-        $sent = @mail($to, $encodedSubject, $htmlBody, $headers, "-f" . $fromEmail);
+        $mailBody = "--$boundary\r\n"
+            . "Content-Type: text/html; charset=UTF-8\r\n"
+            . "Content-Transfer-Encoding: 8bit\r\n\r\n"
+            . $htmlBody . "\r\n\r\n";
+
+        foreach ($attachments as $att) {
+            $filename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $att['filename'] ?? 'dokumentas.pdf');
+            $mimeType = $att['type'] ?? 'application/pdf';
+            $data = $att['data'] ?? '';
+            $encodedData = chunk_split(base64_encode($data));
+
+            $mailBody .= "--$boundary\r\n"
+                . "Content-Type: $mimeType; name=\"$filename\"\r\n"
+                . "Content-Transfer-Encoding: base64\r\n"
+                . "Content-Disposition: attachment; filename=\"$filename\"\r\n\r\n"
+                . $encodedData . "\r\n\r\n";
+        }
+        $mailBody .= "--$boundary--";
+
+        $sent = @mail($to, $encodedSubject, $mailBody, $headers);
+        if (!$sent) {
+            $sent = @mail($to, $encodedSubject, $mailBody, $headers, "-f" . $fromEmail);
+        }
+    } else {
+        $headers = "MIME-Version: 1.0\r\n"
+            . "From: $encodedFromName <$fromEmail>\r\n"
+            . "Reply-To: $replyTo\r\n"
+            . "Date: " . date('r') . "\r\n"
+            . "Content-Type: text/html; charset=UTF-8\r\n"
+            . "Content-Transfer-Encoding: 8bit\r\n";
+
+        $sent = @mail($to, $encodedSubject, $htmlBody, $headers);
+        if (!$sent) {
+            $sent = @mail($to, $encodedSubject, $htmlBody, $headers, "-f" . $fromEmail);
+        }
     }
 
     $logMsg = date('Y-m-d H:i:s') . " | PHP_MAIL | TO: $to | SUB: $subject | RES: " . ($sent ? 'OK' : 'FAIL') . "\n";
@@ -669,15 +737,16 @@ function renderRescheduledReservationClientHtml($res, $oldDate = '', $oldTime = 
 // =========================================================================
 
 /**
- * 5. Dovanų kupono HTML gavėjui (draugui arba pirkėjui, jei pirko sau)
+ * 5. Dovanų kupono HTML gavėjui (pirkėjui)
  */
 function renderVoucherHtml($coupon) {
     $code = htmlspecialchars($coupon['code'] ?? '');
     $amount = htmlspecialchars($coupon['amount'] ?? 30);
     $expiresAt = htmlspecialchars($coupon['expires_at'] ?? '');
+    $baseUrl = getThrowHouseBaseUrl();
 
     $introGreeting = '<p style="font-size: 16px; margin-top: 0;">Sveiki!</p>
-    <p style="font-size: 15px; color: #334155;">Nuoširdžiai dėkojame, kad įsigijote pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą! Žemiau pateikiamas Jūsų kuponas:</p>';
+    <p style="font-size: 15px; color: #334155;">Nuoširdžiai dėkojame, kad įsigijote pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą!</p>';
 
     return '<!DOCTYPE html>
 <html>
@@ -686,26 +755,35 @@ function renderVoucherHtml($coupon) {
   <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
     
     <!-- HEADER -->
-    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #f59e0b;">
-      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #ff6a00;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #ff6a00; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
       <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Oficialus Dovanų Kuponas</p>
     </div>
 
     <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
       ' . $introGreeting . '
 
-      <!-- KUPONO KORTELĖ -->
-      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 24px; color: #ffffff; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2);">
-        <span style="font-size: 12px; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">OFICIALUS DOVANŲ KUPONAS</span>
-        <div style="font-size: 42px; font-weight: 900; color: #ff6a00; line-height: 1; margin: 8px 0 14px 0;">
+      <!-- PRISEGTO PDF PRANEŠIMAS -->
+      <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px 16px; margin: 16px 0; color: #065f46; font-size: 14px; text-align: center;">
+        📎 <strong>Oficialus dovanų kuponas A4 PDF formatu yra prisegtas prie šio laiško!</strong><br>
+        <span style="font-size: 13px; color: #047857;">(Failo pavadinimas: <strong>ThrowHouse_Kuponas_' . $code . '.pdf</strong>)</span>
+      </div>
+
+      <!-- KUPONO KORTELĖ (ŠVIESI, MODERNI) -->
+      <div style="background: #ffffff; border: 2px solid #ff6a00; border-radius: 14px; padding: 24px; color: #0f172a; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(255, 106, 0, 0.15);">
+        <span style="font-size: 12px; color: #ff6a00; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">OFICIALUS DOVANŲ SERTIFIKATAS</span>
+        <div style="font-size: 26px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 6px;">
+          DOVANŲ KUPONAS
+        </div>
+        <div style="font-size: 46px; font-weight: 900; color: #ff6a00; line-height: 1; margin: 10px 0 14px 0;">
           ' . $amount . ' €
         </div>
-        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px;">UNIKALUS KUPONO KODAS</div>
-        <div style="font-size: 24px; font-weight: 900; letter-spacing: 3px; font-family: monospace; color: #ffffff; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 8px; display: inline-block; border: 1px dashed rgba(245, 158, 11, 0.5); margin-bottom: 12px;">
+        <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px;">UNIKALUS KUPONO KODAS</div>
+        <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px; font-family: monospace; color: #0f172a; background: #f8fafc; padding: 8px 18px; border-radius: 8px; display: inline-block; border: 2px dashed #ff6a00; margin-bottom: 12px;">
           ' . $code . '
         </div>
-        <div style="font-size: 13px; color: #94a3b8;">
-          Galioja 6 mėnesius iki: <strong style="color: #ffffff;">' . $expiresAt . '</strong>
+        <div style="font-size: 13px; color: #64748b;">
+          Galioja 6 mėnesius iki: <strong style="color: #0f172a;">' . $expiresAt . '</strong>
         </div>
       </div>
 
@@ -713,31 +791,32 @@ function renderVoucherHtml($coupon) {
       <div style="text-align: center; margin: 18px 0 24px 0;">
         <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
           <tr>
-            <td align="center" bgcolor="#f59e0b" style="border-radius: 8px;">
-              <a href="' . getThrowHouseBaseUrl() . '/kuponas_print.php?code=' . urlencode($code) . '&print=1" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #f59e0b; color: #000000 !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; text-align: center; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
-                🖨️ Atsisiųsti PDF / Spausdinti kuponą (A4) ➔
+            <td align="center" bgcolor="#ff6a00" style="border-radius: 8px;">
+              <a href="' . $baseUrl . '/kuponas_print.php?code=' . urlencode($code) . '&download=1" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #ff6a00; color: #ffffff !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; text-align: center; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(255, 106, 0, 0.4);">
+                📥 Atsisiųsti kuponą PDF formatu (A4) ➔
               </a>
             </td>
           </tr>
         </table>
-        <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
-          Galite atsispausdinti A4 formatu ant popieriaus arba išsisaugoti kaip PDF failą
+        <div style="font-size: 12px; color: #64748b; margin-top: 10px;">
+          Taip pat galite <a href="' . $baseUrl . '/kuponas_print.php?code=' . urlencode($code) . '" target="_blank" style="color: #ff6a00; font-weight: bold; text-decoration: underline;">atidaryti ir atsispausdinti naršyklėje</a>
         </div>
       </div>
 
-      <!-- INSTRUKCIJA KAIP PANAUDOTI -->
-      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
-        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📌 REZERVACIJA TIK ASMENIŠKAI SUSISIEKUS:</span>
-        <p style="margin: 0; font-size: 14px; color: #475569; line-height: 1.5;">
-          Su dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
-          Paskambinkite arba parašykite ir nurodykite savo kupono kodą <strong>' . $code . '</strong>:<br>
+      <!-- INSTRUKCIJA: REZERVACIJA TIK ASMENIŠKAI -->
+      <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #ff6a00; border-radius: 0 10px 10px 0; padding: 16px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #92400e; margin-bottom: 8px; font-size: 15px; display: block;">⚠️ REZERVACIJA TIK ASMENIŠKAI SUSISIEKUS:</span>
+        <p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.5;">
+          Su šiuo dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
+          Paskambinkite arba parašykite ir nurodykite kupono kodą <strong>' . $code . '</strong>:<br>
           📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: bold; text-decoration: none;">+370 619 88009</a><br>
           ✉️ El. paštu: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; font-weight: bold; text-decoration: none;">throwhousee@gmail.com</a>
         </p>
       </div>
 
-      <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0; font-size: 14px; color: #78350f;">
-        <strong>📍 Mūsų adresas:</strong> Pramonės g. 15, Šiauliai (2-as aukštas, įėjimas pro duris „Floristika“).
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin: 18px 0; font-size: 14px; color: #475569;">
+        <strong>📍 Mūsų adresas:</strong> Pramonės g. 15, Šiauliai (2-as aukštas, įėjimas pro duris „Floristika“).<br>
+        <strong>👟 Avalynė:</strong> Saugumui užtikrinti visiems dalyviams būtina patogi, visiškai uždara avalynė.
       </div>
     </div>
 
