@@ -1,0 +1,9 @@
+# Serverio duomenų bazių failai (apsauga, kad Git niekada neperrašytų serverio duomenų)
+rezervacijos_db.json
+kuponai_db.json
+*_backup.json
+kontaktai_log.txt
+
+# Laikini failai
+.DS_Store
+Thumbs.db

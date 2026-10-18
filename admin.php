@@ -1,4 +1,11 @@
 <?php
+// Griežtas talpyklos (cache) draudimas naršyklei ir Hostinger LiteSpeed serveriui
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: 0");
+header("X-LiteSpeed-Cache-Control: no-cache, no-store");
+
 session_start();
 
 // Administratoriaus slaptažodis (galite bet kada pakeisti)
@@ -22,19 +29,74 @@ if (isset($_POST['login_pass'])) {
     }
 }
 
-// Failai duomenų saugojimui
-$resFile = __DIR__ . '/rezervacijos.json';
-$kupFile = __DIR__ . '/kuponai.json';
+// Failai duomenų saugojimui (pirminis ir apsaugotas DB failas, kurio Git niekada neperrašo)
+$resFile   = __DIR__ . '/rezervacijos.json';
+$resDbFile = __DIR__ . '/rezervacijos_db.json';
+$kupFile   = __DIR__ . '/kuponai.json';
+$kupDbFile = __DIR__ . '/kuponai_db.json';
 
-// Pagalbinės funkcijos
-function loadData($file) {
-    if (!file_exists($file)) return [];
-    $data = json_decode(file_get_contents($file), true);
+// Saugus duomenų įrašymas su teisių užtikrinimu ir LOCK_EX
+function saveData($file, $data) {
+    if (file_exists($file)) {
+        @chmod($file, 0666);
+    }
+    $json = json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $res = @file_put_contents($file, $json, LOCK_EX);
+    if ($res === false) {
+        $res = @file_put_contents($file, $json);
+    }
+    if ($res !== false) {
+        @chmod($file, 0666);
+    } else {
+        error_log("THROW_HOUSE: Nepavyko įrašyti į failą: " . $file);
+    }
+    return $res !== false;
+}
+
+// Atsparus duomenų užkrovimas: jei rezervacijos.json buvo perrašytas Git repozitorijos, atkuriame iš rezervacijos_db.json
+function loadReservationsData($resFile, $resDbFile) {
+    $main = file_exists($resFile) ? (json_decode(@file_get_contents($resFile), true) ?: []) : [];
+    $db = file_exists($resDbFile) ? (json_decode(@file_get_contents($resDbFile), true) ?: []) : [];
+
+    // Prioritetas failui su daugiau įrašų (kad Git deploy niekada neištrintų sukurtų rezervacijų)
+    if (count($db) > count($main)) {
+        $data = $db;
+        saveData($resFile, $data); // Atstatome ir rezervacijos.json
+    } elseif (!empty($main)) {
+        $data = $main;
+        saveData($resDbFile, $data); // Sinchronizuojame į rezervacijos_db.json
+    } else {
+        $data = !empty($db) ? $db : [];
+    }
     return is_array($data) ? $data : [];
 }
 
-function saveData($file, $data) {
-    file_put_contents($file, json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+function saveReservationsData($resFile, $resDbFile, $data) {
+    $r1 = saveData($resFile, $data);
+    $r2 = saveData($resDbFile, $data);
+    return ($r1 || $r2);
+}
+
+function loadCouponsData($kupFile, $kupDbFile) {
+    $main = file_exists($kupFile) ? (json_decode(@file_get_contents($kupFile), true) ?: []) : [];
+    $db = file_exists($kupDbFile) ? (json_decode(@file_get_contents($kupDbFile), true) ?: []) : [];
+
+    if (count($db) > count($main)) {
+        $data = $db;
+        saveData($kupFile, $data);
+    } elseif (!empty($main)) {
+        $data = $main;
+        saveData($kupDbFile, $data);
+    } else {
+        $data = !empty($db) ? $db : [];
+    }
+    return is_array($data) ? $data : [];
+}
+
+function saveCouponsData($kupFile, $kupDbFile, $data) {
+    $r1 = saveData($kupFile, $data);
+    $r2 = saveData($kupDbFile, $data);
+    return ($r1 || $r2);
 }
 
 // Datos konvertavimo pagalbininkas
@@ -57,10 +119,22 @@ function normalizeIso($dateStr) {
     return $ts ? date('Y-m-d', $ts) : date('Y-m-d');
 }
 
+// Pagalbinė funkcija: ar įrašas yra administratoriaus uždarytas laikas (nedirbame blokas)
+function isReservationBlock($r) {
+    if (!empty($r['is_block'])) return true;
+    if (($r['status'] ?? '') === 'Uždaryta') return true;
+    if (str_starts_with($r['id'] ?? '', 'BLOCK-')) return true;
+    $act = $r['activity'] ?? '';
+    if (stripos($act, 'Uždaryt') !== false) return true;
+    $name = $r['name'] ?? '';
+    if (stripos($name, 'Uždarytas') !== false || stripos($name, 'Nedirbame') !== false) return true;
+    return false;
+}
+
 // Jei prisijungęs - apdoroti veiksmus
 if (!empty($_SESSION['admin_logged'])) {
-    $reservations = loadData($resFile);
-    $coupons = loadData($kupFile);
+    $reservations = loadReservationsData($resFile, $resDbFile);
+    $coupons = loadCouponsData($kupFile, $kupDbFile);
 
     // 1. Keisti rezervacijos statusą
     if (isset($_POST['action']) && $_POST['action'] === 'update_res_status') {
@@ -75,7 +149,8 @@ if (!empty($_SESSION['admin_logged'])) {
                 break;
             }
         }
-        saveData($resFile, $reservations);
+        saveReservationsData($resFile, $resDbFile, $reservations);
+        $_SESSION['admin_flash'] = "Rezervacijos ($resId) statusas sėkmingai atnaujintas į: $newStatus";
         header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
         exit;
     }
@@ -89,7 +164,8 @@ if (!empty($_SESSION['admin_logged'])) {
         $reservations = array_values(array_filter($reservations, function($r) use ($delId) {
             return ($r['id'] ?? '') !== $delId;
         }));
-        saveData($resFile, $reservations);
+        saveReservationsData($resFile, $resDbFile, $reservations);
+        $_SESSION['admin_flash'] = "Įrašas ($delId) sėkmingai ištrintas.";
         header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
         exit;
     }
@@ -130,7 +206,8 @@ if (!empty($_SESSION['admin_logged'])) {
             'price' => $mPrice,
             'status' => 'Patvirtinta'
         ];
-        saveData($resFile, $reservations);
+        saveReservationsData($resFile, $resDbFile, $reservations);
+        $_SESSION['admin_flash'] = "Nauja rezervacija ($newId) sėkmingai sukurta $mIsoDate $mTime!";
         header('Location: admin.php?tab=kalendorius&date=' . urlencode($mIsoDate));
         exit;
     }
@@ -145,7 +222,8 @@ if (!empty($_SESSION['admin_logged'])) {
                 break;
             }
         }
-        saveData($kupFile, $coupons);
+        saveCouponsData($kupFile, $kupDbFile, $coupons);
+        $_SESSION['admin_flash'] = "Kupono ($code) būsena sėkmingai atnaujinta.";
         header('Location: admin.php?tab=kuponai');
         exit;
     }
@@ -164,7 +242,8 @@ if (!empty($_SESSION['admin_logged'])) {
             'expires_at' => date('Y-m-d', strtotime('+6 months')),
             'status' => 'Aktyvus'
         ];
-        saveData($kupFile, $coupons);
+        saveCouponsData($kupFile, $kupDbFile, $coupons);
+        $_SESSION['admin_flash'] = "Naujas dovanų kuponas ($newCode) sėkmingai sukurtas!";
         header('Location: admin.php?tab=kuponai');
         exit;
     }
@@ -202,6 +281,7 @@ if (!empty($_SESSION['admin_logged'])) {
                 }
                 return false; // 'all' -> šalina visus šios valandos blokus
             }));
+            $_SESSION['admin_flash'] = "Valanda $targetHourStr ($targetDate) sėkmingai ATIDARYTA!";
         } else {
             // UŽDARYTI LAIKĄ: sukuriame bloko įrašą
             $blockId = 'BLOCK-' . strtoupper(substr(uniqid(), -6));
@@ -231,9 +311,10 @@ if (!empty($_SESSION['admin_logged'])) {
                 'is_block' => true,
                 'note' => 'Uždaryta administratoriaus rankiniu būdu'
             ];
+            $_SESSION['admin_flash'] = "Valanda $targetHourStr ($targetDate) sėkmingai UŽDARYTA (Nedirbame)!";
         }
 
-        saveData($resFile, $reservations);
+        saveReservationsData($resFile, $resDbFile, $reservations);
         header('Location: admin.php?tab=' . urlencode($redirectTab) . '&date=' . urlencode($redirectDate));
         exit;
     }
@@ -288,9 +369,12 @@ if (!empty($_SESSION['admin_logged'])) {
                     'note' => 'Visa diena uždaryta administratoriaus'
                 ];
             }
+            $_SESSION['admin_flash'] = "Visa diena ($targetDate) sėkmingai UŽDARYTA (Nedirbame)!";
+        } else {
+            $_SESSION['admin_flash'] = "Visa diena ($targetDate) sėkmingai ATIDARYTA darbui!";
         }
 
-        saveData($resFile, $reservations);
+        saveReservationsData($resFile, $resDbFile, $reservations);
         header('Location: admin.php?tab=' . urlencode($redirectTab) . '&date=' . urlencode($redirectDate));
         exit;
     }
@@ -315,10 +399,14 @@ if (!empty($_SESSION['admin_logged'])) {
                 $r['time'] = htmlspecialchars(trim($_POST['e_time'] ?? $r['time']));
                 $r['price'] = htmlspecialchars(trim($_POST['e_price'] ?? $r['price']));
                 $r['status'] = htmlspecialchars(trim($_POST['e_status'] ?? $r['status']));
+                if (!empty($r['iso_date'])) {
+                    $redirectDate = $r['iso_date'];
+                }
                 break;
             }
         }
-        saveData($resFile, $reservations);
+        saveReservationsData($resFile, $resDbFile, $reservations);
+        $_SESSION['admin_flash'] = "Rezervacija ($editId) sėkmingai atnaujinta!";
         header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
         exit;
     }
@@ -722,17 +810,6 @@ if (!empty($_SESSION['admin_logged'])) {
 
 <?php else: 
   // Atskiriame tikras klientų rezervacijas nuo administratoriaus uždarytų laikų (nedirbame)
-  function isReservationBlock($r) {
-    if (!empty($r['is_block'])) return true;
-    if (($r['status'] ?? '') === 'Uždaryta') return true;
-    if (str_starts_with($r['id'] ?? '', 'BLOCK-')) return true;
-    $act = $r['activity'] ?? '';
-    if (stripos($act, 'Uždaryt') !== false) return true;
-    $name = $r['name'] ?? '';
-    if (stripos($name, 'Uždarytas') !== false || stripos($name, 'Nedirbame') !== false) return true;
-    return false;
-  }
-
   $clientReservations = array_values(array_filter($reservations, fn($r) => !isReservationBlock($r)));
   $closedBlocks = array_values(array_filter($reservations, fn($r) => isReservationBlock($r)));
 
@@ -760,6 +837,27 @@ if (!empty($_SESSION['admin_logged'])) {
   </header>
 
   <div class="container">
+    <?php if (!empty($_SESSION['admin_flash'])): ?>
+      <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.2rem;">✅</span>
+          <span><?= htmlspecialchars($_SESSION['admin_flash']) ?></span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#4ade80; font-size:1.2rem; cursor:pointer;">&times;</button>
+      </div>
+      <?php unset($_SESSION['admin_flash']); ?>
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['admin_flash_error'])): ?>
+      <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.2rem;">⚠️</span>
+          <span><?= htmlspecialchars($_SESSION['admin_flash_error']) ?></span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#f87171; font-size:1.2rem; cursor:pointer;">&times;</button>
+      </div>
+      <?php unset($_SESSION['admin_flash_error']); ?>
+    <?php endif; ?>
     
     <!-- STATISTIKA -->
     <div class="stats-grid">
@@ -1253,8 +1351,12 @@ if (!empty($_SESSION['admin_logged'])) {
     ];
     const LT_WEEKDAYS = ['Sekmadienis', 'Pirmadienis', 'Antradienis', 'Trečiadienis', 'Ketvirtadienis', 'Penktadienis', 'Šeštadienis'];
 
-    let adminCalDate = new Date();
     let selectedIsoDate = "<?= htmlspecialchars($initialSelectedDate) ?>";
+    let adminCalDate = new Date();
+    if (selectedIsoDate && /^\d{4}-\d{2}-\d{2}$/.test(selectedIsoDate)) {
+      const p = selectedIsoDate.split('-');
+      adminCalDate = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, 1);
+    }
 
     // Mėnesio perjungimas
     function adminPrevMonth() {

@@ -2,7 +2,10 @@
 date_default_timezone_set('Europe/Vilnius');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
+header('Expires: 0');
+header('X-LiteSpeed-Cache-Control: no-cache, no-store');
 
 // Pagalbinė funkcija: lietuviškos datos konvertavimas į ISO YYYY-MM-DD
 function normalizeDateToIso($dateStr) {
@@ -26,16 +29,51 @@ function normalizeDateToIso($dateStr) {
     return $ts ? date('Y-m-d', $ts) : date('Y-m-d');
 }
 
-$dataFile = __DIR__ . '/rezervacijos.json';
+$dataFile   = __DIR__ . '/rezervacijos.json';
+$dataDbFile = __DIR__ . '/rezervacijos_db.json';
+
+function saveResData($file, $data) {
+    if (file_exists($file)) {
+        @chmod($file, 0666);
+    }
+    $json = json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $res = @file_put_contents($file, $json, LOCK_EX);
+    if ($res === false) {
+        $res = @file_put_contents($file, $json);
+    }
+    if ($res !== false) {
+        @chmod($file, 0666);
+    }
+    return $res !== false;
+}
+
+function loadAllReservations($dataFile, $dataDbFile) {
+    $main = file_exists($dataFile) ? (json_decode(@file_get_contents($dataFile), true) ?: []) : [];
+    $db = file_exists($dataDbFile) ? (json_decode(@file_get_contents($dataDbFile), true) ?: []) : [];
+
+    if (count($db) > count($main)) {
+        $data = $db;
+        saveResData($dataFile, $data);
+    } elseif (!empty($main)) {
+        $data = $main;
+        saveResData($dataDbFile, $data);
+    } else {
+        $data = !empty($db) ? $db : [];
+    }
+    return is_array($data) ? $data : [];
+}
+
+function saveAllReservations($dataFile, $dataDbFile, $data) {
+    $r1 = saveResData($dataFile, $data);
+    $r2 = saveResData($dataDbFile, $data);
+    return ($r1 || $r2);
+}
 
 // =========================================================================
 // 1. GET užklausa: gražinti užimtų laikų žemėlapį kalendoriui ir formoms
 // =========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $all = [];
-    if (file_exists($dataFile)) {
-        $all = json_decode(file_get_contents($dataFile), true) ?: [];
-    }
+    $all = loadAllReservations($dataFile, $dataDbFile);
 
     $bookedMap = [];
     foreach ($all as $r) {
@@ -163,11 +201,7 @@ if (!$name || !$phone || !$email || !$date || !$time) {
 }
 
 // Esamų rezervacijų užkrovimas
-$all = [];
-if (file_exists($dataFile)) {
-    $content = file_get_contents($dataFile);
-    $all = json_decode($content, true) ?: [];
-}
+$all = loadAllReservations($dataFile, $dataDbFile);
 
 // -------------------------------------------------------------
 // APSAUGA NUO PRAĖJUSIO LAIKO, PRAEITIES DATŲ IR 2 MĖNESIŲ LIMITAS
@@ -375,7 +409,7 @@ $reservation = [
 ];
 
 $all[] = $reservation;
-file_put_contents($dataFile, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+saveAllReservations($dataFile, $dataDbFile, $all);
 
 // -------------------------------------------------------------
 // 4. Tekstinis patvirtinimas klientui (FormSubmit Autoresponse)
