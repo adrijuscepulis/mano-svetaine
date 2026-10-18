@@ -243,14 +243,39 @@ if (!empty($_SESSION['admin_logged'])) {
         $redirectTab = $_POST['redirect_tab'] ?? 'kalendorius';
         $redirectDate = $_POST['redirect_date'] ?? '';
 
+        $updatedRes = null;
+        $prevStatus = '';
         foreach ($reservations as &$r) {
             if ($r['id'] === $resId) {
+                $prevStatus = $r['status'] ?? '';
                 $r['status'] = $newStatus;
+                $updatedRes = $r;
                 break;
             }
         }
         saveReservationsData($resFile, $resDbFile, $reservations);
-        $_SESSION['admin_flash'] = "Rezervacijos ($resId) statusas sėkmingai atnaujintas į: $newStatus";
+
+        $mailNotice = '';
+        // Jei statusas pakeistas į „Atšaukta“ – išsiunčiame pranešimą klientui
+        if ($updatedRes && !empty($updatedRes['email']) && ($newStatus === 'Atšaukta' || $newStatus === 'Atsaukta')) {
+            require_once __DIR__ . '/email_helper.php';
+            $cancelHtml = renderCancelledReservationClientHtml($updatedRes);
+            $cancelSub = "Rezervacija atšaukta [{$updatedRes['id']}] – ThrowHouse Šiauliai";
+            $sent = sendThrowHouseMail($updatedRes['email'], $cancelSub, $cancelHtml);
+
+            sendFormSubmitRelay([
+                'Užsakymo_ID' => $updatedRes['id'],
+                'Būsena' => 'ATŠAUKTA (Administratorius)',
+                'Klientas' => $updatedRes['name'] ?? '',
+                'Data' => $updatedRes['date'] ?? '',
+                'Laikas' => $updatedRes['time'] ?? '',
+                '_subject' => "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}"
+            ]);
+
+            $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui į {$updatedRes['email']}." : "";
+        }
+
+        $_SESSION['admin_flash'] = "Rezervacijos ($resId) statusas sėkmingai atnaujintas į: $newStatus.$mailNotice";
         header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
         exit;
     }
@@ -485,8 +510,17 @@ if (!empty($_SESSION['admin_logged'])) {
         $redirectTab = $_POST['redirect_tab'] ?? 'kalendorius';
         $redirectDate = $_POST['redirect_date'] ?? '';
 
+        $updatedRes = null;
+        $oldDate = '';
+        $oldTime = '';
+        $oldStatus = '';
+
         foreach ($reservations as &$r) {
             if (($r['id'] ?? '') === $editId) {
+                $oldDate = $r['date'] ?? '';
+                $oldTime = $r['time'] ?? '';
+                $oldStatus = $r['status'] ?? '';
+
                 $r['name'] = htmlspecialchars(trim($_POST['e_name'] ?? $r['name']));
                 $r['phone'] = htmlspecialchars(trim($_POST['e_phone'] ?? $r['phone']));
                 $r['email'] = htmlspecialchars(trim($_POST['e_email'] ?? $r['email']));
@@ -494,19 +528,63 @@ if (!empty($_SESSION['admin_logged'])) {
                 $r['lane'] = htmlspecialchars(trim($_POST['e_lane'] ?? ($r['lane'] ?? '')));
                 $r['count'] = intval($_POST['e_count'] ?? ($r['count'] ?? 1));
                 $newDate = htmlspecialchars(trim($_POST['e_date'] ?? $r['date']));
+                $newTime = htmlspecialchars(trim($_POST['e_time'] ?? $r['time']));
+                $newStatus = htmlspecialchars(trim($_POST['e_status'] ?? $r['status']));
                 $r['date'] = $newDate;
                 $r['iso_date'] = normalizeIso($newDate);
-                $r['time'] = htmlspecialchars(trim($_POST['e_time'] ?? $r['time']));
+                $r['time'] = $newTime;
                 $r['price'] = htmlspecialchars(trim($_POST['e_price'] ?? $r['price']));
-                $r['status'] = htmlspecialchars(trim($_POST['e_status'] ?? $r['status']));
+                $r['status'] = $newStatus;
                 if (!empty($r['iso_date'])) {
                     $redirectDate = $r['iso_date'];
                 }
+                $updatedRes = $r;
                 break;
             }
         }
         saveReservationsData($resFile, $resDbFile, $reservations);
-        $_SESSION['admin_flash'] = "Rezervacija ($editId) sėkmingai atnaujinta!";
+
+        $mailNotice = '';
+        if ($updatedRes && !empty($updatedRes['email'])) {
+            require_once __DIR__ . '/email_helper.php';
+            // A. Jei statusas pakeistas į Atšaukta
+            if (($newStatus === 'Atšaukta' || $newStatus === 'Atsaukta') && ($oldStatus !== 'Atšaukta' && $oldStatus !== 'Atsaukta')) {
+                $cancelHtml = renderCancelledReservationClientHtml($updatedRes);
+                $cancelSub = "Rezervacija atšaukta [{$updatedRes['id']}] – ThrowHouse Šiauliai";
+                $sent = sendThrowHouseMail($updatedRes['email'], $cancelSub, $cancelHtml);
+
+                sendFormSubmitRelay([
+                    'Užsakymo_ID' => $updatedRes['id'],
+                    'Būsena' => 'ATŠAUKTA (Administratoriaus pultas)',
+                    'Klientas' => $updatedRes['name'] ?? '',
+                    'Data' => $updatedRes['date'] ?? '',
+                    'Laikas' => $updatedRes['time'] ?? '',
+                    '_subject' => "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}"
+                ]);
+
+                $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui ({$updatedRes['email']})." : "";
+            } elseif ($newDate !== $oldDate || $newTime !== $oldTime) {
+                // B. Jei pakeista data arba laikas
+                $rescheduleHtml = renderRescheduledReservationClientHtml($updatedRes, $oldDate, $oldTime);
+                $rescheduleSub = "Atnaujintas rezervacijos laikas [{$updatedRes['id']}] – ThrowHouse Šiauliai";
+                $sent = sendThrowHouseMail($updatedRes['email'], $rescheduleSub, $rescheduleHtml);
+
+                sendFormSubmitRelay([
+                    'Užsakymo_ID' => $updatedRes['id'],
+                    'Būsena' => 'PAKEISTAS LAIKAS (Administratorius)',
+                    'Klientas' => $updatedRes['name'] ?? '',
+                    'Nauja_Data' => $newDate,
+                    'Naujas_Laikas' => $newTime,
+                    'Buvusi_Data' => $oldDate,
+                    'Buvęs_Laikas' => $oldTime,
+                    '_subject' => "🕒 Pakeistas rezervacijos laikas [{$updatedRes['id']}]: {$updatedRes['name']} ($newDate $newTime)"
+                ]);
+
+                $mailNotice = $sent ? " Pranešimas apie naują laiką išsiųstas klientui ({$updatedRes['email']})." : "";
+            }
+        }
+
+        $_SESSION['admin_flash'] = "Rezervacija ($editId) sėkmingai atnaujinta!$mailNotice";
         header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
         exit;
     }

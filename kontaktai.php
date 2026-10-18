@@ -105,25 +105,13 @@ $adminHtmlBody = '<!DOCTYPE html>
 </body>
 </html>';
 
-// =============================================================
-// 2. Tiesioginis serverio PHP mail()
-// =============================================================
-$headersCommon = "MIME-Version: 1.0\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n"
-    . "Content-Transfer-Encoding: 8bit\r\n"
-    . "X-Mailer: PHP/" . phpversion() . "\r\n";
+require_once __DIR__ . '/email_helper.php';
 
-// 1) Siunčiame administratoriui
-$headersAdmin = $headersCommon
-    . "From: ThrowHouse Kontaktai <throwhousee@gmail.com>\r\n"
-    . "Reply-To: $name <$email>\r\n";
+// 1. Siunčiame administratoriui per PHP mail()
+$adminSent = sendThrowHouseMail('throwhousee@gmail.com', $emailSubject, $adminHtmlBody, $email, 'ThrowHouse Kontaktai');
 
-$adminSent = @mail("throwhousee@gmail.com", $emailSubject, $adminHtmlBody, $headersAdmin);
-
-// =============================================================
-// 3. Patvirtinimo laiškas klientui
-// =============================================================
-$clientSub = "=?UTF-8?B?" . base64_encode("Gavome Jūsų užklausą – ThrowHouse Šiauliai") . "?=";
+// 2. Patvirtinimo laiškas klientui
+$clientSub = "Gavome Jūsų užklausą – ThrowHouse Šiauliai";
 $clientHtml = '<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -139,7 +127,7 @@ $clientHtml = '<!DOCTYPE html>
       <p>Mūsų komanda peržiūrės Jūsų užklausą ir atsakys Jums kaip įmanoma greičiau (el. paštu arba telefonu <strong>' . $phone . '</strong>).</p>
       
       <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin: 18px 0; font-size: 14px; color: #475569;">
-        <strong>Skubus klausimas ar Helovyno naktinė rezervacija?</strong><br>
+        <strong>Skubus klausimas?</strong><br>
         Drąsiai skambinkite mums tiesiogiai: <a href="tel:+37061988009" style="color: #ff6a00; font-weight: bold; text-decoration: none;">+370 619 88009</a>.
       </div>
       
@@ -154,14 +142,22 @@ $clientHtml = '<!DOCTYPE html>
 </body>
 </html>';
 
-$headersClient = $headersCommon
-    . "From: ThrowHouse Šiauliai <throwhousee@gmail.com>\r\n"
-    . "Reply-To: throwhousee@gmail.com\r\n";
+$clientSent = sendThrowHouseMail($email, $clientSub, $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
 
-$clientSent = @mail($email, $clientSub, $clientHtml, $headersClient);
+// 3. FormSubmit atsarginis kanalas administratoriui
+sendFormSubmitRelay([
+    'Tema' => $subject,
+    'Vardas' => $name,
+    'Telefonas' => $phone,
+    'El_pastas' => $email,
+    'Zinute' => $message,
+    'email' => $email,
+    '_replyto' => $email,
+    '_subject' => "✉️ Nauja kontakto užklausa [$subject] - $name"
+]);
 
 // Žurnalas diagnostikai
-$logEntry = date('Y-m-d H:i:s') . " | Kontaktai: $subject | $name ($email, $phone) | Admin: " . ($adminSent ? 'OK' : 'FAIL') . " | Client: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
+$logEntry = date('Y-m-d H:i:s') . " | Kontaktai: $subject | $name ($email, $phone) | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
 @file_put_contents(__DIR__ . '/kontaktai_log.txt', $logEntry, FILE_APPEND);
 
 echo json_encode([

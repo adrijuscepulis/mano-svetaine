@@ -1,0 +1,643 @@
+<?php
+// email_helper.php - Vieninga el. laiškų siuntimo ir šablonų sistema „ThrowHouse Šiauliai“
+
+function getThrowHouseBaseUrl() {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'https://';
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
+    return $protocol . $host;
+}
+
+function getThrowHouseSenderEmail() {
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'violet-dove-675017.hostingersite.com';
+    $host = preg_replace('/:[0-9]+$/', '', $host);
+    $host = preg_replace('/^www\./i', '', $host);
+    if (!filter_var('test@' . $host, FILTER_VALIDATE_EMAIL)) {
+        $host = 'violet-dove-675017.hostingersite.com';
+    }
+    return 'noreply@' . $host;
+}
+
+/**
+ * Siunčia reprezentatyvų HTML laišką per PHP mail() su teisingomis antraštėmis
+ */
+function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gmail.com', $fromName = 'ThrowHouse Šiauliai') {
+    if (empty($to) || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+
+    $fromEmail = getThrowHouseSenderEmail();
+    $serverHost = preg_replace('/^noreply@/', '', $fromEmail);
+
+    $encodedSubject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
+    $encodedFromName = "=?UTF-8?B?" . base64_encode($fromName) . "?=";
+
+    $headers = "MIME-Version: 1.0\r\n"
+        . "Date: " . date('r') . "\r\n"
+        . "Message-ID: <th-" . uniqid() . "-" . time() . "@" . $serverHost . ">\r\n"
+        . "From: $encodedFromName <$fromEmail>\r\n"
+        . "Reply-To: $replyTo\r\n"
+        . "Return-Path: <$fromEmail>\r\n"
+        . "Auto-Submitted: auto-generated\r\n"
+        . "X-Mailer: PHP/" . phpversion() . "\r\n"
+        . "Content-Type: text/html; charset=UTF-8\r\n"
+        . "Content-Transfer-Encoding: 8bit\r\n";
+
+    $sent = @mail($to, $encodedSubject, $htmlBody, $headers, "-f" . $fromEmail);
+
+    $logMsg = date('Y-m-d H:i:s') . " | MAIL | TO: $to | SUB: $subject | RES: " . ($sent ? 'OK' : 'FAIL') . "\n";
+    @file_put_contents(__DIR__ . '/mail_log.txt', $logMsg, FILE_APPEND);
+
+    return $sent;
+}
+
+/**
+ * FormSubmit.co atsarginis kanalas – garantuoja 100% pristatymą į throwhousee@gmail.com
+ */
+function sendFormSubmitRelay($data) {
+    if (!function_exists('curl_init')) {
+        return false;
+    }
+
+    $ch = curl_init("https://formsubmit.co/ajax/throwhousee@gmail.com");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'Origin: https://violet-dove-675017.hostingersite.com',
+        'Referer: https://violet-dove-675017.hostingersite.com/'
+    ]);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    curl_setopt($ch, CURLOPT_TIMEOUT, 7);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $resp = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $logMsg = date('Y-m-d H:i:s') . " | FormSubmit Code: $httpCode | Resp: $resp\n";
+    @file_put_contents(__DIR__ . '/mail_log.txt', $logMsg, FILE_APPEND);
+
+    return ($httpCode >= 200 && $httpCode < 300);
+}
+
+// =========================================================================
+// ŠABLONAI: REZERVACIJOS
+// =========================================================================
+
+/**
+ * 1. Naujos rezervacijos patvirtinimas klientui
+ */
+function renderNewReservationClientHtml($res) {
+    $id = htmlspecialchars($res['id'] ?? '');
+    $name = htmlspecialchars($res['name'] ?? '');
+    $activity = htmlspecialchars($res['activity'] ?? '');
+    $lane = htmlspecialchars($res['lane'] ?? '');
+    $count = htmlspecialchars($res['count'] ?? 1);
+    $date = htmlspecialchars($res['date'] ?? '');
+    $time = htmlspecialchars($res['time'] ?? '');
+    $payMethod = htmlspecialchars($res['payment'] ?? 'Elektroninė bankininkystė');
+    $price = htmlspecialchars($res['price'] ?? '');
+    $isKombo = (stripos($activity, 'KOMBO') !== false);
+    $durationLabel = $isKombo ? "2 val. sesija (Kirviai + Pykčio kambarys)" : "1 val. sesija";
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+    
+    <!-- HEADER -->
+    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Rezervacijos patvirtinimas</p>
+      <div style="display:inline-block; background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 5px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-top: 10px;">
+        Užsakymo Nr. ' . $id . '
+      </div>
+    </div>
+
+    <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
+      <p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $name . '</strong>!</p>
+      <p>Nuoširdžiai dėkojame už Jūsų rezervaciją! Užsakymas sėkmingai priimtas ir patvirtintas.</p>
+      
+      <!-- DETALĖS -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 10px; font-size: 15px; display: block;">📋 REZERVACIJOS DUOMENYS:</span>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding: 6px 0; color: #64748b; width: 40%;">Užsakymo numeris:</td><td style="font-weight: 700; color: #d97706;">' . $id . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Pramoga:</td><td style="font-weight: 700; color: #0f172a;">' . $activity . ($lane ? " ($lane)" : "") . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Trukmė:</td><td style="font-weight: 700; color: #d97706;">' . $durationLabel . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Dalyvių skaičius:</td><td style="font-weight: 700; color: #0f172a;">' . $count . ' asm.</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Data ir laikas:</td><td style="font-weight: 800; color: #0f172a; font-size: 15px;">🕒 ' . $date . ' d., ' . $time . ' val.</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Apmokėjimo būdas:</td><td style="font-weight: 700; color: #0f172a;">' . $payMethod . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Suma:</td><td style="font-weight: 800; font-size: 16px; color: #059669;">' . $price . ' <span style="font-size: 12px; font-weight: normal; color: #10b981;">(Apmokėta internetu)</span></td></tr>
+        </table>
+      </div>
+
+      <!-- LOKACIJA -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📍 KUR MUS RASTI:</span>
+        <p style="margin: 0 0 12px 0; font-size: 14px;">
+          Adresas: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong><br>
+          Koordinatės: 55.910730, 23.315700
+        </p>
+        <div style="text-align: center;">
+          <a href="https://www.google.com/maps?q=55.910730,23.315700" style="display:inline-block; background-color:#2563eb; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🗺️ Google Maps žemėlapis</a>
+          <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" style="display:inline-block; background-color:#0284c7; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🚗 Waze navigacija</a>
+        </div>
+      </div>
+
+      <!-- INSTRUKCIJA: ĮĖJIMAS -->
+      <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
+        <strong style="color: #92400e; display: block; margin-bottom: 4px;">🚪 PATEKIMAS Į PATALPAS:</strong>
+        <p style="margin: 0; color: #78350f; font-size: 14px;">
+          Atvykus prie pastato (Pramonės g. 15), maloniai prašome užeiti pro duris, pažymėtas iškaba <strong>„Floristika“</strong>. Patekus į pastato vidų, eikite pro pirmąsias duris kairėje pusėje ir laiptais pakilkite į antrąjį aukštą – čia Jūsų lauks „ThrowHouse“ erdvė.
+        </p>
+      </div>
+
+      <!-- INSTRUKCIJA: AVALYNĖ -->
+      <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
+        <strong style="color: #065f46; display: block; margin-bottom: 4px;">👟 SVARBU – AVALYNĖ IR APRANGA:</strong>
+        <p style="margin: 0; color: #047857; font-size: 14px;">
+          Saugumo sumetimais visiems dalyviams <strong>būtina visiškai uždara avalynė</strong> (sportbačiai ar auliniai batai). Su atvira avalyne (šlepetėmis, basutėmis) dalyvauti griežtai draudžiama. Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame vietoje nemokamai!
+        </p>
+      </div>
+
+      <!-- 24H TAISYKLĖ -->
+      <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
+        <strong style="color: #991b1b; display: block; margin-bottom: 4px;">⏱️ REZERVACIJOS ATŠAUKIMAS (LIKUS 24 VAL.):</strong>
+        <p style="margin: 0; color: #b91c1c; font-size: 14px;">
+          Jei pasikeistų Jūsų planai, maloniai prašome apie rezervacijos atšaukimą arba laiko pakeitimą informuoti <strong>likus ne mažiau kaip 24 valandoms</strong> iki sesijos pradžios.
+        </p>
+      </div>
+
+      <p style="margin-top: 16px; font-size: 14px; color: #475569;">
+        Prašome atvykti likus <strong>5–10 min.</strong> iki rezervuoto laiko trumpam saugumo instruktažui.
+      </p>
+
+      <div style="margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
+        <strong>Kilus bet kokiems klausimams:</strong><br>
+        📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
+        ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; text-decoration:none;">throwhousee@gmail.com</a>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background-color: #f1f5f9; padding: 16px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0;">
+      Iki malonaus susitikimo!<br>
+      <strong>„ThrowHouse Šiauliai“ komanda</strong> · Pramonės g. 15, Šiauliai (2-as a.)
+    </div>
+  </div>
+</body>
+</html>';
+}
+
+/**
+ * 2. Pranešimas administratoriui apie naują rezervaciją
+ */
+function renderNewReservationAdminHtml($res) {
+    $id = htmlspecialchars($res['id'] ?? '');
+    $name = htmlspecialchars($res['name'] ?? '');
+    $phone = htmlspecialchars($res['phone'] ?? '');
+    $email = htmlspecialchars($res['email'] ?? '');
+    $activity = htmlspecialchars($res['activity'] ?? '');
+    $lane = htmlspecialchars($res['lane'] ?? '');
+    $count = htmlspecialchars($res['count'] ?? 1);
+    $date = htmlspecialchars($res['date'] ?? '');
+    $time = htmlspecialchars($res['time'] ?? '');
+    $payMethod = htmlspecialchars($res['payment'] ?? 'Elektroninė bankininkystė');
+    $price = htmlspecialchars($res['price'] ?? '');
+    $baseUrl = getThrowHouseBaseUrl();
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+    
+    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8;">Gauta nauja rezervacija sistemoje</p>
+      <div style="display:inline-block; background-color:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.4); padding:4px 12px; border-radius:20px; font-weight:bold; font-size:13px; margin-top:8px;">
+        Užsakymo Nr. ' . $id . '
+      </div>
+    </div>
+
+    <div style="padding: 24px; font-size: 14px; line-height: 1.6; color: #334155;">
+      
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 8px; display: block;">👤 Kliento kontaktai:</span>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+        <div style="font-size: 18px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">' . $name . '</div>
+        <div style="color: #475569; margin-bottom: 12px; line-height: 1.8;">
+          📞 Tel.: <strong>' . $phone . '</strong><br>
+          ✉️ El. paštas: <strong>' . $email . '</strong>
+        </div>
+        <div style="margin-top: 10px;">
+          <a href="tel:' . $phone . '" style="display:inline-block; background-color:#10b981; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 16px; border-radius:6px; font-size:13px; margin-right:8px; margin-bottom:6px;">📞 Skambinti klientui</a>
+          <a href="mailto:' . $email . '" style="display:inline-block; background-color:#6366f1; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 16px; border-radius:6px; font-size:13px; margin-bottom:6px;">✉️ Rašyti laišką</a>
+        </div>
+      </div>
+
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 8px; display: block;">📋 Užsakymo parametrai:</span>
+      <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b; width: 40%;">Pramoga:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $activity . ($lane ? " ($lane)" : "") . '</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Dalyviai:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $count . ' asm.</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Data:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $date . '</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Laikas:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #b45309; font-weight: 800; font-size: 15px;">🕒 ' . $time . ' val.</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b;">Apmokėjimas:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: bold;">' . $payMethod . '</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b;">Suma:</td>
+            <td style="padding: 8px 0; color: #059669; font-weight: bold; font-size: 16px;">' . $price . ' <span style="font-size:12px; font-weight:normal; color:#10b981;">(Apmokėta internetu)</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin: 26px 0 12px 0;">
+        <a href="' . $baseUrl . '/admin.php?tab=kalendorius" style="display:inline-block; background-color:#0f172a; color:#ffffff; font-weight:bold; text-decoration:none; padding:12px 24px; border-radius:8px; border:1px solid #334155; font-size:14px;" target="_blank">
+          ⚙️ Atidaryti valdymo pultą (admin.php) ➔
+        </a>
+      </div>
+
+    </div>
+    <div style="background-color: #f8fafc; padding: 14px 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+      ThrowHouse Šiauliai · Automatinis pranešimas administratoriams · ' . date('Y-m-d H:i') . '
+    </div>
+  </div>
+</body>
+</html>';
+}
+
+/**
+ * 3. Pranešimas klientui apie ATŠAUKTĄ rezervaciją
+ */
+function renderCancelledReservationClientHtml($res) {
+    $id = htmlspecialchars($res['id'] ?? '');
+    $name = htmlspecialchars($res['name'] ?? '');
+    $activity = htmlspecialchars($res['activity'] ?? '');
+    $date = htmlspecialchars($res['date'] ?? '');
+    $time = htmlspecialchars($res['time'] ?? '');
+    $baseUrl = getThrowHouseBaseUrl();
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+    
+    <!-- HEADER -->
+    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #ef4444;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #f87171; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Rezervacijos atšaukimas</p>
+      <div style="display:inline-block; background-color: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-top: 10px;">
+        ✕ Rezervacija atšaukta
+      </div>
+    </div>
+
+    <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
+      <p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $name . '</strong>!</p>
+      <p>Informuojame, kad Jūsų rezervacija pramogų erdvėje <strong>„ThrowHouse Šiauliai“</strong> buvo <strong>atšaukta</strong>.</p>
+      
+      <!-- DETALĖS -->
+      <div style="background-color: #fef2f2; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; border-radius: 0 10px 10px 0; padding: 16px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #991b1b; margin-bottom: 8px; font-size: 15px; display: block;">📋 ATŠAUKTOS REZERVACIJOS DUOMENYS:</span>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding: 5px 0; color: #7f1d1d; width: 40%;">Užsakymo Nr.:</td><td style="font-weight: 700; color: #0f172a;">' . $id . '</td></tr>
+          <tr><td style="padding: 5px 0; color: #7f1d1d;">Pramoga:</td><td style="font-weight: 700; color: #0f172a;">' . $activity . '</td></tr>
+          <tr><td style="padding: 5px 0; color: #7f1d1d;">Buvęs laikas:</td><td style="font-weight: 700; color: #0f172a;">' . $date . ' d., ' . $time . ' val.</td></tr>
+          <tr><td style="padding: 5px 0; color: #7f1d1d;">Būsena:</td><td style="font-weight: 800; color: #ef4444;">Atšaukta</td></tr>
+        </table>
+      </div>
+
+      <p style="font-size: 14px; color: #475569;">
+        Jeigu rezervaciją atšaukėte patys arba norėtumėte pasirinkti kitą apsilankymo datą bei laiką, maloniai kviečiame apsilankyti mūsų svetainėje ir išsirinkti naują patogų laiką:
+      </p>
+
+      <div style="text-align: center; margin: 24px 0 16px 0;">
+        <a href="' . $baseUrl . '/#rezervacija" style="display:inline-block; background-color: #f59e0b; color: #08050e; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);" target="_blank">
+          📅 Rezervuoti naują laiką svetainėje ➔
+        </a>
+      </div>
+
+      <div style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
+        <strong>Turite klausimų ar norite pasikonsultuoti?</strong><br>
+        📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
+        ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; text-decoration:none;">throwhousee@gmail.com</a>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background-color: #f1f5f9; padding: 16px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0;">
+      Pagarbiai,<br>
+      <strong>„ThrowHouse Šiauliai“ komanda</strong> · Pramonės g. 15, Šiauliai
+    </div>
+  </div>
+</body>
+</html>';
+}
+
+/**
+ * 4. Pranešimas klientui apie PAKEISTĄ rezervacijos laiką
+ */
+function renderRescheduledReservationClientHtml($res, $oldDate = '', $oldTime = '') {
+    $id = htmlspecialchars($res['id'] ?? '');
+    $name = htmlspecialchars($res['name'] ?? '');
+    $activity = htmlspecialchars($res['activity'] ?? '');
+    $lane = htmlspecialchars($res['lane'] ?? '');
+    $count = htmlspecialchars($res['count'] ?? 1);
+    $newDate = htmlspecialchars($res['date'] ?? '');
+    $newTime = htmlspecialchars($res['time'] ?? '');
+    $isKombo = (stripos($activity, 'KOMBO') !== false);
+    $durationLabel = $isKombo ? "2 val. sesija (Kirviai + Pykčio kambarys)" : "1 val. sesija";
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+    
+    <!-- HEADER -->
+    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #3b82f6;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #60a5fa; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Rezervacijos laiko pakeitimas</p>
+      <div style="display:inline-block; background-color: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 5px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-top: 10px;">
+        🕒 Laikas sėkmingai atnaujintas
+      </div>
+    </div>
+
+    <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
+      <p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $name . '</strong>!</p>
+      <p>Informuojame, kad Jūsų rezervacijos laikas „ThrowHouse Šiauliai“ pramogų erdvėje buvo <strong>sėkmingai atnaujintas</strong>.</p>
+      
+      <!-- NAUJAS LAIKAS (RYŠKUS AKCENTAS) -->
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; border-radius: 12px; padding: 20px; margin: 18px 0; border: 1px solid #334155; text-align: center;">
+        <span style="font-size: 12px; color: #f59e0b; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 6px;">NAUJAS REZERVACIJOS LAIKAS:</span>
+        <div style="font-size: 24px; font-weight: 900; color: #fbbf24; margin-bottom: 4px;">
+          📅 ' . $newDate . ' d.
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: #ffffff;">
+          🕒 ' . $newTime . ' val.
+        </div>
+        ' . ($oldDate || $oldTime ? '
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+          (Buvęs laikas: ' . htmlspecialchars($oldDate) . ' d., ' . htmlspecialchars($oldTime) . ' val.)
+        </div>' : '') . '
+      </div>
+
+      <!-- DETALĖS -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 10px; font-size: 15px; display: block;">📋 REZERVACIJOS DUOMENYS:</span>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr><td style="padding: 6px 0; color: #64748b; width: 40%;">Užsakymo Nr.:</td><td style="font-weight: 700; color: #d97706;">' . $id . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Pramoga:</td><td style="font-weight: 700; color: #0f172a;">' . $activity . ($lane ? " ($lane)" : "") . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Trukmė:</td><td style="font-weight: 700; color: #d97706;">' . $durationLabel . '</td></tr>
+          <tr><td style="padding: 6px 0; color: #64748b;">Dalyvių skaičius:</td><td style="font-weight: 700; color: #0f172a;">' . $count . ' asm.</td></tr>
+        </table>
+      </div>
+
+      <!-- INSTRUKCIJA: ĮĖJIMAS IR AVALYNĖ -->
+      <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
+        <strong style="color: #92400e; display: block; margin-bottom: 4px;">🚪 PATEKIMAS IR SVARBI INFORMACIJA:</strong>
+        <p style="margin: 0; color: #78350f; font-size: 14px;">
+          • <strong>Adresas:</strong> Pramonės g. 15, Šiauliai (2-as aukštas).<br>
+          • <strong>Įėjimas:</strong> Pro duris „Floristika“, pirmos durys kairėje laiptais į antrąjį aukštą.<br>
+          • <strong>Avalynė:</strong> Visiems dalyviams privaloma patogi, uždara avalynė (sportbačiai).<br>
+          • Prašome atvykti likus <strong>5–10 min.</strong> iki laiko pradžios saugumo instruktažui.
+        </p>
+      </div>
+
+      <div style="text-align: center; margin: 20px 0;">
+        <a href="https://www.google.com/maps?q=55.910730,23.315700" style="display:inline-block; background-color:#2563eb; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🗺️ Google Maps žemėlapis</a>
+        <a href="https://waze.com/ul?ll=55.910730,23.315700&navigate=yes" style="display:inline-block; background-color:#0284c7; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px; margin:4px;" target="_blank">🚗 Waze navigacija</a>
+      </div>
+
+      <div style="margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
+        <strong>Kilus klausimams dėl laiko ar pakeitimų:</strong><br>
+        📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
+        ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; text-decoration:none;">throwhousee@gmail.com</a>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background-color: #f1f5f9; padding: 16px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0;">
+      Laukiame Jūsų atvykstant naujuoju laiku!<br>
+      <strong>„ThrowHouse Šiauliai“ komanda</strong> · Pramonės g. 15, Šiauliai
+    </div>
+  </div>
+</body>
+</html>';
+}
+
+// =========================================================================
+// ŠABLONAI: DOVANŲ KUPONAI
+// =========================================================================
+
+/**
+ * 5. Dovanų kupono HTML gavėjui (draugui arba pirkėjui, jei pirko sau)
+ */
+function renderVoucherHtml($coupon) {
+    $code = htmlspecialchars($coupon['code'] ?? '');
+    $amount = htmlspecialchars($coupon['amount'] ?? 30);
+    $buyerName = htmlspecialchars(explode(' (', $coupon['buyer'] ?? '')[0] ?: ($coupon['buyer'] ?? ''));
+    $targetName = htmlspecialchars($coupon['recipient'] ?? '');
+    $greeting = htmlspecialchars($coupon['greeting'] ?? '');
+    $expiresAt = htmlspecialchars($coupon['expires_at'] ?? '');
+    $isFriend = (!empty($greeting) || (isset($coupon['target_type']) && stripos($coupon['target_type'], 'draugui') !== false));
+
+    if ($isFriend) {
+        $introGreeting = '<p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $targetName . '</strong>!</p>
+        <p style="font-size: 15px; color: #334155;"><strong>' . $buyerName . '</strong> Jums padovanojo <strong>' . $amount . ' €</strong> vertės pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą!</p>';
+    } else {
+        $introGreeting = '<p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $buyerName . '</strong>!</p>
+        <p style="font-size: 15px; color: #334155;">Nuoširdžiai dėkojame, kad įsigijote pramogų erdvės <strong>„ThrowHouse Šiauliai“</strong> dovanų kuponą! Žemiau pateikiamas Jūsų kuponas:</p>';
+    }
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+    
+    <!-- HEADER -->
+    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Oficialus Dovanų Kuponas</p>
+    </div>
+
+    <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">
+      ' . $introGreeting . '
+      
+      ' . (!empty($greeting) ? '
+      <div style="background-color: #fffbeb; border: 1px dashed #f59e0b; border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-style: italic; color: #78350f;">
+        <span style="font-weight: bold; font-style: normal; display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #b45309; margin-bottom: 4px;">Asmeninis palinkėjimas Jums:</span>
+        „' . nl2br($greeting) . '“
+      </div>' : '') . '
+
+      <!-- KUPONO KORTELĖ -->
+      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 22px; color: #ffffff; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2);">
+        <span style="font-size: 12px; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">UNIKALUS KUPONO KODAS</span>
+        <div style="font-size: 28px; font-weight: 900; letter-spacing: 4px; font-family: monospace; color: #ffffff; background: rgba(0,0,0,0.4); padding: 10px 16px; border-radius: 8px; display: inline-block; border: 1px dashed rgba(245, 158, 11, 0.5); margin-bottom: 12px;">
+          ' . $code . '
+        </div>
+        <div style="font-size: 18px; font-weight: 700; color: #34d399; margin-bottom: 4px;">
+          Vertė: ' . $amount . ' €
+        </div>
+        <div style="font-size: 13px; color: #94a3b8;">
+          Galioja 6 mėnesius iki: <strong style="color: #ffffff;">' . $expiresAt . '</strong>
+        </div>
+      </div>
+
+      <!-- INSTRUKCIJA KAIP PANAUDOTI -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0;">
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; font-size: 15px; display: block;">📌 KAIP PANAUDOTI KUPONĄ:</span>
+        <p style="margin: 0; font-size: 14px; color: #475569;">
+          Kupono turėtojas gali pasirinkti bet kurią „ThrowHouse Šiauliai“ siūlomą pramogą (Pykčio kambarį arba Kirvių mėtymą).<br><br>
+          Dėl apsilankymo laiko suderinimo prašome kreiptis tiesiogiai į administraciją ir nurodyti savo kupono kodą <strong>' . $code . '</strong>:<br>
+          📞 Tel.: <a href="tel:+37061988009" style="color: #d97706; font-weight: bold; text-decoration: none;">+370 619 88009</a><br>
+          ✉️ El. paštu: <a href="mailto:throwhousee@gmail.com" style="color: #d97706; font-weight: bold; text-decoration: none;">throwhousee@gmail.com</a>
+        </p>
+      </div>
+
+      <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0; font-size: 14px; color: #78350f;">
+        <strong>📍 Mūsų adresas:</strong> Pramonės g. 15, Šiauliai (2-as aukštas, įėjimas pro duris „Floristika“).
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background-color: #f1f5f9; padding: 16px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0;">
+      Šilčiausi linkėjimai,<br>
+      <strong>„ThrowHouse Šiauliai“ komanda</strong> · Pramonės g. 15, Šiauliai
+    </div>
+  </div>
+</body>
+</html>';
+}
+
+/**
+ * 6. Kupono pirkimo patvirtinimas pirkėjui (jei siuntė draugui)
+ */
+function renderVoucherBuyerReceiptHtml($coupon) {
+    $code = htmlspecialchars($coupon['code'] ?? '');
+    $amount = htmlspecialchars($coupon['amount'] ?? 30);
+    $buyerName = htmlspecialchars(explode(' (', $coupon['buyer'] ?? '')[0] ?: ($coupon['buyer'] ?? ''));
+    $targetName = htmlspecialchars($coupon['recipient'] ?? '');
+    $targetEmail = htmlspecialchars($coupon['recipient_email'] ?? '');
+    $expiresAt = htmlspecialchars($coupon['expires_at'] ?? '');
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #10b981;">
+      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #10b981; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8;">Dovanų kupono pirkimo patvirtinimas</p>
+    </div>
+    <div style="padding: 24px; font-size: 15px; line-height: 1.6; color: #334155;">
+      <p style="font-size: 16px; margin-top: 0;">Sveiki, <strong>' . $buyerName . '</strong>!</p>
+      <p>Nuoširdžiai dėkojame! Jūsų nupirktas <strong>' . $amount . ' €</strong> vertės dovanų kuponas buvo sėkmingai sugeneruotas ir išsiųstas Jūsų nurodytam gavėjui <strong>' . $targetName . '</strong> (' . $targetEmail . ').</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin: 18px 0; font-size: 14px;">
+        <span style="font-weight: 800; color: #0f172a; margin-bottom: 8px; display: block;">📋 PIRKIMO INFORMACIJA:</span>
+        • Kupono kodas: <strong>' . $code . '</strong><br>
+        • Kupono vertė: <strong>' . $amount . ' €</strong><br>
+        • Gavėjas: <strong>' . $targetName . '</strong> (' . $targetEmail . ')<br>
+        • Galioja 6 mėn. iki: <strong>' . $expiresAt . '</strong>
+      </div>
+
+      <p style="font-size: 14px; color: #64748b;">
+        Kilus bet kokiems klausimams, susisiekite su mumis: tel. +370 619 88009 arba el. p. throwhousee@gmail.com.
+      </p>
+    </div>
+    <div style="background-color: #f1f5f9; padding: 14px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+      Ačiū, kad renkatės „ThrowHouse Šiauliai“!
+    </div>
+  </div>
+</body>
+</html>';
+}
+
+/**
+ * 7. Pranešimas administratoriui apie nupirktą dovanų kuponą
+ */
+function renderVoucherAdminHtml($coupon) {
+    $code = htmlspecialchars($coupon['code'] ?? '');
+    $amount = htmlspecialchars($coupon['amount'] ?? 30);
+    $buyer = htmlspecialchars($coupon['buyer'] ?? '');
+    $buyerEmail = htmlspecialchars($coupon['buyer_email'] ?? '');
+    $targetName = htmlspecialchars($coupon['recipient'] ?? '');
+    $targetEmail = htmlspecialchars($coupon['recipient_email'] ?? '');
+    $greeting = htmlspecialchars($coupon['greeting'] ?? '');
+    $targetType = htmlspecialchars($coupon['target_type'] ?? '');
+    $expiresAt = htmlspecialchars($coupon['expires_at'] ?? '');
+    $createdDate = htmlspecialchars($coupon['created_at'] ?? date('Y-m-d H:i'));
+    $baseUrl = getThrowHouseBaseUrl();
+
+    return '<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+    
+    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8;">Gautas naujas dovanų kupono pirkimas</p>
+      <div style="display:inline-block; background-color:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.4); padding:4px 14px; border-radius:20px; font-weight:bold; font-size:12px; margin-top:8px;">
+        ' . $targetType . '
+      </div>
+    </div>
+
+    <div style="padding: 24px; font-size: 14px; line-height: 1.6; color: #334155;">
+      
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; padding: 16px 20px; color: #ffffff; margin-bottom: 18px;">
+        <span style="font-size: 11px; color: #f59e0b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: block;">Kupono kodas</span>
+        <span style="font-size: 24px; font-weight: 800; font-family: monospace; letter-spacing: 2px;">' . $code . '</span>
+        <div style="margin-top: 6px; font-size: 18px; font-weight: 900; color: #34d399;">Vertė: ' . $amount . ' €</div>
+      </div>
+
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 6px; display: block;">👤 Pirkėjo kontaktai:</span>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+        <strong>' . $buyer . '</strong><br>
+        ✉️ El. paštas: ' . $buyerEmail . '
+      </div>
+
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 6px; display: block;">🎁 Gavėjo duomenys:</span>
+      <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+        <strong>' . $targetName . '</strong> (' . $targetEmail . ')
+        ' . (!empty($greeting) ? '<br><em style="color:#78350f; display:block; margin-top:4px;">„' . nl2br($greeting) . '“</em>' : '') . '
+      </div>
+
+      <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 18px; font-size: 13px;">
+        Užsakymo data: <strong>' . $createdDate . '</strong><br>
+        Galioja iki: <strong style="color: #059669;">' . $expiresAt . ' (6 mėn.)</strong>
+      </div>
+
+      <div style="text-align: center; margin: 20px 0 10px 0;">
+        <a href="' . $baseUrl . '/admin.php?tab=kuponai" style="display:inline-block; background-color:#0f172a; color:#ffffff; font-weight:bold; text-decoration:none; padding:12px 24px; border-radius:8px; border:1px solid #334155; font-size:14px;" target="_blank">
+          ⚙️ Peržiūrėti kuponus valdymo pulte (admin.php) ➔
+        </a>
+      </div>
+
+    </div>
+    <div style="background-color: #f8fafc; padding: 14px 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+      ThrowHouse Šiauliai · Automatinis pranešimas administratoriams · ' . date('Y-m-d H:i') . '
+    </div>
+  </div>
+</body>
+</html>';
+}
