@@ -9,7 +9,7 @@ header("X-LiteSpeed-Cache-Control: no-cache, no-store");
 session_start();
 
 // Administratoriaus slaptažodis (galite bet kada pakeisti)
-define('ADMIN_PASSWORD', 'throw2026');
+define('ADMIN_PASSWORD', 'Cerkute.08310228');
 
 // Atsijungimas
 if (isset($_GET['logout'])) {
