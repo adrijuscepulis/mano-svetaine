@@ -98,6 +98,7 @@ function createOpayPaymentTransaction($orderNr, $amountCents, $clientName, $clie
 
     // Pagrindiniai OPAY parametrai griežta tvarka
     $params = [
+        'standard'            => 'opay_8.1',
         'website_id'          => $websiteId,
         'order_nr'            => (string)$orderNr,
         'amount'              => (int)$amountCents,
@@ -156,8 +157,8 @@ function createOpayPaymentTransaction($orderNr, $amountCents, $clientName, $clie
     }
 
     // Patikriname gautą nukreipimo URL
-    $redirectOut = $json['response']['redirect_url'] ?? $json['redirect_url'] ?? '';
-    $transId = $json['response']['transaction_id'] ?? $json['transaction_id'] ?? '';
+    $redirectOut = $json['response']['result']['redirect_url'] ?? $json['response']['redirect_url'] ?? $json['redirect_url'] ?? '';
+    $transId = $json['response']['result']['transaction_id'] ?? $json['response']['transaction_id'] ?? $json['transaction_id'] ?? '';
 
     if (!empty($redirectOut)) {
         return [
