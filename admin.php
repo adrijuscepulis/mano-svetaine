@@ -73,7 +73,31 @@ function loadReservationsData($resFile, $resDbFile) {
     } else {
         $data = !empty($db) ? $db : [];
     }
-    return is_array($data) ? $data : [];
+    $data = is_array($data) ? $data : [];
+    cancelExpiredPendingReservationsAdmin($data, $resFile, $resDbFile);
+    return $data;
+}
+
+/**
+ * Automatiškai atšaukia rezervacijas, kurių klientas neapmokėjo per 10 minučių
+ */
+function cancelExpiredPendingReservationsAdmin(&$reservations, $resFile, $resDbFile) {
+    $changed = false;
+    $now = time();
+    foreach ($reservations as &$r) {
+        $st = $r['status'] ?? '';
+        if ($st === 'Laukiama apmokėjimo') {
+            $createdAtTs = !empty($r['created_at']) ? strtotime($r['created_at']) : 0;
+            if ($createdAtTs > 0 && ($now - $createdAtTs) > 10 * 60) {
+                $r['status'] = 'Atšaukta (Neapmokėta per 10 min.)';
+                $changed = true;
+            }
+        }
+    }
+    unset($r);
+    if ($changed) {
+        saveReservationsData($resFile, $resDbFile, $reservations);
+    }
 }
 
 function saveReservationsData($resFile, $resDbFile, $data) {

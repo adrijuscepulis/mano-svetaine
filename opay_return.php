@@ -74,6 +74,13 @@ if ($isSuccess && $reservation && strpos($reservation['status'] ?? '', 'Patvirti
 if ($reservation && strpos($reservation['status'] ?? '', 'Patvirtinta') !== false) {
     $isSuccess = true;
 }
+
+// Jei mokėjimas nebuvo atliktas (atšauktas ar nutrauktas), iškart atlaisviname rezervaciją
+if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama apmokėjimo') {
+    $all[$resIndex]['status'] = 'Atšaukta (Neapmokėta)';
+    saveAllReservationsHelper($resFile, $resDbFile, $all);
+    $reservation = $all[$resIndex];
+}
 ?>
 <!DOCTYPE html>
 <html lang="lt">

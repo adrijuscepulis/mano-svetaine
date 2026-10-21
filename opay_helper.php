@@ -106,6 +106,7 @@ function createOpayPaymentTransaction($orderNr, $amountCents, $clientName, $clie
         'currency'            => 'EUR',
         'country'             => 'LT',
         'language'            => 'lit',
+        'time_limit'          => 10,
         'redirect_url'        => $redirectUrl,
         'web_service_url'     => $callbackUrl,
         'redirect_on_success' => 1
@@ -247,7 +248,31 @@ function loadAllReservationsHelper($dataFile, $dataDbFile) {
     } else {
         $data = !empty($db) ? $db : [];
     }
-    return is_array($data) ? $data : [];
+    $data = is_array($data) ? $data : [];
+    autoCleanExpiredOpayReservations($data, $dataFile, $dataDbFile);
+    return $data;
+}
+
+/**
+ * Automatiškai atšaukia rezervacijas, kurių klientas neapmokėjo per 10 minučių
+ */
+function autoCleanExpiredOpayReservations(&$reservations, $dataFile, $dataDbFile) {
+    $changed = false;
+    $now = time();
+    foreach ($reservations as &$r) {
+        $st = $r['status'] ?? '';
+        if ($st === 'Laukiama apmokėjimo') {
+            $createdAtTs = !empty($r['created_at']) ? strtotime($r['created_at']) : 0;
+            if ($createdAtTs > 0 && ($now - $createdAtTs) > 10 * 60) {
+                $r['status'] = 'Atšaukta (Neapmokėta per 10 min.)';
+                $changed = true;
+            }
+        }
+    }
+    unset($r);
+    if ($changed) {
+        saveAllReservationsHelper($dataFile, $dataDbFile, $reservations);
+    }
 }
 
 /**

@@ -60,7 +60,32 @@ function loadAllReservations($dataFile, $dataDbFile) {
     } else {
         $data = !empty($db) ? $db : [];
     }
-    return is_array($data) ? $data : [];
+    $data = is_array($data) ? $data : [];
+    cancelExpiredPendingReservations($data, $dataFile, $dataDbFile);
+    return $data;
+}
+
+/**
+ * Automatiškai atšaukia rezervacijas, kurių klientas neapmokėjo per 10 minučių
+ */
+function cancelExpiredPendingReservations(&$reservations, $dataFile, $dataDbFile) {
+    $changed = false;
+    $now = time();
+    foreach ($reservations as &$r) {
+        $st = $r['status'] ?? '';
+        if ($st === 'Laukiama apmokėjimo') {
+            $createdAtTs = !empty($r['created_at']) ? strtotime($r['created_at']) : 0;
+            // Griežtas 10 minučių limitas (600 sek.)
+            if ($createdAtTs > 0 && ($now - $createdAtTs) > 10 * 60) {
+                $r['status'] = 'Atšaukta (Neapmokėta per 10 min.)';
+                $changed = true;
+            }
+        }
+    }
+    unset($r);
+    if ($changed) {
+        saveAllReservations($dataFile, $dataDbFile, $reservations);
+    }
 }
 
 function saveAllReservations($dataFile, $dataDbFile, $data) {
@@ -242,8 +267,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if ($st === 'Atšaukta' || strpos($st, 'Neapmokėta') !== false || strpos($st, 'Atšaukta') !== false) continue;
         if ($st === 'Laukiama apmokėjimo') {
             $createdAtTs = !empty($r['created_at']) ? strtotime($r['created_at']) : 0;
-            if ($createdAtTs > 0 && (time() - $createdAtTs) > 25 * 60) {
-                continue; // Laikas atlaisvinamas, jei klientas per 25 min. neapmokėjo
+            if ($createdAtTs > 0 && (time() - $createdAtTs) > 10 * 60) {
+                continue; // Laikas atlaisvinamas, jei klientas per 10 min. neapmokėjo
             }
         }
         $iso = !empty($r['iso_date']) ? $r['iso_date'] : normalizeDateToIso($r['date'] ?? '');
@@ -588,8 +613,8 @@ foreach ($all as $ex) {
     if ($exSt === 'Atšaukta' || strpos($exSt, 'Neapmokėta') !== false || strpos($exSt, 'Atšaukta') !== false) continue;
     if ($exSt === 'Laukiama apmokėjimo') {
         $createdAtTs = !empty($ex['created_at']) ? strtotime($ex['created_at']) : 0;
-        if ($createdAtTs > 0 && (time() - $createdAtTs) > 25 * 60) {
-            continue; // Atlaisviname laiką kitiems
+        if ($createdAtTs > 0 && (time() - $createdAtTs) > 10 * 60) {
+            continue; // Atlaisviname laiką kitiems per 10 min.
         }
     }
     $exIso = !empty($ex['iso_date']) ? $ex['iso_date'] : normalizeDateToIso($ex['date'] ?? '');
