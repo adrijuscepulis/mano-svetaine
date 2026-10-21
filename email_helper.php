@@ -325,7 +325,7 @@ function renderPinCodeEmailHtml($name, $pinCode) {
     <div style="padding: 28px 24px; color: #1e293b; line-height: 1.6;">
       <p style="margin: 0 0 16px; font-size: 16px;">Sveiki, <strong>' . $cleanName . '</strong>!</p>
       <p style="margin: 0 0 20px; font-size: 15px; color: #475569;">
-        Norėdami patvirtinti savo rezervaciją su apmokėjimu <strong>grynaisiais arba kortele vietoje</strong>, suveskite šį 4 skaitmenų patvirtinimo kodą svetainėje:
+        Norėdami patvirtinti savo rezervaciją su apmokėjimu <strong>grynaisiais vietoje</strong>, suveskite šį 4 skaitmenų patvirtinimo kodą svetainėje:
       </p>
       <div style="background: linear-gradient(135deg, #0f172a 0%, #18102a 100%); border: 2px dashed #ff6a00; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
         <span style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Jūsų patvirtinimo PIN kodas:</span>
@@ -396,7 +396,7 @@ function renderNewReservationClientHtml($res) {
       <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #1e40af; display: block; margin-bottom: 4px;">📞 SVARBU – PATVIRTINIMAS TELEFONU:</strong>
         <p style="margin: 0; color: #1e3a8a; font-size: 14px;">
-          Kadangi pasirinkote apmokėjimą vietoje (grynaisiais arba kortele), prieš atvykimą mūsų instruktorius susisieks su Jumis telefonu, kad galutinai patikslintų rezervaciją. Maloniai prašome atsiliepti!
+          Kadangi pasirinkote apmokėjimą grynaisiais vietoje, prieš atvykimą mūsų instruktorius susisieks su Jumis telefonu, kad galutinai patikslintų rezervaciją. Maloniai prašome atsiliepti!
         </p>
       </div>' : '') . '
       

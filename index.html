@@ -1944,8 +1944,8 @@
             <div class="info-item">
               <span class="info-icon">💳</span>
               <div>
-                <strong>Apmokėjimas internetu</strong>
-                <span>Rezervacija patvirtinama tik apmokėjus iš anksto el. bankininkyste / kortele.</span>
+                <strong>Apmokėjimas</strong>
+                <span>Apmokėkite internetu arba grynaisiais atvykus vietoje.</span>
               </div>
             </div>
           </div>
@@ -2088,24 +2088,14 @@
               <label class="f-label">Apmokėjimo būdas:</label>
               <div class="pay-methods" style="display: flex; flex-direction: column; gap: 0.65rem;">
                 
-                <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid var(--accent); background: rgba(255, 106, 0, 0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
-                  <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px;">
-                  <div>
-                    <strong style="color: #ffffff; font-size: 0.95rem; display: block;">🏦 Elektroninė bankininkystė (OPAY)</strong>
-                    <span style="color: #94a3b8; font-size: 0.8rem; line-height: 1.4; display: block; margin-top: 2px;">
-                      Swedbank, SEB, Šiaulių bankas, Luminor, Revolut, kortelės. Patvirtinama iškart automatiškai.
-                    </span>
-                  </div>
+                <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid var(--accent); background: rgba(255, 106, 0, 0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
+                  <strong style="color: #ffffff; font-size: 0.95rem;">🏦 Elektroninė bankininkystė (OPAY)</strong>
                 </label>
 
-                <label class="pay-lbl" id="payLblCash" style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
-                  <input type="radio" name="resPay" value="cash" style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px;">
-                  <div>
-                    <strong style="color: #ffffff; font-size: 0.95rem; display: block;">💵 Mokėti atvykus vietoje (Grynaisiais arba kortele)</strong>
-                    <span style="color: #94a3b8; font-size: 0.8rem; line-height: 1.4; display: block; margin-top: 2px;">
-                      Apsisaugojimui nuo kenkėjų, į jūsų el. paštą atsiųsime nemokamą 4 skaitmenų PIN kodą rezervacijos patvirtinimui.
-                    </span>
-                  </div>
+                <label class="pay-lbl" id="payLblCash" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="resPay" value="cash" style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
+                  <strong style="color: #ffffff; font-size: 0.95rem;">💵 Mokėti atvykus vietoje (Tik grynaisiais)</strong>
                 </label>
 
               </div>
@@ -3187,7 +3177,7 @@
       btn.disabled = true;
       btn.textContent = 'Tikrinama ir apdorojama...';
 
-      const payLabel = isCash ? 'Mokėti atvykus vietoje (Grynaisiais / Kortele)' : 'Elektroninė bankininkystė';
+      const payLabel = isCash ? 'Mokėti atvykus vietoje (Tik grynaisiais)' : 'Elektroninė bankininkystė';
 
       try {
         const payload = {

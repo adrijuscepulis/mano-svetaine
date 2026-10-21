@@ -734,7 +734,7 @@ $reservationId = 'TH-' . strtoupper(substr(uniqid(), -6));
 if ($isCash) {
     recordRateLimitHit($ip, 'cash_booking');
     $initialStatus = 'Laukiama patvirtinimo (Mokės vietoje)';
-    $payTitle = 'Mokėti atvykus vietoje (Grynaisiais / Kortele)';
+    $payTitle = 'Mokėti atvykus vietoje (Tik grynaisiais)';
 } else {
     $initialStatus = $isOpayActive ? 'Laukiama apmokėjimo' : 'Gauta';
     $payTitle = $isOpayActive ? 'OPAY elektroninė bankininkystė' : $payMethod;
