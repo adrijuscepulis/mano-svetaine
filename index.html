@@ -2078,14 +2078,58 @@
               <input type="email" id="resEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
             </div>
 
+            <!-- Saugumo patikra (Honeypot apsauga nuo botų - nematoma vartotojui) -->
+            <div style="position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none;" aria-hidden="true">
+              <input type="text" name="extra_security_check" id="extraSecurityCheck" tabindex="-1" autocomplete="off" value="">
+            </div>
+
             <!-- APMOKĖJIMAS -->
             <div class="f-group">
               <label class="f-label">Apmokėjimo būdas:</label>
-              <div class="pay-methods">
-                <label class="pay-lbl" style="border-color: var(--accent); background: rgba(255, 106, 0, 0.08);">
-                  <input type="radio" name="resPay" value="banklink" checked>
-                  <span>🏦 Elektroninė bankininkystė</span>
+              <div class="pay-methods" style="display: flex; flex-direction: column; gap: 0.65rem;">
+                
+                <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid var(--accent); background: rgba(255, 106, 0, 0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px;">
+                  <div>
+                    <strong style="color: #ffffff; font-size: 0.95rem; display: block;">🏦 Elektroninė bankininkystė (OPAY)</strong>
+                    <span style="color: #94a3b8; font-size: 0.8rem; line-height: 1.4; display: block; margin-top: 2px;">
+                      Swedbank, SEB, Šiaulių bankas, Luminor, Revolut, kortelės. Patvirtinama iškart automatiškai.
+                    </span>
+                  </div>
                 </label>
+
+                <label class="pay-lbl" id="payLblCash" style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <input type="radio" name="resPay" value="cash" style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px;">
+                  <div>
+                    <strong style="color: #ffffff; font-size: 0.95rem; display: block;">💵 Mokėti atvykus vietoje (Grynaisiais arba kortele)</strong>
+                    <span style="color: #94a3b8; font-size: 0.8rem; line-height: 1.4; display: block; margin-top: 2px;">
+                      Apsisaugojimui nuo kenkėjų, į jūsų el. paštą atsiųsime nemokamą 4 skaitmenų PIN kodą rezervacijos patvirtinimui.
+                    </span>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- PIN KODO ĮVEDIMO BLOKAS (MOKANT VIETOJE) -->
+            <div id="pinBoxWrapper" style="display: none; background: linear-gradient(135deg, rgba(255, 106, 0, 0.1) 0%, rgba(24, 16, 42, 0.85) 100%); border: 2px dashed var(--accent); border-radius: 12px; padding: 1.25rem 1rem; margin-bottom: 1.25rem; text-align: center;">
+              <div style="font-size: 1.6rem; margin-bottom: 0.25rem;">✉️</div>
+              <strong style="color: #ffffff; font-size: 1rem; display: block; margin-bottom: 0.35rem;">
+                Patvirtinimo PIN kodas
+              </strong>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin: 0 0 0.85rem 0;">
+                Išsiuntėme 4 skaitmenų kodą į <span id="pinTargetEmail" style="color: var(--accent); font-weight: 700;"></span>.<br>
+                Įveskite jį žemiau rezervacijos patvirtinimui:
+              </p>
+              
+              <div style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
+                <input type="text" id="resPinInput" maxlength="4" placeholder="••••" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" style="width: 170px; height: 50px; font-size: 1.85rem; font-weight: 900; letter-spacing: 10px; text-align: center; border-radius: 8px; border: 2px solid var(--accent); background: #08050e; color: #ffffff; outline: none; box-shadow: 0 0 15px rgba(255, 106, 0, 0.3);">
+              </div>
+
+              <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-size: 0.82rem;">
+                <span style="color: #94a3b8;">Negavote kodo?</span>
+                <button type="button" id="btnResendPin" onclick="requestPinCode(true)" style="background: none; border: none; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600; padding: 0;">Siųsti dar kartą</button>
+                <span id="pinTimerNote" style="color: #64748b; font-size: 0.78rem;"></span>
               </div>
             </div>
 
@@ -2859,6 +2903,187 @@
       }
     }
 
+    /* -----------------------------------------------------------------
+       MOKĖJIMO BŪDO VALDYMAS IR PIN KODO PATVIRTINIMAS (MOKANT VIETOJE)
+       ----------------------------------------------------------------- */
+    let isPinSent = false;
+    let pinCooldownTimer = null;
+
+    function initPaymentMethodLogic() {
+      const payRadios = document.querySelectorAll('input[name="resPay"]');
+      const lblBank = document.getElementById('payLblBank');
+      const lblCash = document.getElementById('payLblCash');
+      const pinBox = document.getElementById('pinBoxWrapper');
+      const submitBtn = document.getElementById('submitBtn');
+
+      function updatePayUI() {
+        const selected = document.querySelector('input[name="resPay"]:checked')?.value || 'banklink';
+        if (selected === 'cash') {
+          if (lblCash) {
+            lblCash.style.borderColor = 'var(--accent)';
+            lblCash.style.background = 'rgba(255, 106, 0, 0.08)';
+          }
+          if (lblBank) {
+            lblBank.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+            lblBank.style.background = 'rgba(255, 255, 255, 0.03)';
+          }
+          if (isPinSent) {
+            if (pinBox) pinBox.style.display = 'block';
+            if (submitBtn) submitBtn.textContent = 'Patvirtinti rezervaciją (Mokėti vietoje) ➔';
+          } else {
+            if (pinBox) pinBox.style.display = 'none';
+            if (submitBtn) submitBtn.textContent = 'Gauti patvirtinimo kodą į el. paštą ➔';
+          }
+        } else {
+          if (lblBank) {
+            lblBank.style.borderColor = 'var(--accent)';
+            lblBank.style.background = 'rgba(255, 106, 0, 0.08)';
+          }
+          if (lblCash) {
+            lblCash.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+            lblCash.style.background = 'rgba(255, 255, 255, 0.03)';
+          }
+          if (pinBox) pinBox.style.display = 'none';
+          if (submitBtn) submitBtn.textContent = 'Apmokėti ir patvirtinti rezervaciją ➔';
+        }
+      }
+
+      payRadios.forEach(r => r.addEventListener('change', updatePayUI));
+      updatePayUI();
+    }
+
+    // Griežta lietuviško mobiliojo numerio validacija
+    function isValidLtPhone(phoneStr) {
+      if (!phoneStr) return false;
+      let clean = phoneStr.replace(/[^\d+]/g, '').trim();
+      if (clean.startsWith('86') && clean.length === 9) {
+        clean = '+370' + clean.substring(1);
+      } else if (clean.startsWith('003706') && clean.length === 13) {
+        clean = '+370' + clean.substring(4);
+      }
+      if (!/^\+3706\d{7}$/.test(clean)) return false;
+      const s = clean.substring(5); // 7 skaitmenys po +3706
+      if (/^(\d)\1{6}$/.test(s)) return false; // 0000000, 1111111 ir pan.
+      if (s === '1234567' || s === '7654321' || s === '0123456') return false;
+      return true;
+    }
+
+    // Prašyti 4 skaitmenų PIN kodo į el. paštą (mokant vietoje)
+    async function requestPinCode(isResend) {
+      const name = document.getElementById('resName')?.value.trim();
+      const phone = document.getElementById('resPhone')?.value.trim();
+      const email = document.getElementById('resEmail')?.value.trim();
+      const submitBtn = document.getElementById('submitBtn');
+      const resendBtn = document.getElementById('btnResendPin');
+
+      if (!name) {
+        alert('Prašome įvesti savo vardą ir pavardę!');
+        document.getElementById('resName')?.focus();
+        return;
+      }
+      if (!phone || !isValidLtPhone(phone)) {
+        alert('Prašome nurodyti teisingą lietuvišką mobiliojo ryšio numerį (+370 6XX XXXXX arba 86XXXXXXX)!');
+        document.getElementById('resPhone')?.focus();
+        return;
+      }
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        alert('Prašome nurodyti galiojantį asmeninį el. pašto adresą kodui gauti!');
+        document.getElementById('resEmail')?.focus();
+        return;
+      }
+
+      const prevBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Siunčiamas kodas į el. paštą...';
+      }
+      if (resendBtn) resendBtn.disabled = true;
+
+      try {
+        const payload = {
+          action: 'request_pin',
+          name, phone, email,
+          extra_security_check: document.getElementById('extraSecurityCheck')?.value || ''
+        };
+
+        const res = await fetch('rezervacija.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          alert('⚠️ ' + data.message);
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = prevBtnText;
+          }
+          if (resendBtn) resendBtn.disabled = false;
+          return;
+        }
+
+        isPinSent = true;
+        const pinBox = document.getElementById('pinBoxWrapper');
+        if (pinBox) pinBox.style.display = 'block';
+        const targetEmailEl = document.getElementById('pinTargetEmail');
+        if (targetEmailEl) targetEmailEl.textContent = email;
+
+        const pinInput = document.getElementById('resPinInput');
+        if (pinInput) {
+          pinInput.value = '';
+          pinInput.focus();
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Patvirtinti rezervaciją (Mokėti vietoje) ➔';
+        }
+
+        startPinCooldown(30);
+
+        if (isResend) {
+          alert('✓ Naujas 4 skaitmenų kodas sėkmingai išsiųstas į ' + email);
+        } else {
+          pinBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+      } catch (e) {
+        alert('Tinklo ryšio klaida siunčiant kodą. Prašome pabandyti dar kartą.');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = prevBtnText;
+        }
+        if (resendBtn) resendBtn.disabled = false;
+      }
+    }
+
+    function startPinCooldown(seconds) {
+      const resendBtn = document.getElementById('btnResendPin');
+      const timerNote = document.getElementById('pinTimerNote');
+      if (!resendBtn) return;
+
+      clearInterval(pinCooldownTimer);
+      let left = seconds;
+      resendBtn.disabled = true;
+      resendBtn.style.opacity = '0.5';
+      resendBtn.style.pointerEvents = 'none';
+      if (timerNote) timerNote.textContent = `(galima po ${left} s)`;
+
+      pinCooldownTimer = setInterval(() => {
+        left--;
+        if (left <= 0) {
+          clearInterval(pinCooldownTimer);
+          resendBtn.disabled = false;
+          resendBtn.style.opacity = '1';
+          resendBtn.style.pointerEvents = 'auto';
+          if (timerNote) timerNote.textContent = '';
+        } else {
+          if (timerNote) timerNote.textContent = `(galima po ${left} s)`;
+        }
+      }, 1000);
+    }
+
     /* REZERVACIJOS SIUNTIMAS */
     async function submitReservation(e) {
       e.preventDefault();
@@ -2881,9 +3106,9 @@
         return;
       }
 
-      const name = document.getElementById('resName').value;
-      const phone = document.getElementById('resPhone').value;
-      const email = document.getElementById('resEmail').value;
+      const name = document.getElementById('resName').value.trim();
+      const phone = document.getElementById('resPhone').value.trim();
+      const email = document.getElementById('resEmail').value.trim();
       const act = document.querySelector('input[name="resActivity"]:checked').value;
       const cnt = document.getElementById('resCount').value;
       const date = document.getElementById('resDate').value;
@@ -2929,10 +3154,40 @@
         }
       }
 
+      // Griežta lietuviško telefono patikra
+      if (!isValidLtPhone(phone)) {
+        alert('Prašome nurodyti teisingą lietuvišką mobiliojo ryšio numerį (+370 6XX XXXXX arba 86XXXXXXX)!');
+        document.getElementById('resPhone')?.focus();
+        return;
+      }
+
+      const payRadio = document.querySelector('input[name="resPay"]:checked');
+      const payMethod = payRadio ? payRadio.value : 'banklink';
+      const isCash = (payMethod === 'cash');
+
+      // Jei pasirinktas mokėjimas grynaisiais vietoje:
+      let pinVal = '';
+      if (isCash) {
+        if (!isPinSent) {
+          // 1 žingsnis: išsiunčiame 4 skaitmenų PIN kodą į el. paštą
+          requestPinCode(false);
+          return;
+        }
+
+        // 2 žingsnis: patikriname ar suvestas 4 skaitmenų PIN kodas
+        const pinInput = document.getElementById('resPinInput');
+        pinVal = pinInput ? pinInput.value.trim() : '';
+        if (!pinVal || pinVal.length < 4 || !/^\d{4}$/.test(pinVal)) {
+          alert('Prašome įvesti 4 skaitmenų patvirtinimo kodą, kurį išsiuntėme į ' + email + '!');
+          pinInput?.focus();
+          return;
+        }
+      }
+
       btn.disabled = true;
       btn.textContent = 'Tikrinama ir apdorojama...';
 
-      const payLabel = 'Elektroninė bankininkystė';
+      const payLabel = isCash ? 'Mokėti atvykus vietoje (Grynaisiais / Kortele)' : 'Elektroninė bankininkystė';
 
       try {
         const payload = {
@@ -2944,7 +3199,9 @@
           iso_date: date,
           time,
           price: prc,
-          pay_method: payLabel
+          pay_method: isCash ? 'cash' : 'banklink',
+          pin_code: pinVal,
+          extra_security_check: document.getElementById('extraSecurityCheck')?.value || ''
         };
 
         const res = await fetch('rezervacija.php', {
@@ -2955,17 +3212,17 @@
 
         const data = await res.json();
 
-        // Jei laikas buvo užimtas (dvigubo užsakymo apsauga) ar kita klaida:
+        // Jei laikas buvo užimtas ar kita klaida:
         if (!data.success) {
           alert('⚠️ ' + data.message);
           btn.disabled = false;
-          btn.textContent = 'Apmokėti ir patvirtinti rezervaciją ➔';
+          btn.textContent = isCash ? 'Patvirtinti rezervaciją (Mokėti vietoje) ➔' : 'Apmokėti ir patvirtinti rezervaciją ➔';
           await fetchBookedSlots();
           populateTimeSlots(selectedDate);
           return;
         }
 
-        // Jei OPAY aktyvus - nukreipiame klientą tiesiai į banko pasirinkimą / OPAY vartus:
+        // Jei OPAY aktyvus ir pasirinktas bankinis apmokėjimas:
         if (data.opay_redirect && data.redirect_url) {
           btn.textContent = 'Nukreipiama į banką / OPAY...';
           window.location.href = data.redirect_url;
@@ -2978,6 +3235,15 @@
         const orderId = data.reservation_id || ('TH-' + Math.floor(100000 + Math.random() * 900000));
         const durText = act.includes('KOMBO') ? '2 val. sesija (Kirviai ➔ Pyktis)' : '1 val. sesija';
 
+        const cashNoticeHtml = isCash ? `
+          <div style="background: rgba(59, 130, 246, 0.12); border: 1.5px solid #3b82f6; border-radius: 10px; padding: 14px; margin: 16px 0; text-align: left;">
+            <strong style="color: #60a5fa; font-size: 0.95rem; display: block; margin-bottom: 4px;">📞 Svarbi informacija dėl atvykimo:</strong>
+            <span style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.5; display: block;">
+              Kadangi pasirinkote mokėti vietoje, rezervacija galutinai patvirtinama po mūsų instruktoriaus skambučio nurodytu telefonu <strong>${phone}</strong>. Maloniai prašome atsiliepti!
+            </span>
+          </div>
+        ` : '';
+
         sum.innerHTML = `
           <strong>Užsakymo Nr.:</strong> <span style="color:var(--accent);">${orderId}</span><br>
           <strong>Užsakovas:</strong> ${name} (${phone})<br>
@@ -2985,7 +3251,8 @@
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
           <strong>Data ir laikas:</strong> ${dateText}, ${timeOptionText}<br>
           <strong>Apmokėjimo būdas:</strong> ${payLabel}<br>
-          <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong><br><br>
+          <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong> ${isCash ? '<span style="color:#fbbf24; font-size:0.85rem;">(Mokėsite atvykus)</span>' : ''}<br>
+          ${cashNoticeHtml}
           <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas sėkmingai išsiųstas į <strong>${email}</strong>!</span>
         `;
         box.scrollIntoView({ behavior: 'smooth' });
@@ -2996,7 +3263,7 @@
       } catch (err) {
         alert('Įvyko tinklo ryšio klaida. Prašome pabandyti dar kartą.');
         btn.disabled = false;
-        btn.textContent = 'Apmokėti ir patvirtinti rezervaciją ➔';
+        btn.textContent = isCash ? 'Patvirtinti rezervaciją (Mokėti vietoje) ➔' : 'Apmokėti ir patvirtinti rezervaciją ➔';
       }
     }
 
@@ -3005,6 +3272,11 @@
       const box = document.getElementById('resSuccess');
       if (form && box) {
         form.reset();
+        isPinSent = false;
+        clearInterval(pinCooldownTimer);
+        const pinBox = document.getElementById('pinBoxWrapper');
+        if (pinBox) pinBox.style.display = 'none';
+        initPaymentMethodLogic();
         form.style.display = 'block';
         box.style.display = 'none';
         initTodaySelection();
@@ -3020,6 +3292,7 @@
     // Nedelsiant inicializuojame datą ir formą
     initTodaySelection();
     onActivityChange();
+    initPaymentMethodLogic();
 
     // Sinchronizuojame užimtų laikų žemėlapį iš serverio
     fetchBookedSlots().then(() => {

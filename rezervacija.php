@@ -70,6 +70,167 @@ function saveAllReservations($dataFile, $dataDbFile, $data) {
 }
 
 // =========================================================================
+// Saugumo pagalbinės funkcijos: IP nustatymas, apsauga nuo botų ir limitai
+// =========================================================================
+function getClientIp() {
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) return trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        return trim($parts[0]);
+    }
+    return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+}
+
+function validateLtMobilePhone($phone) {
+    $clean = preg_replace('/[^\d+]/', '', trim((string)$phone));
+    if (str_starts_with($clean, '86') && strlen($clean) === 9) {
+        $clean = '+370' . substr($clean, 1);
+    } elseif (str_starts_with($clean, '003706') && strlen($clean) === 13) {
+        $clean = '+370' . substr($clean, 4);
+    }
+    if (!preg_match('/^\+3706\d{7}$/', $clean)) {
+        return false;
+    }
+    $suffix = substr($clean, 5); // 7 skaitmenys po +3706
+    if (preg_match('/^(\d)\1{6}$/', $suffix)) {
+        return false; // Netikri pasikartojantys numeriai (0000000, 1111111 ir t.t.)
+    }
+    if ($suffix === '1234567' || $suffix === '7654321' || $suffix === '0123456') {
+        return false;
+    }
+    return $clean;
+}
+
+function isDisposableOrFakeEmail($email) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return true;
+    $parts = explode('@', $email);
+    if (count($parts) !== 2) return true;
+    $domain = strtolower($parts[1]);
+    $disposable = [
+        'tempmail.com', '10minutemail.com', 'guerrillamail.com', 'mailinator.com', 
+        'dispostable.com', 'sharklasers.com', 'getairmail.com', 'throwawaymail.com',
+        'yopmail.com', 'trashmail.com', 'fakeinbox.com', 'mohmal.com', 'temp-mail.org',
+        'temp-mail.io', 'generator.email', 'crazymailing.com', 'fakemailgenerator.com',
+        'disposablemail.com', 'maildrop.cc', 'inboxkitten.com'
+    ];
+    if (in_array($domain, $disposable)) return true;
+    if ($domain === 'asd.com' || $domain === 'test.com' || $domain === 'fake.com' || $domain === 'example.com') {
+        return true;
+    }
+    return false;
+}
+
+function loadJsonDbFile($file) {
+    if (!file_exists($file)) return [];
+    $data = json_decode(@file_get_contents($file), true);
+    return is_array($data) ? $data : [];
+}
+
+function saveJsonDbFile($file, $data) {
+    $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    @file_put_contents($file, $json, LOCK_EX);
+    @chmod($file, 0666);
+}
+
+function checkRateLimit($ip, $email, $type) {
+    $file = __DIR__ . '/rate_limits_db.json';
+    $limits = loadJsonDbFile($file);
+    $now = time();
+    $cutoff24h = $now - 86400;
+    $cutoff1h = $now - 3600;
+
+    foreach ($limits as $k => &$record) {
+        $record['pin_requests'] = array_values(array_filter($record['pin_requests'] ?? [], fn($t) => $t > $cutoff1h));
+        $record['cash_bookings'] = array_values(array_filter($record['cash_bookings'] ?? [], fn($t) => $t > $cutoff24h));
+    }
+    unset($record);
+
+    $ipRecord = $limits[$ip] ?? ['pin_requests' => [], 'cash_bookings' => []];
+
+    if ($type === 'pin_request') {
+        if (count($ipRecord['pin_requests'] ?? []) >= 5) {
+            saveJsonDbFile($file, $limits);
+            return ['allowed' => false, 'message' => 'Per daug patvirtinimo kodo užklausų iš šio įrenginio. Prašome palaukti kelias minutes arba susisiekti telefonu +370 619 88009.'];
+        }
+    } elseif ($type === 'cash_booking') {
+        if (count($ipRecord['cash_bookings'] ?? []) >= 2) {
+            saveJsonDbFile($file, $limits);
+            return ['allowed' => false, 'message' => 'Pasiektas rezervacijų limitas šiam įrenginiui (maks. 2 per parą). Prašome susisiekti telefonu +370 619 88009 arba apmokėti internetu.'];
+        }
+    }
+
+    saveJsonDbFile($file, $limits);
+    return ['allowed' => true];
+}
+
+function recordRateLimitHit($ip, $type) {
+    $file = __DIR__ . '/rate_limits_db.json';
+    $limits = loadJsonDbFile($file);
+    if (!isset($limits[$ip])) {
+        $limits[$ip] = ['pin_requests' => [], 'cash_bookings' => []];
+    }
+    if ($type === 'pin_request') {
+        $limits[$ip]['pin_requests'][] = time();
+    } elseif ($type === 'cash_booking') {
+        $limits[$ip]['cash_bookings'][] = time();
+    }
+    saveJsonDbFile($file, $limits);
+}
+
+function savePinCode($email, $phone, $pin, $ip) {
+    $file = __DIR__ . '/pincodes_db.json';
+    $db = loadJsonDbFile($file);
+    $now = time();
+    foreach ($db as $k => $v) {
+        if (($v['expires'] ?? 0) < $now) {
+            unset($db[$k]);
+        }
+    }
+    $db[strtolower(trim($email))] = [
+        'pin' => trim($pin),
+        'phone' => trim($phone),
+        'ip' => $ip,
+        'created_at' => $now,
+        'expires' => $now + 600, // 10 min.
+        'attempts' => 0
+    ];
+    saveJsonDbFile($file, $db);
+}
+
+function verifyPinCode($email, $pinInput) {
+    $file = __DIR__ . '/pincodes_db.json';
+    $db = loadJsonDbFile($file);
+    $key = strtolower(trim($email));
+    $entry = $db[$key] ?? null;
+
+    if (!$entry) {
+        return ['success' => false, 'message' => 'Patvirtinimo kodas nerastas arba pasibaigė jo galiojimas. Prašome paspausti „Siųsti dar kartą“ ir gauti naują kodą.'];
+    }
+
+    if (time() > ($entry['expires'] ?? 0)) {
+        unset($db[$key]);
+        saveJsonDbFile($file, $db);
+        return ['success' => false, 'message' => 'Patvirtinimo kodo 10 min. galiojimo laikas baigėsi. Prašome paprašyti naujo kodo.'];
+    }
+
+    if (trim($entry['pin']) !== trim($pinInput)) {
+        $entry['attempts'] = ($entry['attempts'] ?? 0) + 1;
+        if ($entry['attempts'] >= 4) {
+            unset($db[$key]);
+            saveJsonDbFile($file, $db);
+            return ['success' => false, 'message' => 'Neteisingas patvirtinimo kodas įvestas per daug kartų. Prašome paprašyti naujo kodo.'];
+        }
+        $db[$key] = $entry;
+        saveJsonDbFile($file, $db);
+        return ['success' => false, 'message' => 'Neteisingas 4 skaitmenų patvirtinimo kodas! Prašome patikrinti el. paštą ir bandyti dar kartą.'];
+    }
+
+    unset($db[$key]);
+    saveJsonDbFile($file, $db);
+    return ['success' => true];
+}
+
+// =========================================================================
 // 1. GET užklausa: gražinti užimtų laikų žemėlapį kalendoriui ir formoms
 // =========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -212,8 +373,85 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $rawInput = file_get_contents('php://input');
 $input = json_decode($rawInput, true) ?: $_POST;
 
+// 1. Apsauga nuo botų: Honeypot nematomas laukas
+if (!empty($input['extra_security_check'])) {
+    echo json_encode(['success' => false, 'message' => 'Saugumo patikros klaida.']);
+    exit;
+}
+
+$ip = getClientIp();
+
+// 2. Veiksmas: Patvirtinimo PIN kodo prašymas į el. paštą (mokant vietoje)
+if (isset($input['action']) && $input['action'] === 'request_pin') {
+    // Tikriname IP limitus
+    $rateCheck = checkRateLimit($ip, '', 'pin_request');
+    if (!$rateCheck['allowed']) {
+        echo json_encode(['success' => false, 'message' => $rateCheck['message']]);
+        exit;
+    }
+
+    $rawPhone = trim($input['phone'] ?? '');
+    $validPhone = validateLtMobilePhone($rawPhone);
+    if (!$validPhone) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Prašome nurodyti teisingą lietuvišką mobiliojo ryšio numerį (+370 6XX XXXXX arba 86XXXXXXX).'
+        ]);
+        exit;
+    }
+
+    $email = filter_var(trim($input['email'] ?? ''), FILTER_VALIDATE_EMAIL);
+    if (!$email || isDisposableOrFakeEmail($email)) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Prašome nurodyti galiojantį asmeninį el. pašto adresą patvirtinimo kodui gauti.'
+        ]);
+        exit;
+    }
+
+    // Apsauga nuo per dažno to paties el. pašto spaudinėjimo (min. 25 sek. pertrauka)
+    $pinsDb = loadJsonDbFile(__DIR__ . '/pincodes_db.json');
+    $existingPin = $pinsDb[strtolower($email)] ?? null;
+    if ($existingPin && (time() - ($existingPin['created_at'] ?? 0)) < 25) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Patvirtinimo kodas ką tik buvo išsiųstas. Prašome palaukti 25 sek. prieš prašant naujo.'
+        ]);
+        exit;
+    }
+
+    $name = htmlspecialchars(trim($input['name'] ?? ''));
+    if (!$name) {
+        echo json_encode(['success' => false, 'message' => 'Prašome įvesti savo vardą.']);
+        exit;
+    }
+
+    $pin = sprintf('%04d', mt_rand(1000, 9999));
+    savePinCode($email, $validPhone, $pin, $ip);
+    recordRateLimitHit($ip, 'pin_request');
+
+    require_once __DIR__ . '/email_helper.php';
+    $htmlBody = renderPinCodeEmailHtml($name, $pin);
+    $sub = "ThrowHouse patvirtinimo PIN kodas: $pin";
+    $sent = sendThrowHouseMail($email, $sub, $htmlBody, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+
+    if ($sent) {
+        echo json_encode([
+            'success' => true,
+            'message' => "Patvirtinimo kodas sėkmingai išsiųstas į $email!"
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Nepavyko išsiųsti el. laiško su kodu. Prašome pasitikrinti el. pašto adresą arba susisiekti telefonu.'
+        ]);
+    }
+    exit;
+}
+
+// 3. Pagrindinė rezervacijos pateikimo logika
 $name = htmlspecialchars(trim($input['name'] ?? ''));
-$phone = htmlspecialchars(trim($input['phone'] ?? ''));
+$rawPhone = trim($input['phone'] ?? '');
 $email = filter_var(trim($input['email'] ?? ''), FILTER_VALIDATE_EMAIL);
 $activity = htmlspecialchars(trim($input['activity'] ?? ''));
 $lane = htmlspecialchars(trim($input['lane'] ?? ''));
@@ -222,14 +460,59 @@ $date = htmlspecialchars(trim($input['date'] ?? ''));
 $isoDate = !empty($input['iso_date']) ? trim($input['iso_date']) : normalizeDateToIso($date);
 $time = htmlspecialchars(trim($input['time'] ?? ''));
 $price = htmlspecialchars(trim($input['price'] ?? ''));
-$payMethod = htmlspecialchars(trim($input['pay_method'] ?? 'Elektroninė bankininkystė / Kortelė'));
+$payMethod = htmlspecialchars(trim($input['pay_method'] ?? 'banklink'));
+$pinCode = trim($input['pin_code'] ?? '');
 
-if (!$name || !$phone || !$email || !$date || !$time) {
+$isCash = ($payMethod === 'cash' || stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'Grynaisiais') !== false);
+
+if (!$name || !$rawPhone || !$email || !$date || !$time) {
     echo json_encode([
         'success' => false,
         'message' => 'Prašome užpildyti visus privalomus laukus (vardą, telefoną, el. paštą, datą ir laiką).'
     ]);
     exit;
+}
+
+// Griežta lietuviško mobiliojo numerio patikra
+$phone = validateLtMobilePhone($rawPhone);
+if (!$phone) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Prašome nurodyti teisingą lietuvišką mobiliojo ryšio numerį (+370 6XX XXXXX arba 86XXXXXXX).'
+    ]);
+    exit;
+}
+
+// Griežta el. pašto patikra nuo vienkartinių / fiktyvių dėžučių
+if (isDisposableOrFakeEmail($email)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Prašome nurodyti galiojantį asmeninį el. pašto adresą.'
+    ]);
+    exit;
+}
+
+// Jei mokama grynaisiais vietoje – tikriname IP limitus ir 4 skaitmenų PIN kodą
+if ($isCash) {
+    $rateCheck = checkRateLimit($ip, $email, 'cash_booking');
+    if (!$rateCheck['allowed']) {
+        echo json_encode(['success' => false, 'message' => $rateCheck['message']]);
+        exit;
+    }
+
+    if (!$pinCode || strlen($pinCode) < 4) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Prašome suvesti 4 skaitmenų patvirtinimo kodą, kurį išsiuntėme į Jūsų el. paštą.'
+        ]);
+        exit;
+    }
+
+    $pinCheck = verifyPinCode($email, $pinCode);
+    if (!$pinCheck['success']) {
+        echo json_encode(['success' => false, 'message' => $pinCheck['message']]);
+        exit;
+    }
 }
 
 // Esamų rezervacijų užkrovimas
@@ -447,8 +730,15 @@ $opayCfg = loadOpayConfig();
 $isOpayActive = !empty($opayCfg['opay_enabled']) && !empty($opayCfg['website_id']) && !empty($opayCfg['signature_password']);
 
 $reservationId = 'TH-' . strtoupper(substr(uniqid(), -6));
-$initialStatus = $isOpayActive ? 'Laukiama apmokėjimo' : 'Gauta';
-$payTitle = $isOpayActive ? 'OPAY elektroninė bankininkystė' : $payMethod;
+
+if ($isCash) {
+    recordRateLimitHit($ip, 'cash_booking');
+    $initialStatus = 'Laukiama patvirtinimo (Mokės vietoje)';
+    $payTitle = 'Mokėti atvykus vietoje (Grynaisiais / Kortele)';
+} else {
+    $initialStatus = $isOpayActive ? 'Laukiama apmokėjimo' : 'Gauta';
+    $payTitle = $isOpayActive ? 'OPAY elektroninė bankininkystė' : $payMethod;
+}
 
 $reservation = [
     'id' => $reservationId,
@@ -470,7 +760,33 @@ $reservation = [
 $all[] = $reservation;
 saveAllReservations($dataFile, $dataDbFile, $all);
 
-// Jei OPAY aktyvus - sukuriame mokėjimo transakciją ir nukreipiame klientą
+// 1. Jei pasirinktas apmokėjimas grynaisiais vietoje:
+if ($isCash) {
+    // 1. Laiškas klientui
+    $clientHtmlBody = renderNewReservationClientHtml($reservation);
+    $subClient = "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]";
+    $clientSent = sendThrowHouseMail($email, $subClient, $clientHtmlBody, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+
+    // 2. Laiškas administratoriui su tiesioginio skambučio mygtukais ir perspėjimu
+    $adminHtmlBody = renderNewReservationAdminHtml($reservation);
+    $subAdmin = "🎯 Nauja ThrowHouse rezervacija (MOKĖS VIETOJE) [$reservationId]: $name ($date $time)";
+    $adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtmlBody, $email, 'ThrowHouse Rezervacijos');
+
+    // Žurnalas diagnostikai
+    $logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | CASH | Vardas: $name | Tel: $phone | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
+    @file_put_contents(__DIR__ . '/rezervacija_log.txt', $logEntry, FILE_APPEND);
+
+    echo json_encode([
+        'success' => true,
+        'opay_redirect' => false,
+        'is_cash' => true,
+        'message' => 'Rezervacija sėkmingai priimta! Kadangi pasirinkote mokėti vietoje, instruktorius susisieks su jumis telefonu prieš atvykimą patikslinti detales.',
+        'reservation_id' => $reservationId
+    ]);
+    exit;
+}
+
+// 2. Jei OPAY aktyvus ir pasirinktas apmokėjimas internetu:
 if ($isOpayActive) {
     $priceNum = floatval(preg_replace('/[^0-9\.]/', '', str_replace(',', '.', $price)));
     $amountCents = (int)round($priceNum * 100);
