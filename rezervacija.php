@@ -29,6 +29,19 @@ function normalizeDateToIso($dateStr) {
     return $ts ? date('Y-m-d', $ts) : date('Y-m-d');
 }
 
+// Pagalbinė funkcija: kirvių takelio pavadinimo suvienodinimas
+function normalizeLaneName($laneStr) {
+    if (!$laneStr) return '';
+    $trimmed = trim($laneStr);
+    if (stripos($trimmed, '2') !== false) {
+        return 'Takelis 2';
+    }
+    if (stripos($trimmed, '1') !== false) {
+        return 'Takelis 1';
+    }
+    return $trimmed;
+}
+
 $dataFile   = __DIR__ . '/rezervacijos.json';
 $dataDbFile = __DIR__ . '/rezervacijos_db.json';
 
@@ -361,11 +374,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $bookedMap[$iso][$t1]['rage']++;
         } elseif (stripos($act, 'Kirvių') !== false) {
             $bookedMap[$iso][$t1]['axe']++;
-            if ($l) $bookedMap[$iso][$t1]['lanes'][] = $l;
+            $normL = normalizeLaneName($l);
+            if (!$normL) {
+                $normL = in_array('Takelis 1', $bookedMap[$iso][$t1]['lanes']) ? 'Takelis 2' : 'Takelis 1';
+            }
+            $bookedMap[$iso][$t1]['lanes'][] = $normL;
         } elseif (stripos($act, 'KOMBO') !== false) {
             // Pirma darome Kirvių mėtymą (1-oji valanda: $t1)
             $bookedMap[$iso][$t1]['axe']++;
-            $bookedMap[$iso][$t1]['lanes'][] = $l ?: 'Takelis 1';
+            $normL = normalizeLaneName($l);
+            if (!$normL) {
+                $normL = in_array('Takelis 1', $bookedMap[$iso][$t1]['lanes']) ? 'Takelis 2' : 'Takelis 1';
+            }
+            $bookedMap[$iso][$t1]['lanes'][] = $normL;
 
             // Po to sekantis Pykčio kambarys (2-oji valanda: $t2)
             if (!isset($bookedMap[$iso][$t2])) {
@@ -479,7 +500,7 @@ $name = htmlspecialchars(trim($input['name'] ?? ''));
 $rawPhone = trim($input['phone'] ?? '');
 $email = filter_var(trim($input['email'] ?? ''), FILTER_VALIDATE_EMAIL);
 $activity = htmlspecialchars(trim($input['activity'] ?? ''));
-$lane = htmlspecialchars(trim($input['lane'] ?? ''));
+$lane = normalizeLaneName(htmlspecialchars(trim($input['lane'] ?? '')));
 $count = intval($input['count'] ?? 1);
 $date = htmlspecialchars(trim($input['date'] ?? ''));
 $isoDate = !empty($input['iso_date']) ? trim($input['iso_date']) : normalizeDateToIso($date);
@@ -661,11 +682,19 @@ foreach ($all as $ex) {
         $slotsOccupied[$exT1]['rage']++;
     } elseif (stripos($exAct, 'Kirvių') !== false) {
         $slotsOccupied[$exT1]['axe']++;
-        if ($exLane) $slotsOccupied[$exT1]['lanes'][] = $exLane;
+        $normExL = normalizeLaneName($exLane);
+        if (!$normExL) {
+            $normExL = in_array('Takelis 1', $slotsOccupied[$exT1]['lanes']) ? 'Takelis 2' : 'Takelis 1';
+        }
+        $slotsOccupied[$exT1]['lanes'][] = $normExL;
     } elseif (stripos($exAct, 'KOMBO') !== false) {
         // 1-oji valanda (Kirviai)
         $slotsOccupied[$exT1]['axe']++;
-        $slotsOccupied[$exT1]['lanes'][] = $exLane ?: 'Takelis 1';
+        $normExL = normalizeLaneName($exLane);
+        if (!$normExL) {
+            $normExL = in_array('Takelis 1', $slotsOccupied[$exT1]['lanes']) ? 'Takelis 2' : 'Takelis 1';
+        }
+        $slotsOccupied[$exT1]['lanes'][] = $normExL;
         // 2-oji valanda (Pyktis)
         $slotsOccupied[$exT2]['rage']++;
     }
@@ -708,6 +737,7 @@ if (stripos($activity, 'Pykčio') !== false) {
         ]);
         exit;
     }
+    $lane = normalizeLaneName($lane);
     if ($lane && in_array($lane, $lanes1)) {
         $lane = ($lane === 'Takelis 1') ? 'Takelis 2' : 'Takelis 1';
     } elseif (!$lane) {
@@ -738,6 +768,7 @@ if (stripos($activity, 'Pykčio') !== false) {
         ]);
         exit;
     }
+    $lane = normalizeLaneName($lane);
     if (!$lane || in_array($lane, $lanes1)) {
         $lane = in_array('Takelis 1', $lanes1) ? 'Takelis 2' : 'Takelis 1';
     }

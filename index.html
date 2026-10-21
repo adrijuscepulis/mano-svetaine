@@ -2135,10 +2135,11 @@
             <!-- TAKELIO PASIRINKIMAS (RODOMA KIRVIŲ MĖTYMUI IR KOMBO) -->
             <div id="laneSelector" class="lane-selector-box" style="display: none;">
               <label class="f-label" for="resLane">Pasirinkite kirvių takelį (turime 2 vnt.):</label>
-              <select id="resLane" class="f-input">
+              <select id="resLane" class="f-input" onchange="onLaneManualChange()">
                 <option value="Takelis 1">1 takelis</option>
                 <option value="Takelis 2">2 takelis</option>
               </select>
+              <div id="laneNotice" style="display:none; font-size:0.83rem; margin-top:0.45rem; padding:0.45rem 0.75rem; border-radius:6px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; line-height: 1.4;"></div>
             </div>
 
             <!-- PAPILDOMI INDAI DAUŽYMUI (TIK PYKČIO KAMBARIUI IR KOMBO) -->
@@ -2203,7 +2204,7 @@
 
               <div class="form-col">
                 <label class="f-label" for="resTime">4. Valanda (1 val. sesija):</label>
-                <select id="resTime" class="f-input" required>
+                <select id="resTime" class="f-input" required onchange="onTimeChange()">
                   <option value="">Pirmiausia pasirinkite datą</option>
                 </select>
               </div>
@@ -3108,9 +3109,18 @@
           opt.style.color = '#ef4444';
           opt.style.background = '#18181b';
         } else {
-          opt.textContent = isKombo
-            ? `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`
-            : `${hourStr} - ${endHourStr} val. (1 val.)`;
+          // Ar bent vienas takelis jau užimtas?
+          const hasOneLaneBooked = (isAxe || isKombo) && slot1 && (slot1.axe === 1 || (slot1.lanes && slot1.lanes.length === 1));
+          if (hasOneLaneBooked) {
+            opt.textContent = isKombo
+              ? `${hourStr} - ${endHourStr} val. (Liko 1 kirvių takelis 🔥)`
+              : `${hourStr} - ${endHourStr} val. (Liko 1 takelis 🔥)`;
+            opt.style.color = '#f59e0b';
+          } else {
+            opt.textContent = isKombo
+              ? `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`
+              : `${hourStr} - ${endHourStr} val. (1 val.)`;
+          }
           if (!firstAvailable) firstAvailable = hourStr;
           availableCount++;
         }
@@ -3136,6 +3146,110 @@
         } else if (firstAvailable) {
           timeSelect.value = firstAvailable;
         }
+      }
+
+      updateLaneAvailability();
+    }
+
+    function updateLaneAvailability() {
+      const laneBox = document.getElementById('laneSelector');
+      const laneSelect = document.getElementById('resLane');
+      const laneNotice = document.getElementById('laneNotice');
+      if (!laneSelect) return;
+
+      const actEl = document.querySelector('input[name="resActivity"]:checked');
+      const act = actEl ? actEl.value : '';
+      const isAxeOrKombo = act.includes('Kirvių') || act.includes('KOMBO');
+
+      if (!isAxeOrKombo) {
+        if (laneBox) laneBox.style.display = 'none';
+        if (laneNotice) laneNotice.style.display = 'none';
+        return;
+      }
+      if (laneBox) laneBox.style.display = 'block';
+
+      if (typeof selectedDate === 'undefined' || !selectedDate) {
+        if (laneNotice) laneNotice.style.display = 'none';
+        return;
+      }
+
+      const yyyy = selectedDate.getFullYear();
+      const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(selectedDate.getDate()).padStart(2, '0');
+      const isoKey = `${yyyy}-${mm}-${dd}`;
+      const daySlots = bookedSlotsData[isoKey] || {};
+
+      const timeSelect = document.getElementById('resTime');
+      const selectedTime = timeSelect ? timeSelect.value : '';
+      const slot = selectedTime ? daySlots[selectedTime] : null;
+      const bookedLanes = (slot && Array.isArray(slot.lanes)) ? slot.lanes : [];
+
+      const lane1Booked = bookedLanes.some(l => String(l).includes('1'));
+      const lane2Booked = bookedLanes.some(l => String(l).includes('2'));
+
+      let opt1 = laneSelect.querySelector('option[value="Takelis 1"]');
+      let opt2 = laneSelect.querySelector('option[value="Takelis 2"]');
+
+      if (opt1) {
+        if (lane1Booked) {
+          opt1.disabled = true;
+          opt1.textContent = '1 takelis ❌ (UŽIMTA)';
+          opt1.style.color = '#ef4444';
+        } else {
+          opt1.disabled = false;
+          opt1.textContent = '1 takelis (Laisvas)';
+          opt1.style.color = '';
+        }
+      }
+
+      if (opt2) {
+        if (lane2Booked) {
+          opt2.disabled = true;
+          opt2.textContent = '2 takelis ❌ (UŽIMTA)';
+          opt2.style.color = '#ef4444';
+        } else {
+          opt2.disabled = false;
+          opt2.textContent = '2 takelis (Laisvas)';
+          opt2.style.color = '';
+        }
+      }
+
+      // Automatinis perjungimas į laisvą takelį, jei parinktas takelis jau užimtas
+      if (lane1Booked && !lane2Booked) {
+        laneSelect.value = 'Takelis 2';
+        if (laneNotice) {
+          laneNotice.style.display = 'block';
+          laneNotice.innerHTML = 'ℹ️ <strong>1 takelis šiuo laiku jau užimtas.</strong> Automatiškai parinktas laisvas <strong>2 takelis</strong>.';
+        }
+      } else if (lane2Booked && !lane1Booked) {
+        laneSelect.value = 'Takelis 1';
+        if (laneNotice) {
+          laneNotice.style.display = 'block';
+          laneNotice.innerHTML = 'ℹ️ <strong>2 takelis šiuo laiku jau užimtas.</strong> Automatiškai parinktas laisvas <strong>1 takelis</strong>.';
+        }
+      } else if (lane1Booked && lane2Booked) {
+        if (laneNotice) {
+          laneNotice.style.display = 'block';
+          laneNotice.innerHTML = '⚠️ Šią valandą visi kirvių takeliai jau yra užimti.';
+        }
+      } else {
+        if (laneNotice) {
+          laneNotice.style.display = 'none';
+          laneNotice.innerHTML = '';
+        }
+      }
+    }
+
+    function onTimeChange() {
+      updateLaneAvailability();
+    }
+
+    function onLaneManualChange() {
+      const laneSelect = document.getElementById('resLane');
+      const selectedOpt = laneSelect.options[laneSelect.selectedIndex];
+      if (selectedOpt && selectedOpt.disabled) {
+        alert('Šis takelis pasirinktu laiku jau yra užimtas! Prašome pasirinkti kitą takelį.');
+        updateLaneAvailability();
       }
     }
 
