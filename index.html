@@ -921,6 +921,80 @@
     }
     .pay-lbl input { accent-color: var(--accent); }
 
+    /* OPAY BANKŲ PASIRINKIMO TINKLELIS */
+    .opay-banks-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 520px) {
+      .opay-banks-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.45rem;
+      }
+    }
+    .opay-bank-btn {
+      background: #ffffff;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.45rem 0.6rem;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .opay-bank-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      border-color: #cbd5e1;
+    }
+    .opay-bank-btn.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.4), 0 4px 10px rgba(0,0,0,0.3);
+      background: #ffffff;
+    }
+    .opay-bank-btn.active::after {
+      content: '✓';
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .opay-bank-btn img {
+      max-height: 28px;
+      max-width: 88%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .opay-bank-btn.opay-other-btn {
+      background: #f1f5f9;
+      border: 1.5px dashed #94a3b8;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.2px;
+    }
+    .opay-bank-btn.opay-other-btn:hover {
+      background: #e2e8f0;
+      border-color: #64748b;
+    }
+    .opay-bank-btn.opay-other-btn.active {
+      background: #fff7ed;
+      border-color: var(--accent);
+      border-style: solid;
+      color: var(--accent);
+    }
+
     .calc-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-color);
@@ -2086,14 +2160,92 @@
             <!-- APMOKĖJIMAS -->
             <div class="f-group">
               <label class="f-label">Apmokėjimo būdas:</label>
-              <div class="pay-methods" style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <div class="pay-methods" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 
-                <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid var(--accent); background: rgba(255, 106, 0, 0.08); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
-                  <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
-                  <strong style="color: #ffffff; font-size: 0.95rem;">🏦 Elektroninė bankininkystė (OPAY)</strong>
-                </label>
+                <!-- 1. Elektroninė bankininkystė su bankų pasirinkimu -->
+                <div id="payBankCardWrapper" style="border: 1.5px solid var(--accent); background: rgba(255, 106, 0, 0.05); border-radius: 12px; padding: 1rem; transition: all 0.2s;">
+                  <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-bottom: 0.85rem; padding: 0; background: none; border: none;">
+                    <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
+                    <strong style="color: #ffffff; font-size: 0.98rem;">💳 Elektroninė bankininkystė</strong>
+                  </label>
 
-                <label class="pay-lbl" id="payLblCash" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                  <!-- Bankų tinklelis (pagal oficialią OPAY specifikaciją) -->
+                  <div id="bankSelectorBox" style="display: block;">
+                    <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.65rem; font-weight: 500;">
+                      Pasirinkite banką – nukreipsime tiesiai į jo puslapį:
+                    </div>
+
+                    <div class="opay-banks-grid" id="opayBanksGrid">
+                      <label class="opay-bank-btn active" title="Swedbank">
+                        <input type="radio" name="opayBank" value="pis_swedbank" checked style="display: none;">
+                        <img src="bank_logos/pis_swedbank.png" alt="Swedbank" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="SEB">
+                        <input type="radio" name="opayBank" value="pis_seb" style="display: none;">
+                        <img src="bank_logos/pis_seb.png" alt="SEB" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Luminor">
+                        <input type="radio" name="opayBank" value="pis_dnb" style="display: none;">
+                        <img src="bank_logos/pis_dnb.png" alt="Luminor" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Citadele">
+                        <input type="radio" name="opayBank" value="pis_citadele" style="display: none;">
+                        <img src="bank_logos/pis_citadele.png" alt="Citadele" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Artea">
+                        <input type="radio" name="opayBank" value="pis_sb" style="display: none;">
+                        <img src="bank_logos/pis_sb.png" alt="Artea" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Urbo">
+                        <input type="radio" name="opayBank" value="pis_medbank" style="display: none;">
+                        <img src="bank_logos/pis_medbank.png" alt="Urbo" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Lietuvos centrinė kredito unija">
+                        <input type="radio" name="opayBank" value="pis_lku" style="display: none;">
+                        <img src="bank_logos/pis_lku.png" alt="Lietuvos centrinė kredito unija" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Paysera">
+                        <input type="radio" name="opayBank" value="pis_paysera" style="display: none;">
+                        <img src="bank_logos/pis_paysera.png" alt="Paysera" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Revolut">
+                        <input type="radio" name="opayBank" value="pis_revolut" style="display: none;">
+                        <img src="bank_logos/pis_revolut.png" alt="Revolut" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="Wise">
+                        <input type="radio" name="opayBank" value="pis_wise" style="display: none;">
+                        <img src="bank_logos/pis_wise.png" alt="Wise" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn" title="N26">
+                        <input type="radio" name="opayBank" value="pis_n26" style="display: none;">
+                        <img src="bank_logos/pis_n26.png" alt="N26" loading="lazy">
+                      </label>
+
+                      <label class="opay-bank-btn opay-other-btn" title="Kitas mokėjimo būdas">
+                        <input type="radio" name="opayBank" value="" style="display: none;">
+                        <span>Kitas būdas</span>
+                      </label>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 0.65rem; font-size: 0.72rem; color: #94a3b8;">
+                      <span>Mokėjimus saugiai apdoroja</span>
+                      <strong style="color: #cbd5e1; letter-spacing: 0.5px;">OPAY</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Mokėti atvykus vietoje -->
+                <label class="pay-lbl" id="payLblCash" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; border: 1.5px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
                   <input type="radio" name="resPay" value="cash" style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
                   <strong style="color: #ffffff; font-size: 0.95rem;">💵 Mokėti atvykus vietoje (Tik grynaisiais)</strong>
                 </label>
@@ -2901,10 +3053,29 @@
 
     function initPaymentMethodLogic() {
       const payRadios = document.querySelectorAll('input[name="resPay"]');
-      const lblBank = document.getElementById('payLblBank');
+      const cardBankWrapper = document.getElementById('payBankCardWrapper');
+      const bankSelectorBox = document.getElementById('bankSelectorBox');
       const lblCash = document.getElementById('payLblCash');
       const pinBox = document.getElementById('pinBoxWrapper');
       const submitBtn = document.getElementById('submitBtn');
+      const bankBtns = document.querySelectorAll('.opay-bank-btn');
+
+      // Bankų kortelių paspaudimo valdymas
+      bankBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          // Jei buvo pasirinktas mokėjimas grynaisiais, automatiškai perjungiame į elektroninę bankininkystę
+          const bankRadio = document.querySelector('input[name="resPay"][value="banklink"]');
+          if (bankRadio && !bankRadio.checked) {
+            bankRadio.checked = true;
+            updatePayUI();
+          }
+          bankBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const r = btn.querySelector('input[name="opayBank"]');
+          if (r) r.checked = true;
+        });
+      });
 
       function updatePayUI() {
         const selected = document.querySelector('input[name="resPay"]:checked')?.value || 'banklink';
@@ -2913,9 +3084,12 @@
             lblCash.style.borderColor = 'var(--accent)';
             lblCash.style.background = 'rgba(255, 106, 0, 0.08)';
           }
-          if (lblBank) {
-            lblBank.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-            lblBank.style.background = 'rgba(255, 255, 255, 0.03)';
+          if (cardBankWrapper) {
+            cardBankWrapper.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+            cardBankWrapper.style.background = 'rgba(255, 255, 255, 0.03)';
+          }
+          if (bankSelectorBox) {
+            bankSelectorBox.style.display = 'none';
           }
           if (isPinSent) {
             if (pinBox) pinBox.style.display = 'block';
@@ -2925,9 +3099,12 @@
             if (submitBtn) submitBtn.textContent = 'Gauti patvirtinimo kodą į el. paštą ➔';
           }
         } else {
-          if (lblBank) {
-            lblBank.style.borderColor = 'var(--accent)';
-            lblBank.style.background = 'rgba(255, 106, 0, 0.08)';
+          if (cardBankWrapper) {
+            cardBankWrapper.style.borderColor = 'var(--accent)';
+            cardBankWrapper.style.background = 'rgba(255, 106, 0, 0.05)';
+          }
+          if (bankSelectorBox) {
+            bankSelectorBox.style.display = 'block';
           }
           if (lblCash) {
             lblCash.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -3154,6 +3331,8 @@
       const payRadio = document.querySelector('input[name="resPay"]:checked');
       const payMethod = payRadio ? payRadio.value : 'banklink';
       const isCash = (payMethod === 'cash');
+      const selectedBankRadio = document.querySelector('input[name="opayBank"]:checked');
+      const opayChannel = isCash ? '' : (selectedBankRadio ? selectedBankRadio.value : 'pis_swedbank');
 
       // Jei pasirinktas mokėjimas grynaisiais vietoje:
       let pinVal = '';
@@ -3177,7 +3356,21 @@
       btn.disabled = true;
       btn.textContent = 'Tikrinama ir apdorojama...';
 
-      const payLabel = isCash ? 'Mokėti atvykus vietoje (Tik grynaisiais)' : 'Elektroninė bankininkystė';
+      const bankTitleMap = {
+        'pis_swedbank': 'Swedbank',
+        'pis_seb': 'SEB',
+        'pis_dnb': 'Luminor',
+        'pis_citadele': 'Citadele',
+        'pis_sb': 'Artea',
+        'pis_medbank': 'Urbo',
+        'pis_lku': 'LKU',
+        'pis_paysera': 'Paysera',
+        'pis_revolut': 'Revolut',
+        'pis_wise': 'Wise',
+        'pis_n26': 'N26',
+        '': 'OPAY'
+      };
+      const payLabel = isCash ? 'Mokėti atvykus vietoje (Tik grynaisiais)' : ('Elektroninė bankininkystė (' + (bankTitleMap[opayChannel] || 'OPAY') + ')');
 
       try {
         const payload = {
@@ -3190,6 +3383,7 @@
           time,
           price: prc,
           pay_method: isCash ? 'cash' : 'banklink',
+          opay_channel: opayChannel,
           pin_code: pinVal,
           extra_security_check: document.getElementById('extraSecurityCheck')?.value || ''
         };
@@ -3266,6 +3460,16 @@
         clearInterval(pinCooldownTimer);
         const pinBox = document.getElementById('pinBoxWrapper');
         if (pinBox) pinBox.style.display = 'none';
+
+        // Atstatome Swedbank kaip numatytąjį pasirinkimą
+        const bankBtns = document.querySelectorAll('.opay-bank-btn');
+        bankBtns.forEach(b => b.classList.remove('active'));
+        const swedBtn = document.querySelector('.opay-bank-btn input[value="pis_swedbank"]');
+        if (swedBtn) {
+          swedBtn.checked = true;
+          swedBtn.closest('.opay-bank-btn')?.classList.add('active');
+        }
+
         initPaymentMethodLogic();
         form.style.display = 'block';
         box.style.display = 'none';

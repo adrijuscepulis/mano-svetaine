@@ -461,6 +461,7 @@ $isoDate = !empty($input['iso_date']) ? trim($input['iso_date']) : normalizeDate
 $time = htmlspecialchars(trim($input['time'] ?? ''));
 $price = htmlspecialchars(trim($input['price'] ?? ''));
 $payMethod = htmlspecialchars(trim($input['pay_method'] ?? 'banklink'));
+$opayChannel = htmlspecialchars(trim($input['opay_channel'] ?? ''));
 $pinCode = trim($input['pin_code'] ?? '');
 
 $isCash = ($payMethod === 'cash' || stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'Grynaisiais') !== false);
@@ -737,7 +738,8 @@ if ($isCash) {
     $payTitle = 'Mokėti atvykus vietoje (Tik grynaisiais)';
 } else {
     $initialStatus = $isOpayActive ? 'Laukiama apmokėjimo' : 'Gauta';
-    $payTitle = $isOpayActive ? 'OPAY elektroninė bankininkystė' : $payMethod;
+    $bankTitle = (!empty($opayChannel) && function_exists('getOpayChannelTitle')) ? getOpayChannelTitle($opayChannel) : '';
+    $payTitle = $isOpayActive ? ('Elektroninė bankininkystė' . ($bankTitle ? " ($bankTitle)" : '')) : $payMethod;
 }
 
 $reservation = [
@@ -807,7 +809,8 @@ if ($isOpayActive) {
         $email,
         $phone,
         $redirectUrl,
-        $callbackUrl
+        $callbackUrl,
+        $opayChannel
     );
 
     if (!empty($opayRes['success']) && !empty($opayRes['redirect_url'])) {

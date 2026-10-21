@@ -75,9 +75,10 @@ function buildOpaySignature(array $params, $signaturePassword) {
  * @param string $clientPhone Kliento telefonas
  * @param string $redirectUrl Grįžtamasis adresas naršyklei po apmokėjimo
  * @param string $callbackUrl Server-to-server webhook pranešimų adresas
+ * @param string $passThroughChannel Pasirinktas bankas (pvz. pis_swedbank, pis_seb ir kt.)
  * @return array Rezultatas ['success' => bool, 'redirect_url' => string, 'error' => string]
  */
-function createOpayPaymentTransaction($orderNr, $amountCents, $clientName, $clientEmail, $clientPhone, $redirectUrl, $callbackUrl) {
+function createOpayPaymentTransaction($orderNr, $amountCents, $clientName, $clientEmail, $clientPhone, $redirectUrl, $callbackUrl, $passThroughChannel = '') {
     $cfg = loadOpayConfig();
 
     if (empty($cfg['opay_enabled'])) {
@@ -118,6 +119,12 @@ function createOpayPaymentTransaction($orderNr, $amountCents, $clientName, $clie
     }
     if (!empty($clientPhone)) {
         $params['c_mobile_nr'] = trim($clientPhone);
+    }
+
+    // Tiesioginis nukreipimas į pirkėjo pasirinktą banką
+    if (!empty($passThroughChannel)) {
+        $params['pass_through_channel_name'] = trim($passThroughChannel);
+        $params['pass_through_only'] = 0;
     }
 
     // Apskaičiuojame skaitmeninį parašą
@@ -259,4 +266,25 @@ function saveAllReservationsHelper($dataFile, $dataDbFile, $data) {
     $r1 = saveReservationsHelper($dataFile, $data);
     $r2 = saveReservationsHelper($dataDbFile, $data);
     return ($r1 || $r2);
+}
+
+/**
+ * Grąžina žmogui suprantamą banko pavadinimą pagal OPAY kanalo raktą
+ */
+function getOpayChannelTitle($channelName) {
+    $titles = [
+        'pis_swedbank' => 'Swedbank',
+        'pis_seb'      => 'SEB',
+        'pis_dnb'      => 'Luminor',
+        'pis_citadele' => 'Citadele',
+        'pis_sb'       => 'Artea',
+        'pis_medbank'  => 'Urbo',
+        'pis_lku'      => 'Lietuvos centrinė kredito unija (LKU)',
+        'pis_paysera'  => 'Paysera',
+        'pis_revolut'  => 'Revolut',
+        'pis_wise'     => 'Wise',
+        'pis_n26'      => 'N26',
+        ''             => 'OPAY (Kitas būdas)'
+    ];
+    return $titles[$channelName] ?? ($channelName ?: 'OPAY');
 }
