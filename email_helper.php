@@ -325,7 +325,7 @@ function renderPinCodeEmailHtml($name, $pinCode) {
     <div style="padding: 28px 24px; color: #1e293b; line-height: 1.6;">
       <p style="margin: 0 0 16px; font-size: 16px;">Sveiki, <strong>' . $cleanName . '</strong>!</p>
       <p style="margin: 0 0 20px; font-size: 15px; color: #475569;">
-        Norėdami patvirtinti savo rezervaciją su apmokėjimu <strong>grynaisiais vietoje</strong>, suveskite šį 4 skaitmenų patvirtinimo kodą svetainėje:
+        Norėdami patvirtinti savo rezervaciją su apmokėjimu <strong>kortele vietoje</strong>, suveskite šį 4 skaitmenų patvirtinimo kodą svetainėje:
       </p>
       <div style="background: linear-gradient(135deg, #0f172a 0%, #18102a 100%); border: 2px dashed #ff6a00; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
         <span style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Jūsų patvirtinimo PIN kodas:</span>
@@ -368,9 +368,9 @@ function renderNewReservationClientHtml($res) {
     $price = htmlspecialchars($res['price'] ?? '');
     $isKombo = (stripos($activity, 'KOMBO') !== false);
     $durationLabel = $isKombo ? "2 val. sesija (Kirviai + Pykčio kambarys)" : "1 val. sesija";
-    $isCash = (stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'Grynaisiais') !== false || stripos($payMethod, 'cash') !== false);
+    $isCash = (stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'kortele') !== false || stripos($payMethod, 'Grynaisiais') !== false || stripos($payMethod, 'cash') !== false);
     $priceBadge = $isCash 
-        ? '<span style="font-size: 12px; font-weight: bold; color: #d97706;">(Mokėsite atvykus vietoje)</span>'
+        ? '<span style="font-size: 12px; font-weight: bold; color: #d97706;">(Mokėsite kortele vietoje)</span>'
         : '<span style="font-size: 12px; font-weight: normal; color: #10b981;">(Apmokėta internetu)</span>';
 
     return '<!DOCTYPE html>
@@ -396,7 +396,7 @@ function renderNewReservationClientHtml($res) {
       <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 16px; margin: 18px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #1e40af; display: block; margin-bottom: 4px;">📞 SVARBU – PATVIRTINIMAS TELEFONU:</strong>
         <p style="margin: 0; color: #1e3a8a; font-size: 14px;">
-          Kadangi pasirinkote apmokėjimą grynaisiais vietoje, prieš atvykimą mūsų instruktorius susisieks su Jumis telefonu, kad galutinai patikslintų rezervaciją. Maloniai prašome atsiliepti!
+          Kadangi pasirinkote apmokėjimą kortele vietoje, prieš atvykimą mūsų instruktorius susisieks su Jumis telefonu, kad galutinai patikslintų rezervaciją. Maloniai prašome atsiliepti!
         </p>
       </div>' : '') . '
       
@@ -516,9 +516,9 @@ function renderNewReservationAdminHtml($res) {
     $payMethod = htmlspecialchars($res['payment'] ?? 'Elektroninė bankininkystė');
     $price = htmlspecialchars($res['price'] ?? '');
     $baseUrl = getThrowHouseBaseUrl();
-    $isCash = (stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'Grynaisiais') !== false || stripos($payMethod, 'cash') !== false);
+    $isCash = (stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'kortele') !== false || stripos($payMethod, 'Grynaisiais') !== false || stripos($payMethod, 'cash') !== false);
     $priceBadge = $isCash 
-        ? '<span style="font-size:12px; font-weight:bold; color:#d97706;">(Mokės vietoje)</span>'
+        ? '<span style="font-size:12px; font-weight:bold; color:#d97706;">(Mokės kortele vietoje)</span>'
         : '<span style="font-size:12px; font-weight:normal; color:#10b981;">(Apmokėta internetu)</span>';
 
     return '<!DOCTYPE html>
@@ -540,7 +540,7 @@ function renderNewReservationAdminHtml($res) {
       ' . ($isCash ? '
       <!-- DĖMESIO: MOKĖJIMAS VIETOJE -->
       <div style="background-color: #fff1f2; border: 2px solid #e11d48; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
-        <strong style="color: #be123c; font-size: 15px; display: block; margin-bottom: 6px;">⚠️ DĖMESIO – KLIENTAS MOKĖS VIETOJE:</strong>
+        <strong style="color: #be123c; font-size: 15px; display: block; margin-bottom: 6px;">⚠️ DĖMESIO – KLIENTAS MOKĖS KORTELE VIETOJE:</strong>
         <p style="margin: 0 0 12px 0; color: #881337; font-size: 14px; line-height: 1.5;">
           Šis užsakymas neapmokėtas internetu (klientas sėkmingai patvirtino savo el. paštą PIN kodu). <strong>Būtina pasiskambinti klientui ir patvirtinti atvykimą!</strong>
         </p>

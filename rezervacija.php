@@ -489,7 +489,7 @@ $payMethod = htmlspecialchars(trim($input['pay_method'] ?? 'banklink'));
 $opayChannel = htmlspecialchars(trim($input['opay_channel'] ?? ''));
 $pinCode = trim($input['pin_code'] ?? '');
 
-$isCash = ($payMethod === 'cash' || stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'Grynaisiais') !== false);
+$isCash = ($payMethod === 'cash' || stripos($payMethod, 'vietoje') !== false || stripos($payMethod, 'kortele') !== false || stripos($payMethod, 'Grynaisiais') !== false);
 
 if (!$name || !$rawPhone || !$email || !$date || !$time) {
     echo json_encode([
@@ -760,7 +760,7 @@ $reservationId = 'TH-' . strtoupper(substr(uniqid(), -6));
 if ($isCash) {
     recordRateLimitHit($ip, 'cash_booking');
     $initialStatus = 'Laukiama patvirtinimo (Mokės vietoje)';
-    $payTitle = 'Mokėti atvykus vietoje (Tik grynaisiais)';
+    $payTitle = 'Mokėti kortele vietoje';
 } else {
     $initialStatus = $isOpayActive ? 'Laukiama apmokėjimo' : 'Gauta';
     $bankTitle = (!empty($opayChannel) && function_exists('getOpayChannelTitle')) ? getOpayChannelTitle($opayChannel) : '';
@@ -807,7 +807,7 @@ if ($isCash) {
         'success' => true,
         'opay_redirect' => false,
         'is_cash' => true,
-        'message' => 'Rezervacija sėkmingai priimta! Kadangi pasirinkote mokėti vietoje, instruktorius susisieks su jumis telefonu prieš atvykimą patikslinti detales.',
+        'message' => 'Rezervacija sėkmingai priimta! Kadangi pasirinkote mokėti kortele vietoje, instruktorius susisieks su jumis telefonu prieš atvykimą patikslinti detales.',
         'reservation_id' => $reservationId
     ]);
     exit;
