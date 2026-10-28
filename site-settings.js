@@ -114,11 +114,27 @@
     // 3.1. Pramogų kortelės (#pramogos)
     const actRagePrice = document.getElementById('promoActRagePrice');
     if (actRagePrice) {
-      actRagePrice.innerHTML = `Kaina: <del style="opacity:0.6;font-size:0.95rem;">${rageBase} €</del> <strong style="color:#22c55e;">${rageBase - discount} €</strong> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;">-${discount} € AKCIJA</span> <span class="capacity-badge">30 indų | Iki 4 asm.</span>`;
+      actRagePrice.innerHTML = `
+        Kaina:
+        <div style="display: flex; align-items: baseline; gap: 6px; margin: 3px 0;">
+          <del style="opacity: 0.55; font-size: 1.15rem; text-decoration: line-through; color: var(--text-gray);">${rageBase} €</del>
+          <strong style="display: inline-block; color: #22c55e; font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">${rageBase - discount} €</strong>
+          <span style="font-size: 0.72rem; background: #22c55e; color: #052e16; font-weight: 800; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">-${discount} € AKCIJA</span>
+        </div>
+        <span class="capacity-badge">30 indų | Iki 4 asm.</span>
+      `;
     }
     const actAxePrice = document.getElementById('promoActAxePrice');
     if (actAxePrice) {
-      actAxePrice.innerHTML = `Kaina: <del style="opacity:0.6;font-size:0.95rem;">${axeBase} €</del> <strong style="color:#22c55e;">${axeBase - discount} €</strong> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;">-${discount} € AKCIJA</span> <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>`;
+      actAxePrice.innerHTML = `
+        Kaina:
+        <div style="display: flex; align-items: baseline; gap: 6px; margin: 3px 0;">
+          <del style="opacity: 0.55; font-size: 1.15rem; text-decoration: line-through; color: var(--text-gray);">${axeBase} €</del>
+          <strong style="display: inline-block; color: #22c55e; font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">${axeBase - discount} €</strong>
+          <span style="font-size: 0.72rem; background: #22c55e; color: #052e16; font-weight: 800; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">-${discount} € AKCIJA</span>
+        </div>
+        <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>
+      `;
     }
     const actRageBtn = document.getElementById('btnActRage');
     if (actRageBtn) actRageBtn.textContent = `Rezervuoti (${rageBase - discount} € 🔥)`;
