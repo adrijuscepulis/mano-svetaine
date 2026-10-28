@@ -42,6 +42,40 @@ function normalizeLaneName($laneStr) {
     return $trimmed;
 }
 
+// Pagalbinė funkcija: darbo laiko gavimas pagal grafiką ir išimtis
+function getWorkingHoursForDate($isoDate, $settings = []) {
+    $dayOfWeek = (string)date('w', strtotime($isoDate));
+
+    // 1. Konkrečios datos speciali išimtis
+    if (!empty($settings['schedule']['custom_dates'][$isoDate])) {
+        $cd = $settings['schedule']['custom_dates'][$isoDate];
+        return [
+            'enabled' => !empty($cd['enabled']),
+            'start' => intval($cd['start'] ?? 16),
+            'end' => intval($cd['end'] ?? 22)
+        ];
+    }
+
+    // 2. Savaitės dienos grafikas
+    if (isset($settings['schedule']['days'][$dayOfWeek])) {
+        $sd = $settings['schedule']['days'][$dayOfWeek];
+        return [
+            'enabled' => !empty($sd['enabled']),
+            'start' => intval($sd['start'] ?? 16),
+            'end' => intval($sd['end'] ?? 22)
+        ];
+    }
+
+    // 3. Standartiniai numatytieji
+    if ($dayOfWeek === '0') {
+        return ['enabled' => true, 'start' => 9, 'end' => 20];
+    } elseif ($dayOfWeek === '5' || $dayOfWeek === '6') {
+        return ['enabled' => true, 'start' => 9, 'end' => 24];
+    } else {
+        return ['enabled' => true, 'start' => 16, 'end' => 22];
+    }
+}
+
 $dataFile   = __DIR__ . '/rezervacijos.json';
 $dataDbFile = __DIR__ . '/rezervacijos_db.json';
 
@@ -605,27 +639,31 @@ $t2 = sprintf('%02d:00', $startHour + 1);
 $tEnd = sprintf('%02d:00', $startHour + 2);
 $isKombo = (stripos($activity, 'KOMBO') !== false);
 
-$dayOfWeek = date('w', strtotime($isoDate));
-if ($dayOfWeek == 0) {
-    // Sekmadienis: 09:00 - 20:00
-    $maxStart = $isKombo ? 18 : 19;
-    if ($startHour < 9 || $startHour > $maxStart) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Sekmadieniais dirbame nuo 09:00 iki 20:00. Prašome pasirinkti galiojantį darbo laiką.'
-        ]);
-        exit;
-    }
-} elseif ($dayOfWeek >= 1 && $dayOfWeek <= 4) {
-    // Darbo dienomis (I-IV): 16:00 - 22:00
-    $maxStart = $isKombo ? 20 : 21;
-    if ($startHour < 16 || $startHour > $maxStart) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Darbo dienomis (I–IV) dirbame nuo 16:00 iki 22:00. Prašome pasirinkti galiojantį darbo laiką.'
-        ]);
-        exit;
-    }
+$settings = [];
+if (file_exists(__DIR__ . '/nustatymai_db.json')) {
+    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai_db.json'), true) ?: [];
+} elseif (file_exists(__DIR__ . '/nustatymai.json')) {
+    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai.json'), true) ?: [];
+}
+
+$wh = getWorkingHoursForDate($isoDate, $settings);
+if (empty($wh['enabled'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Atsiprašome, šią dieną nedirbame. Prašome pasirinkti kitą dieną.'
+    ]);
+    exit;
+}
+
+$startLimit = intval($wh['start']);
+$endLimit = intval($wh['end']);
+$maxStart = $isKombo ? ($endLimit - 2) : ($endLimit - 1);
+if ($startHour < $startLimit || $startHour > $maxStart) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Pasirinktas laikas neatitinka nustatyto darbo laiko (šią dieną dirbame nuo ' . sprintf('%02d:00', $startLimit) . ' iki ' . sprintf('%02d:00', $endLimit) . ' val.). Prašome pasirinkti galiojantį laiką.'
+    ]);
+    exit;
 }
 
 $slotsOccupied = [];
@@ -798,12 +836,6 @@ if ($isCash) {
     $payTitle = $isOpayActive ? ('Elektroninė bankininkystė' . ($bankTitle ? " ($bankTitle)" : '')) : $payMethod;
 }
 
-$settings = [];
-if (file_exists(__DIR__ . '/nustatymai_db.json')) {
-    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai_db.json'), true) ?: [];
-} elseif (file_exists(__DIR__ . '/nustatymai.json')) {
-    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai.json'), true) ?: [];
-}
 $promo = $settings['promo'] ?? null;
 $isPromoActive = !empty($promo['enabled']) && !empty($promo['end_time']) && (strtotime($promo['end_time']) > time());
 $promoDiscount = $isPromoActive ? floatval($promo['discount'] ?? 5) : 0;

@@ -34,6 +34,18 @@
     "sunday": "09:00 - 20:00",
     "note": "Rezervacija internetu privaloma iš anksto."
   },
+  "schedule": {
+    "days": {
+      "1": { "name": "Pirmadienis", "enabled": true, "start": 16, "end": 22 },
+      "2": { "name": "Antradienis", "enabled": true, "start": 16, "end": 22 },
+      "3": { "name": "Trečiadienis", "enabled": true, "start": 16, "end": 22 },
+      "4": { "name": "Ketvirtadienis", "enabled": true, "start": 16, "end": 22 },
+      "5": { "name": "Penktadienis", "enabled": true, "start": 9, "end": 24 },
+      "6": { "name": "Šeštadienis", "enabled": true, "start": 9, "end": 24 },
+      "0": { "name": "Sekmadienis", "enabled": true, "start": 9, "end": 20 }
+    },
+    "custom_dates": {}
+  },
   "prices": {
     "rage_price": 30,
     "rage_duration": "1 val.",

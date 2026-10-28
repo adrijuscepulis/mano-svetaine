@@ -208,10 +208,22 @@
         axe_price: 30,
         combo_price: 50,
         extra_dish_price: 0.60
+      },
+      schedule: {
+        days: {
+          "1": { name: "Pirmadienis", enabled: true, start: 16, end: 22 },
+          "2": { name: "Antradienis", enabled: true, start: 16, end: 22 },
+          "3": { name: "Trečiadienis", enabled: true, start: 16, end: 22 },
+          "4": { name: "Ketvirtadienis", enabled: true, start: 16, end: 22 },
+          "5": { name: "Penktadienis", enabled: true, start: 9, end: 24 },
+          "6": { name: "Šeštadienis", enabled: true, start: 9, end: 24 },
+          "0": { name: "Sekmadienis", enabled: true, start: 9, end: 20 }
+        },
+        custom_dates: {}
       }
     };
   </script>
-  <script src="site-settings.js?v=48h-promo-4"></script>
+  <script src="site-settings.js?v=custom-hours-1"></script>
   <style>
     :root {
       --bg-dark: #08050e;
@@ -2945,23 +2957,16 @@
       const isAxe = act.includes('Kirvių mėtymas');
       const isKombo = act.includes('KOMBO');
 
-      const dayOfWeek = checkDate.getDay();
-      let startHour = 16;
-      let closingHour = 22;
+      const wh = (typeof window.getWorkingHoursForDate === 'function')
+        ? window.getWorkingHoursForDate(checkDate, window.SITE_SETTINGS)
+        : { enabled: true, start: (checkDate.getDay() === 0 || checkDate.getDay() >= 5 ? 9 : 16), end: (checkDate.getDay() === 0 ? 20 : (checkDate.getDay() >= 5 ? 24 : 22)) };
 
-      if (dayOfWeek === 0) {
-        // Sekmadienis: 09:00 - 20:00
-        startHour = 9;
-        closingHour = 20;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis ir Šeštadienis (V-VI): 09:00 - 24:00
-        startHour = 9;
-        closingHour = 24;
-      } else {
-        // Darbo dienomis (I - IV): 16:00 - 22:00
-        startHour = 16;
-        closingHour = 22;
+      if (!wh.enabled) {
+        return { total: 0, available: 0, closed: 0, booked: 0, past: 0, isFullOrPast: true };
       }
+
+      let startHour = wh.start;
+      let closingHour = wh.end;
 
       let endHour = isKombo ? (closingHour - 2) : (closingHour - 1);
       let totalSlots = 0;
@@ -3196,24 +3201,24 @@
       const isToday = (yyyy === todayYear && targetDate.getMonth() === todayMonth && targetDate.getDate() === todayDate);
       const isPastDay = new Date(yyyy, targetDate.getMonth(), targetDate.getDate()).getTime() < new Date(todayYear, todayMonth, todayDate).getTime();
 
-      const dayOfWeek = targetDate.getDay();
-      timeSelect.innerHTML = '';
-      let startHour = 16;
-      let closingHour = 22;
+      const wh = (typeof window.getWorkingHoursForDate === 'function')
+        ? window.getWorkingHoursForDate(targetDate, window.SITE_SETTINGS)
+        : { enabled: true, start: (targetDate.getDay() === 0 || targetDate.getDay() >= 5 ? 9 : 16), end: (targetDate.getDay() === 0 ? 20 : (targetDate.getDay() >= 5 ? 24 : 22)) };
 
-      if (dayOfWeek === 0) {
-        // Sekmadienis: 09:00 - 20:00
-        startHour = 9;
-        closingHour = 20;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis ir Šeštadienis (V-VI): 09:00 - 24:00
-        startHour = 9;
-        closingHour = 24;
-      } else {
-        // Darbo dienomis (I - IV): 16:00 - 22:00
-        startHour = 16;
-        closingHour = 22;
+      timeSelect.innerHTML = '';
+
+      if (!wh.enabled) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Šią dieną nedirbame';
+        timeSelect.appendChild(opt);
+        timeSelect.disabled = true;
+        return;
       }
+      timeSelect.disabled = false;
+
+      let startHour = wh.start;
+      let closingHour = wh.end;
 
       // KOMBO trunka 2 valandas, todėl paskutinė pradžia – likus 2 val. iki uždarymo:
       let endHour = isKombo ? (closingHour - 2) : (closingHour - 1);

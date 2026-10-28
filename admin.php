@@ -165,6 +165,18 @@ function getDefaultSettings() {
             'sunday' => '09:00 - 20:00',
             'note' => 'Rezervacija internetu privaloma iš anksto.'
         ],
+        'schedule' => [
+            'days' => [
+                '1' => ['name' => 'Pirmadienis', 'enabled' => true, 'start' => 16, 'end' => 22],
+                '2' => ['name' => 'Antradienis', 'enabled' => true, 'start' => 16, 'end' => 22],
+                '3' => ['name' => 'Trečiadienis', 'enabled' => true, 'start' => 16, 'end' => 22],
+                '4' => ['name' => 'Ketvirtadienis', 'enabled' => true, 'start' => 16, 'end' => 22],
+                '5' => ['name' => 'Penktadienis', 'enabled' => true, 'start' => 9, 'end' => 24],
+                '6' => ['name' => 'Šeštadienis', 'enabled' => true, 'start' => 9, 'end' => 24],
+                '0' => ['name' => 'Sekmadienis', 'enabled' => true, 'start' => 9, 'end' => 20]
+            ],
+            'custom_dates' => []
+        ],
         'prices' => [
             'rage_price' => 30,
             'rage_duration' => '1 val.',
@@ -261,6 +273,48 @@ function isReservationBlock($r) {
     $name = $r['name'] ?? '';
     if (stripos($name, 'Uždarytas') !== false || stripos($name, 'Nedirbame') !== false) return true;
     return false;
+}
+
+// Pagalbinė funkcija: sužinoti konkrečios dienos darbo laiką iš nustatymų
+function getWorkingHoursForDate($isoDate, $settings = null) {
+    if (empty($settings)) {
+        global $settingsFile, $settingsDbFile;
+        $settings = function_exists('loadSettingsData') ? loadSettingsData($settingsFile, $settingsDbFile) : [];
+    }
+    $dayOfWeek = (string)date('w', strtotime($isoDate));
+
+    // 1. Konkrečios datos speciali išimtis
+    if (!empty($settings['schedule']['custom_dates'][$isoDate])) {
+        $cd = $settings['schedule']['custom_dates'][$isoDate];
+        return [
+            'enabled' => !empty($cd['enabled']),
+            'start' => intval($cd['start'] ?? 16),
+            'end' => intval($cd['end'] ?? 22),
+            'is_custom' => true,
+            'source' => 'custom_date'
+        ];
+    }
+
+    // 2. Savaitės dienos grafikas
+    if (isset($settings['schedule']['days'][$dayOfWeek])) {
+        $sd = $settings['schedule']['days'][$dayOfWeek];
+        return [
+            'enabled' => !empty($sd['enabled']),
+            'start' => intval($sd['start'] ?? 16),
+            'end' => intval($sd['end'] ?? 22),
+            'is_custom' => false,
+            'source' => 'weekly_day'
+        ];
+    }
+
+    // 3. Numatytasis standartinis grafikas
+    if ($dayOfWeek === '0') {
+        return ['enabled' => true, 'start' => 9, 'end' => 20, 'is_custom' => false, 'source' => 'default'];
+    } elseif ($dayOfWeek === '5' || $dayOfWeek === '6') {
+        return ['enabled' => true, 'start' => 9, 'end' => 24, 'is_custom' => false, 'source' => 'default'];
+    } else {
+        return ['enabled' => true, 'start' => 16, 'end' => 22, 'is_custom' => false, 'source' => 'default'];
+    }
 }
 
 // Jei prisijungęs - apdoroti veiksmus
@@ -504,22 +558,10 @@ if (!empty($_SESSION['admin_logged'])) {
 
         if ($doBlock === 1) {
             // Pridedame blokus visoms dienos darbo valandoms
-            $dayOfWeek = date('w', strtotime($targetDate));
-            $startH = 16;
-            $endH = 21;
-            if ($dayOfWeek == 0) {
-                // Sekmadienis: 09:00 - 20:00 (valandos nuo 9 iki 19)
-                $startH = 9;
-                $endH = 19;
-            } elseif ($dayOfWeek == 5 || $dayOfWeek == 6) {
-                // Penktadienis - Šeštadienis (V-VI): 09:00 - 24:00 (valandos nuo 9 iki 23)
-                $startH = 9;
-                $endH = 23;
-            } else {
-                // Darbo dienomis (I-IV): 16:00 - 22:00 (valandos nuo 16 iki 21)
-                $startH = 16;
-                $endH = 21;
-            }
+            $adminSettings = loadSettingsData($settingsFile, $settingsDbFile);
+            $wh = getWorkingHoursForDate($targetDate, $adminSettings);
+            $startH = intval($wh['start']);
+            $endH = max($startH, intval($wh['end']) - 1);
 
             for ($h = $startH; $h <= $endH; $h++) {
                 $hStr = sprintf('%02d:00', $h);
@@ -548,6 +590,64 @@ if (!empty($_SESSION['admin_logged'])) {
 
         saveReservationsData($resFile, $resDbFile, $reservations);
         header('Location: admin.php?tab=' . urlencode($redirectTab) . '&date=' . urlencode($redirectDate));
+        exit;
+    }
+
+    // 7.1. Keisti / Atidaryti dienos darbo laiką (visiems ar vienai dienai)
+    if (isset($_POST['action']) && $_POST['action'] === 'save_day_hours') {
+        $targetDate = htmlspecialchars(trim($_POST['target_date'] ?? ''));
+        $targetDayOfWeek = strval(intval($_POST['target_day_of_week'] ?? date('w', strtotime($targetDate))));
+        $startH = max(0, min(23, intval($_POST['h_start'] ?? 16)));
+        $endH = max($startH + 1, min(24, intval($_POST['h_end'] ?? 22)));
+        $scope = trim($_POST['h_scope'] ?? 'weekly');
+
+        $settings = loadSettingsData($settingsFile, $settingsDbFile);
+        if (!isset($settings['schedule'])) {
+            $settings['schedule'] = ['days' => [], 'custom_dates' => []];
+        }
+
+        $dayNames = ['0' => 'Sekmadienis', '1' => 'Pirmadienis', '2' => 'Antradienis', '3' => 'Trečiadienis', '4' => 'Ketvirtadienis', '5' => 'Penktadienis', '6' => 'Šeštadienis'];
+        $dayDatives = ['0' => 'Sekmadieniams', '1' => 'Pirmadieniams', '2' => 'Antradieniams', '3' => 'Trečiadieniams', '4' => 'Ketvirtadieniams', '5' => 'Penktadieniams', '6' => 'Šeštadieniams'];
+        $dayName = $dayNames[$targetDayOfWeek] ?? 'Savaitės diena';
+        $dativeName = $dayDatives[$targetDayOfWeek] ?? 'savaitės dienoms';
+
+        if ($scope === 'weekly') {
+            $settings['schedule']['days'][$targetDayOfWeek] = [
+                'name' => $dayName,
+                'enabled' => true,
+                'start' => $startH,
+                'end' => $endH
+            ];
+            if (isset($settings['schedule']['custom_dates'][$targetDate])) {
+                unset($settings['schedule']['custom_dates'][$targetDate]);
+            }
+            saveSettingsData($settingsFile, $settingsDbFile, $settings);
+            $_SESSION['admin_flash'] = "Savaitės grafikas atnaujintas! Visiems {$dativeName} nustatytas darbo laikas: {$startH}:00 – {$endH}:00 val.";
+        } else {
+            $settings['schedule']['custom_dates'][$targetDate] = [
+                'enabled' => true,
+                'start' => $startH,
+                'end' => $endH,
+                'note' => 'Išimtis nustatyta iš kalendoriaus'
+            ];
+            saveSettingsData($settingsFile, $settingsDbFile, $settings);
+            $_SESSION['admin_flash'] = "Konkrečios dienos ($targetDate) darbo laikas atnaujintas: {$startH}:00 – {$endH}:00 val.";
+        }
+
+        header('Location: admin.php?tab=kalendorius&date=' . urlencode($targetDate));
+        exit;
+    }
+
+    // 7.2. Atstatyti dienos darbo laiką į standartinį savaitės grafiką
+    if (isset($_POST['action']) && $_POST['action'] === 'reset_day_hours') {
+        $targetDate = htmlspecialchars(trim($_POST['target_date'] ?? ''));
+        $settings = loadSettingsData($settingsFile, $settingsDbFile);
+        if (isset($settings['schedule']['custom_dates'][$targetDate])) {
+            unset($settings['schedule']['custom_dates'][$targetDate]);
+            saveSettingsData($settingsFile, $settingsDbFile, $settings);
+            $_SESSION['admin_flash'] = "Dienos ($targetDate) darbo laikas sugrąžintas į standartinį savaitės grafiką.";
+        }
+        header('Location: admin.php?tab=kalendorius&date=' . urlencode($targetDate));
         exit;
     }
 
@@ -655,6 +755,39 @@ if (!empty($_SESSION['admin_logged'])) {
         $settings['hours']['saturday'] = trim($_POST['h_saturday'] ?? '09:00 - 24:00');
         $settings['hours']['sunday'] = trim($_POST['h_sunday'] ?? '09:00 - 20:00');
         $settings['hours']['note'] = trim($_POST['h_note'] ?? '');
+
+        // Savaitės dienų grafikas (Pirmadienis..Sekmadienis)
+        if (!isset($settings['schedule'])) {
+            $settings['schedule'] = ['days' => [], 'custom_dates' => []];
+        }
+        $dayNames = [
+            '1' => 'Pirmadienis',
+            '2' => 'Antradienis',
+            '3' => 'Trečiadienis',
+            '4' => 'Ketvirtadienis',
+            '5' => 'Penktadienis',
+            '6' => 'Šeštadienis',
+            '0' => 'Sekmadienis'
+        ];
+        foreach ($dayNames as $dKey => $dName) {
+            $startVal = max(0, min(23, intval($_POST['sched_start_' . $dKey] ?? 16)));
+            $endVal = max($startVal + 1, min(24, intval($_POST['sched_end_' . $dKey] ?? 22)));
+            $enVal = !empty($_POST['sched_enabled_' . $dKey]);
+            $settings['schedule']['days'][$dKey] = [
+                'name' => $dName,
+                'enabled' => $enVal,
+                'start' => $startVal,
+                'end' => $endVal
+            ];
+        }
+
+        // Šalinti konkrečios datos išimtį jei nurodyta
+        if (!empty($_POST['del_custom_date'])) {
+            $delDate = trim($_POST['del_custom_date']);
+            if (isset($settings['schedule']['custom_dates'][$delDate])) {
+                unset($settings['schedule']['custom_dates'][$delDate]);
+            }
+        }
 
         // Kontaktai
         $settings['contacts']['phone'] = trim($_POST['c_phone'] ?? '');
@@ -1308,6 +1441,55 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             </button>
           </div>
 
+          <!-- ŠIOS DIENOS DARBO LAIKAS IR VALANDŲ KEITIMAS -->
+          <div style="background: rgba(255, 106, 0, 0.07); border: 1.5px solid var(--accent); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.65rem; margin-bottom: 0.65rem;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="font-size: 1.15rem;">🕒</span>
+                <div>
+                  <strong style="color: #fff; font-size: 0.88rem;">Šios dienos darbo laikas:</strong>
+                  <span id="dayHoursBadge" style="background: var(--accent); color: #000; padding: 2px 7px; border-radius: 4px; font-weight: 800; font-size: 0.82rem; margin-left: 4px;">--:--</span>
+                  <span id="dayHoursCustomBadge" style="display: none; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; font-size: 0.72rem; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">Speciali išimtis</span>
+                </div>
+              </div>
+
+              <!-- Mygtukas atstatyti į standartą jei yra išimtis -->
+              <form method="POST" id="formResetHours" style="display: none;">
+                <input type="hidden" name="action" value="reset_day_hours">
+                <input type="hidden" name="target_date" id="resetTargetDate" value="<?= htmlspecialchars($initialSelectedDate) ?>">
+                <button type="submit" class="btn btn-secondary" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;" onclick="return confirm('Ar tikrai norite panaikinti šios dienos išimtį ir grąžinti standartinį savaitės laiką?')">
+                  🔄 Grąžinti standartą
+                </button>
+              </form>
+            </div>
+
+            <!-- Formelė pakeisti darbo laiką -->
+            <form method="POST" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; background: rgba(0,0,0,0.3); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+              <input type="hidden" name="action" value="save_day_hours">
+              <input type="hidden" name="target_date" id="targetDateVal" value="<?= htmlspecialchars($initialSelectedDate) ?>">
+              <input type="hidden" name="target_day_of_week" id="targetDowVal" value="<?= date('w', strtotime($initialSelectedDate)) ?>">
+
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 0.78rem; color: var(--muted);">Nuo:</span>
+                <select name="h_start" id="selHoursStart" class="form-input" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem; margin: 0;"></select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 0.78rem; color: var(--muted);">Iki:</span>
+                <select name="h_end" id="selHoursEnd" class="form-input" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem; margin: 0;"></select>
+              </div>
+
+              <select name="h_scope" id="selHoursScope" class="form-input" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem; margin: 0;">
+                <option value="weekly" selected>Visiems šios savaitės dienoms (visada)</option>
+                <option value="single">Tik šiai konkrečiai dienai</option>
+              </select>
+
+              <button type="submit" class="btn btn-primary" style="font-size: 0.76rem; padding: 0.32rem 0.8rem; font-weight: 800;">
+                💾 Atnaujinti laiką
+              </button>
+            </form>
+          </div>
+
           <!-- DIENOS VALDYMAS (VISOS DIENOS UŽDARYMAS / ATIDARYMAS) -->
           <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center; background: rgba(0,0,0,0.3); padding: 0.65rem 0.9rem; border-radius: 8px; border: 1px solid var(--border);">
             <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted);">Dienos valdymas:</span>
@@ -1810,33 +1992,124 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
           <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem;">
             <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
               <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
-                🕒 3. Darbo laikas
+                🕒 3. Darbo laikas ir rezervacijų valandų nustatymai
               </h3>
-              <p style="font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem;">Rodoma viršutiniame baneryje, aprašymuose, footeryje ir kontaktų puslapyje.</p>
+              <p style="font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem;">
+                Čia nustatytos valandos tiesiogiai atidaro arba uždaro rezervacijos laikus klientams svetainėje.
+              </p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-              <div>
-                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Darbo dienomis (I–IV):</label>
-                <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I-IV: 16:00 - 22:00') ?>" required style="margin-bottom: 0;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Penktadieniais (V):</label>
-                <input type="text" name="h_friday" class="form-input" value="<?= htmlspecialchars($h['friday'] ?? '16:00 - 24:00') ?>" required style="margin-bottom: 0;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Šeštadieniais (VI):</label>
-                <input type="text" name="h_saturday" class="form-input" value="<?= htmlspecialchars($h['saturday'] ?? '09:00 - 24:00') ?>" required style="margin-bottom: 0;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Sekmadieniais (VII):</label>
-                <input type="text" name="h_sunday" class="form-input" value="<?= htmlspecialchars($h['sunday'] ?? '09:00 - 20:00') ?>" required style="margin-bottom: 0;">
+            <!-- Savaitės dienų grafiko lentelė -->
+            <div style="margin-bottom: 1.5rem;">
+              <strong style="display: block; font-size: 0.9rem; color: #fff; margin-bottom: 0.75rem;">
+                📅 Savaitės dienų darbo laikas (visoms savaitėms):
+              </strong>
+              
+              <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                <?php
+                $schedDays = $cfg['schedule']['days'] ?? [];
+                $dayOrder = [
+                    '1' => 'Pirmadienis',
+                    '2' => 'Antradienis',
+                    '3' => 'Trečiadienis',
+                    '4' => 'Ketvirtadienis',
+                    '5' => 'Penktadienis',
+                    '6' => 'Šeštadienis',
+                    '0' => 'Sekmadienis'
+                ];
+                $defaultHours = [
+                    '1' => [16, 22], '2' => [16, 22], '3' => [16, 22], '4' => [16, 22],
+                    '5' => [9, 24], '6' => [9, 24], '0' => [9, 20]
+                ];
+                foreach ($dayOrder as $dKey => $dTitle):
+                    $curD = $schedDays[$dKey] ?? [];
+                    $curEn = isset($curD['enabled']) ? !empty($curD['enabled']) : true;
+                    $curStart = intval($curD['start'] ?? $defaultHours[$dKey][0]);
+                    $curEnd = intval($curD['end'] ?? $defaultHours[$dKey][1]);
+                ?>
+                  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 170px;">
+                      <label style="display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="sched_enabled_<?= $dKey ?>" value="1" <?= $curEn ? 'checked' : '' ?> style="accent-color: var(--accent); width: 16px; height: 16px;">
+                        <span style="font-weight: 700; color: #fff; font-size: 0.9rem;"><?= $dTitle ?></span>
+                      </label>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: var(--muted);">Nuo:</span>
+                        <select name="sched_start_<?= $dKey ?>" class="form-input" style="width: auto; padding: 0.35rem 0.65rem; margin: 0; font-size: 0.85rem;">
+                          <?php for ($sh = 8; $sh <= 23; $sh++): ?>
+                            <option value="<?= $sh ?>" <?= $sh === $curStart ? 'selected' : '' ?>><?= sprintf('%02d:00', $sh) ?></option>
+                          <?php endfor; ?>
+                        </select>
+                      </div>
+
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: var(--muted);">Iki:</span>
+                        <select name="sched_end_<?= $dKey ?>" class="form-input" style="width: auto; padding: 0.35rem 0.65rem; margin: 0; font-size: 0.85rem;">
+                          <?php for ($eh = 9; $eh <= 24; $eh++): ?>
+                            <option value="<?= $eh ?>" <?= $eh === $curEnd ? 'selected' : '' ?>><?= sprintf('%02d:00', $eh) ?></option>
+                          <?php endfor; ?>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
               </div>
             </div>
 
-            <div>
-              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Papildoma pastaba (neprivaloma):</label>
-              <input type="text" name="h_note" class="form-input" value="<?= htmlspecialchars($h['note'] ?? '') ?>" placeholder="pvz. Rezervacija internetu privaloma iš anksto." style="margin-bottom: 0;">
+            <!-- Konkrečių datų išimtys -->
+            <?php $customDates = $cfg['schedule']['custom_dates'] ?? []; ?>
+            <?php if (!empty($customDates)): ?>
+              <div style="margin-bottom: 1.5rem; background: rgba(59, 130, 246, 0.08); border: 1px dashed #3b82f6; border-radius: 8px; padding: 1rem;">
+                <strong style="display: block; font-size: 0.88rem; color: #60a5fa; margin-bottom: 0.5rem;">
+                  📌 Konkrečių datų išimtys (Specialios dienos):
+                </strong>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <?php foreach ($customDates as $cDate => $cVal): ?>
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 0.45rem 0.75rem; border-radius: 6px;">
+                      <div>
+                        <strong style="color: #fff;"><?= htmlspecialchars($cDate) ?></strong>: 
+                        <span style="color: var(--accent); font-weight: 700;"><?= sprintf('%02d:00', $cVal['start'] ?? 16) ?> – <?= sprintf('%02d:00', $cVal['end'] ?? 22) ?> val.</span>
+                        <?= !empty($cVal['note']) ? '<span style="color: var(--muted); font-size: 0.8rem; margin-left: 6px;">(' . htmlspecialchars($cVal['note']) . ')</span>' : '' ?>
+                      </div>
+                      <button type="submit" name="del_custom_date" value="<?= htmlspecialchars($cDate) ?>" class="btn btn-danger" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="return confirm('Panaikinti šią išimtį?')">
+                        ✕ Šalinti išimtį
+                      </button>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            <?php endif; ?>
+
+            <div style="border-top: 1px solid var(--border); padding-top: 1.25rem; margin-top: 1.25rem;">
+              <strong style="display: block; font-size: 0.88rem; color: #fff; margin-bottom: 0.65rem;">
+                📝 Tekstai rodymui svetainėje (aprašymuose, footeryje ir DUK):
+              </strong>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Darbo dienomis (I–IV):</label>
+                  <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I-IV: 16:00 - 22:00') ?>" required style="margin-bottom: 0;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Penktadieniais (V):</label>
+                  <input type="text" name="h_friday" class="form-input" value="<?= htmlspecialchars($h['friday'] ?? '16:00 - 24:00') ?>" required style="margin-bottom: 0;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Šeštadieniais (VI):</label>
+                  <input type="text" name="h_saturday" class="form-input" value="<?= htmlspecialchars($h['saturday'] ?? '09:00 - 24:00') ?>" required style="margin-bottom: 0;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Sekmadieniais (VII):</label>
+                  <input type="text" name="h_sunday" class="form-input" value="<?= htmlspecialchars($h['sunday'] ?? '09:00 - 20:00') ?>" required style="margin-bottom: 0;">
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Papildoma pastaba (neprivaloma):</label>
+                <input type="text" name="h_note" class="form-input" value="<?= htmlspecialchars($h['note'] ?? '') ?>" placeholder="pvz. Rezervacija internetu privaloma iš anksto." style="margin-bottom: 0;">
+              </div>
             </div>
           </div>
 
@@ -2326,6 +2599,46 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
   <!-- KALENDORIAUS JAVASCRIPT VALDIKLIS -->
   <script>
     const ALL_RESERVATIONS = <?= json_encode($reservations, JSON_UNESCAPED_UNICODE) ?>;
+    const ADMIN_SITE_SETTINGS = <?= json_encode($adminSiteSettings, JSON_UNESCAPED_UNICODE) ?>;
+
+    function getWorkingHoursForDate(d, settings) {
+      if (!d) d = new Date();
+      if (typeof d === 'string') {
+        d = new Date(d.includes('T') ? d : d + 'T00:00:00');
+      }
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const iso = `${yyyy}-${mm}-${dd}`;
+      const dayOfWeek = String(d.getDay());
+
+      const s = settings || ADMIN_SITE_SETTINGS || {};
+      const sched = s.schedule || null;
+
+      if (sched && sched.custom_dates && sched.custom_dates[iso]) {
+        const cd = sched.custom_dates[iso];
+        return {
+          enabled: cd.enabled !== false,
+          start: Number(cd.start ?? 16),
+          end: Number(cd.end ?? 22),
+          is_custom: true
+        };
+      }
+
+      if (sched && sched.days && sched.days[dayOfWeek]) {
+        const sd = sched.days[dayOfWeek];
+        return {
+          enabled: sd.enabled !== false,
+          start: Number(sd.start ?? 16),
+          end: Number(sd.end ?? 22),
+          is_custom: false
+        };
+      }
+
+      if (dayOfWeek === '0') return { enabled: true, start: 9, end: 20, is_custom: false };
+      if (dayOfWeek === '5' || dayOfWeek === '6') return { enabled: true, start: 9, end: 24, is_custom: false };
+      return { enabled: true, start: 16, end: 22, is_custom: false };
+    }
     
     // Datos normalizavimo funkcija
     function getIso(r) {
@@ -2502,19 +2815,55 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
         • <span style="color:var(--accent);">Numatoma apyvarta: ${dayTotal} €</span>
       `;
 
-      // Nustatome darbo valandas pagal savaitės dieną:
-      // I-IV: 16:00 - 21:00 (iki 22:00) | V-VI: 09:00 - 23:00 (iki 24:00) | VII: 09:00 - 19:00 (iki 20:00)
-      const dayOfWeek = d.getDay();
-      let startH = 16;
-      let endH = 21;
-      if (dayOfWeek === 0) {
-        // Sekmadienis: 09:00 - 20:00
-        startH = 9;
-        endH = 19;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis - Šeštadienis (V-VI): 09:00 - 24:00
-        startH = 9;
-        endH = 23;
+      // Nustatome darbo valandas pagal nustatymus (savaitės diena arba konkrečios datos išimtis):
+      const wh = getWorkingHoursForDate(d, ADMIN_SITE_SETTINGS);
+      let startH = wh.start;
+      let endH = Math.max(startH, wh.end - 1);
+
+      // Atnaujiname formos laukelius dienos darbo laikui keisti:
+      const badge = document.getElementById('dayHoursBadge');
+      if (badge) badge.textContent = `${String(wh.start).padStart(2, '0')}:00 – ${String(wh.end).padStart(2, '0')}:00 val.`;
+
+      const customBadge = document.getElementById('dayHoursCustomBadge');
+      if (customBadge) customBadge.style.display = wh.is_custom ? 'inline-block' : 'none';
+
+      const resetForm = document.getElementById('formResetHours');
+      if (resetForm) resetForm.style.display = wh.is_custom ? 'inline-block' : 'none';
+
+      const resetDateInput = document.getElementById('resetTargetDate');
+      if (resetDateInput) resetDateInput.value = iso;
+
+      const targetDateInput = document.getElementById('targetDateVal');
+      if (targetDateInput) targetDateInput.value = iso;
+
+      const targetDowInput = document.getElementById('targetDowVal');
+      if (targetDowInput) targetDowInput.value = d.getDay();
+
+      const selStart = document.getElementById('selHoursStart');
+      const selEnd = document.getElementById('selHoursEnd');
+      if (selStart && selEnd) {
+        selStart.innerHTML = '';
+        selEnd.innerHTML = '';
+        for (let sh = 8; sh <= 23; sh++) {
+          const opt = document.createElement('option');
+          opt.value = sh;
+          opt.textContent = `${String(sh).padStart(2, '0')}:00`;
+          if (sh === wh.start) opt.selected = true;
+          selStart.appendChild(opt);
+        }
+        for (let eh = 9; eh <= 24; eh++) {
+          const opt = document.createElement('option');
+          opt.value = eh;
+          opt.textContent = `${String(eh).padStart(2, '0')}:00`;
+          if (eh === wh.end) opt.selected = true;
+          selEnd.appendChild(opt);
+        }
+      }
+
+      const selScope = document.getElementById('selHoursScope');
+      if (selScope && selScope.options.length >= 2) {
+        selScope.options[0].textContent = `Visiems ${weekday}s (visada)`;
+        selScope.options[1].textContent = `Tik šiai konkrečiai dienai (${iso})`;
       }
 
       // Valandų tinklelis su tiesioginiu atidarymo / uždarymo valdymu
@@ -2817,22 +3166,9 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       const d = new Date(selectedIsoDate + 'T00:00:00');
       const isKombo = (document.getElementById('m_activity')?.value || '').includes('KOMBO');
 
-      const dayOfWeek = d.getDay();
-      let startH = 16;
-      let closingH = 22;
-      if (dayOfWeek === 0) {
-        // Sekmadienis: 09:00 - 20:00
-        startH = 9;
-        closingH = 20;
-      } else if (dayOfWeek === 5 || dayOfWeek === 6) {
-        // Penktadienis - Šeštadienis (V-VI): 09:00 - 24:00
-        startH = 9;
-        closingH = 24;
-      } else {
-        // Darbo dienomis (I - IV): 16:00 - 22:00
-        startH = 16;
-        closingH = 22;
-      }
+      const wh = getWorkingHoursForDate(d, ADMIN_SITE_SETTINGS);
+      let startH = wh.start;
+      let closingH = wh.end;
       let endH = isKombo ? (closingH - 2) : (closingH - 1);
 
       for (let h = startH; h <= endH; h++) {

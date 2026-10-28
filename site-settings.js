@@ -2,6 +2,45 @@
 (function() {
   window.SITE_SETTINGS = null;
 
+  window.getWorkingHoursForDate = function(d, settings) {
+    if (!d) d = new Date();
+    if (typeof d === 'string') {
+      d = new Date(d.includes('T') ? d : d + 'T00:00:00');
+    }
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const iso = `${yyyy}-${mm}-${dd}`;
+    const dayOfWeek = String(d.getDay());
+
+    const s = settings || window.SITE_SETTINGS || {};
+    const sched = s.schedule || null;
+
+    if (sched && sched.custom_dates && sched.custom_dates[iso]) {
+      const cd = sched.custom_dates[iso];
+      return {
+        enabled: cd.enabled !== false,
+        start: Number(cd.start ?? 16),
+        end: Number(cd.end ?? 22),
+        is_custom: true
+      };
+    }
+
+    if (sched && sched.days && sched.days[dayOfWeek]) {
+      const sd = sched.days[dayOfWeek];
+      return {
+        enabled: sd.enabled !== false,
+        start: Number(sd.start ?? 16),
+        end: Number(sd.end ?? 22),
+        is_custom: false
+      };
+    }
+
+    if (dayOfWeek === '0') return { enabled: true, start: 9, end: 20, is_custom: false };
+    if (dayOfWeek === '5' || dayOfWeek === '6') return { enabled: true, start: 9, end: 24, is_custom: false };
+    return { enabled: true, start: 16, end: 22, is_custom: false };
+  };
+
   async function loadSettings() {
     try {
       let res = await fetch('settings.php?v=' + Date.now(), { cache: 'no-store' });
@@ -43,6 +82,14 @@
     // Jei puslapyje yra rezervacijos skaičiuoklė, perskaičiuoti
     if (typeof calcTotal === 'function') {
       try { calcTotal(); } catch (err) {}
+    }
+
+    // Jei kalendoriuje pasirinkta data, atnaujiname laikus pagal grafiką
+    if (typeof populateTimeSlots === 'function' && typeof selectedDate !== 'undefined' && selectedDate) {
+      try { populateTimeSlots(selectedDate); } catch(err) {}
+    }
+    if (typeof renderCalendar === 'function') {
+      try { renderCalendar(); } catch(err) {}
     }
   }
 
