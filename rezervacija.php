@@ -798,6 +798,16 @@ if ($isCash) {
     $payTitle = $isOpayActive ? ('Elektroninė bankininkystė' . ($bankTitle ? " ($bankTitle)" : '')) : $payMethod;
 }
 
+$settings = [];
+if (file_exists(__DIR__ . '/nustatymai_db.json')) {
+    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai_db.json'), true) ?: [];
+} elseif (file_exists(__DIR__ . '/nustatymai.json')) {
+    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai.json'), true) ?: [];
+}
+$promo = $settings['promo'] ?? null;
+$isPromoActive = !empty($promo['enabled']) && !empty($promo['end_time']) && (strtotime($promo['end_time']) > time());
+$promoDiscount = $isPromoActive ? floatval($promo['discount'] ?? 5) : 0;
+
 $reservation = [
     'id' => $reservationId,
     'created_at' => date('Y-m-d H:i:s'),
@@ -811,6 +821,7 @@ $reservation = [
     'iso_date' => $isoDate,
     'time' => $time,
     'price' => $price,
+    'promo_discount' => $isPromoActive ? $promoDiscount : 0,
     'payment' => $payTitle,
     'status' => $initialStatus
 ];
@@ -849,7 +860,7 @@ if ($isOpayActive) {
     $priceNum = floatval(preg_replace('/[^0-9\.]/', '', str_replace(',', '.', $price)));
     $amountCents = (int)round($priceNum * 100);
     if ($amountCents <= 0) {
-        $amountCents = 3000;
+        $amountCents = $isPromoActive ? 2500 : 3000;
     }
 
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'https://';

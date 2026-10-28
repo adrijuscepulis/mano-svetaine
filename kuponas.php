@@ -23,9 +23,23 @@ $code = 'TH-KUP-' . rand(1000, 9999);
 $createdDate = date('Y-m-d H:i');
 $expiresAt = date('Y-m-d', strtotime('+6 months'));
 
+// Tikriname akciją
+$settings = [];
+if (file_exists(__DIR__ . '/nustatymai_db.json')) {
+    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai_db.json'), true) ?: [];
+} elseif (file_exists(__DIR__ . '/nustatymai.json')) {
+    $settings = json_decode(@file_get_contents(__DIR__ . '/nustatymai.json'), true) ?: [];
+}
+$promo = $settings['promo'] ?? null;
+$isPromoActive = !empty($promo['enabled']) && !empty($promo['end_time']) && ($promo['apply_to_coupons'] !== false) && (strtotime($promo['end_time']) > time());
+$promoDiscount = $isPromoActive ? floatval($promo['discount'] ?? 5) : 0;
+$paidPrice = max(0, $amount - $promoDiscount);
+
 $coupon = [
     'code' => $code,
     'amount' => $amount,
+    'paid_price' => $paidPrice,
+    'promo_discount' => $promoDiscount,
     'target_type' => 'Dovanų kuponas',
     'buyer' => "$buyerName ($buyerPhone)",
     'buyer_email' => $buyerEmail,

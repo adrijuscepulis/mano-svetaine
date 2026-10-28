@@ -1628,6 +1628,91 @@
       margin-left: 0.25rem;
     }
 
+    /* INFORMACINĖ AKCIJOS LENTELĖ */
+    .promo-notice-box {
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.16) 0%, rgba(20, 10, 35, 0.95) 100%);
+      border: 2px solid #ff6a00;
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.4rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      box-shadow: 0 0 25px rgba(255, 106, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.5);
+      animation: promoGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes promoGlow {
+      from { box-shadow: 0 0 15px rgba(255, 106, 0, 0.2); border-color: #ff6a00; }
+      to { box-shadow: 0 0 30px rgba(255, 106, 0, 0.45); border-color: #ff8c00; }
+    }
+
+    .promo-notice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(255, 106, 0, 0.22);
+      border: 1px solid #ff6a00;
+      color: #ffaa00;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .promo-notice-badge .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
+      display: inline-block;
+      animation: pulseDot 1.5s infinite;
+    }
+
+    @keyframes pulseDot {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.35); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .promo-notice-title {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.35;
+      margin-bottom: 0.35rem;
+    }
+
+    .promo-notice-desc {
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin-bottom: 0.85rem;
+    }
+
+    .promo-notice-timer-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.88rem;
+    }
+
+    .promo-timer-val {
+      font-family: 'JetBrains Mono', monospace, monospace;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #ffaa00;
+      letter-spacing: 0.5px;
+    }
+
     /* SKLANDANČIŲ ŠIKŠNOSPARNIŲ ANIMACIJA */
     .floating-bats {
       position: absolute;
@@ -2100,6 +2185,18 @@
         </div>
 
         <div class="form-wrap">
+          <!-- INFORMACINĖ AKCIJOS LENTELĖ -->
+          <div id="promoNoticeBox" class="promo-notice-box" style="display: none;">
+            <div class="promo-notice-badge">
+              <span class="pulse-dot"></span> 🔥 ŽAIBIŠKA AKCIJA -5 €
+            </div>
+            <div class="promo-notice-title">Visoms sesijoms ir dovanų kuponams taikoma 5 € nuolaida!</div>
+            <div class="promo-notice-desc">Nuolaida jau automatiškai pritaikyta žemiau esančioms kainoms.</div>
+            <div class="promo-notice-timer-wrap">
+              ⏳ Pasiūlymas baigiasi po: <span id="promoCountdownTimer" class="promo-timer-val">47 val. 59 min.</span>
+            </div>
+          </div>
+
           <form id="resForm" onsubmit="submitReservation(event)">
             <!-- 1. PRAMOGA -->
             <div class="f-group">
@@ -2110,7 +2207,7 @@
                   <div class="act-box">
                     <span>🔨</span>
                     <strong>Pykčio kambarys</strong>
-                    <small>30 € (30 indų)</small>
+                    <small id="actPriceRage">30 € (30 indų)</small>
                   </div>
                 </label>
                 <label class="act-opt">
@@ -2118,7 +2215,7 @@
                   <div class="act-box">
                     <span>🪓</span>
                     <strong>Kirvių mėtymas</strong>
-                    <small>30 € (2 tak.)</small>
+                    <small id="actPriceAxe">30 € (2 tak.)</small>
                   </div>
                 </label>
                 <label class="act-opt">
@@ -2126,7 +2223,7 @@
                   <div class="act-box">
                     <span>🔥</span>
                     <strong>KOMBO</strong>
-                    <small>50 €</small>
+                    <small id="actPriceCombo">50 €</small>
                   </div>
                 </label>
               </div>
@@ -2546,7 +2643,7 @@
       }
     }
 
-    // Kainos skaičiavimas: Bazinė kaina + Papildomi indai (0.60 € / vnt.)
+    // Kainos skaičiavimas: Bazinė kaina (su akcija, jei aktyvi) + Papildomi indai (0.60 € / vnt.)
     function calcTotal() {
       const act = document.querySelector('input[name="resActivity"]:checked')?.value || 'Pykčio kambarys';
       const prcDisplay = document.getElementById('calcPrice');
@@ -2565,6 +2662,11 @@
         basePrice = pCfg ? Number(pCfg.rage_price || 30) : 30;
       }
 
+      // Tikriname akciją (-5 €)
+      const promo = (window.SITE_SETTINGS && window.SITE_SETTINGS.promo) ? window.SITE_SETTINGS.promo : null;
+      const isPromoActive = promo && promo.enabled && (new Date(promo.end_time).getTime() > Date.now());
+      const discount = isPromoActive ? (Number(promo.discount) || 5) : 0;
+
       const unitExtra = pCfg ? Number(pCfg.extra_dish_price || 0.60) : 0.60;
       let extraPrice = 0;
       let extraCount = 0;
@@ -2573,18 +2675,27 @@
         extraPrice = extraCount * unitExtra;
       }
 
-      const total = basePrice + extraPrice;
+      const discountedBase = Math.max(0, basePrice - discount);
+      const total = discountedBase + extraPrice;
       prcDisplay.textContent = total.toFixed(2).replace('.00', '') + ' €';
 
       if (breakdown) {
         if (extraCount > 0) {
-          breakdown.textContent = `Bazinė kaina (${basePrice} €) + ${extraCount} papild. indų (+${extraPrice.toFixed(2)} €)`;
+          breakdown.textContent = isPromoActive
+            ? `Bazinė kaina (${basePrice} € - ${discount} € akcija = ${discountedBase} €) + ${extraCount} papild. indų (+${extraPrice.toFixed(2)} €)`
+            : `Bazinė kaina (${basePrice} €) + ${extraCount} papild. indų (+${extraPrice.toFixed(2)} €)`;
         } else if (act.includes('KOMBO')) {
-          breakdown.textContent = `KOMBO paketas (${basePrice} €) – 2 val. sesija (1 val. Kirviai + 1 val. Pyktis su 30 indų)`;
+          breakdown.textContent = isPromoActive
+            ? `KOMBO paketas (50 € - ${discount} € akcija = ${discountedBase} €) – 2 val. sesija (1 val. Kirviai + 1 val. Pyktis)`
+            : `KOMBO paketas (${basePrice} €) – 2 val. sesija (1 val. Kirviai + 1 val. Pyktis su 30 indų)`;
         } else if (!act.includes('Kirvių mėtymas')) {
-          breakdown.textContent = `Bazinė kaina (${basePrice} €) + 30 indų įskaičiuota (1 val.)`;
+          breakdown.textContent = isPromoActive
+            ? `Bazinė kaina (30 € - ${discount} € akcija = ${discountedBase} €) + 30 indų įskaičiuota (1 val.)`
+            : `Bazinė kaina (${basePrice} €) + 30 indų įskaičiuota (1 val.)`;
         } else {
-          breakdown.textContent = `Bazinė kaina (${basePrice} €) už 1 val. sesiją`;
+          breakdown.textContent = isPromoActive
+            ? `Bazinė kaina (30 € - ${discount} € akcija = ${discountedBase} €) už 1 val. sesiją`
+            : `Bazinė kaina (${basePrice} €) už 1 val. sesiją`;
         }
       }
     }
@@ -2610,10 +2721,32 @@
           amount = Number(window.SITE_SETTINGS.prices.rage_price) || amount;
         }
       }
+
+      // Nuolaida kuponams jei akcija aktyvi
+      const promo = (window.SITE_SETTINGS && window.SITE_SETTINGS.promo) ? window.SITE_SETTINGS.promo : null;
+      const isPromoActive = promo && promo.enabled && (new Date(promo.end_time).getTime() > Date.now()) && (promo.apply_to_coupons !== false);
+      const discount = isPromoActive ? (Number(promo.discount) || 5) : 0;
+      const payAmount = Math.max(0, amount - discount);
+
       const modal = document.getElementById('giftModal');
       document.getElementById('giftAmount').value = amount;
-      document.getElementById('giftPriceDisplay').textContent = amount + ' €';
-      document.getElementById('giftModalTitle').textContent = `Užsakyti: ${amount} € ${title}`;
+
+      const priceDisp = document.getElementById('giftPriceDisplay');
+      if (priceDisp) {
+        if (isPromoActive) {
+          priceDisp.innerHTML = `<del style="opacity:0.6;font-size:1.1rem;margin-right:6px;">${amount} €</del> <span style="color:#22c55e;font-weight:800;">${payAmount} €</span> <span style="font-size:0.75rem;background:#22c55e;color:#000;padding:2px 6px;border-radius:4px;font-weight:800;vertical-align:middle;margin-left:4px;">-5 € AKCIJA</span>`;
+        } else {
+          priceDisp.textContent = amount + ' €';
+        }
+      }
+
+      const modalTitle = document.getElementById('giftModalTitle');
+      if (modalTitle) {
+        modalTitle.textContent = isPromoActive 
+          ? `Užsakyti: ${amount} € ${title} (Kaina dabar tik ${payAmount} €!)`
+          : `Užsakyti: ${amount} € ${title}`;
+      }
+
       modal.style.display = 'block';
       modal.scrollIntoView({ behavior: 'smooth' });
     }

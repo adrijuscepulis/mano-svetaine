@@ -130,6 +130,14 @@ function saveCouponsData($kupFile, $kupDbFile, $data) {
 
 function getDefaultSettings() {
     return [
+        'promo' => [
+            'enabled' => true,
+            'discount' => 5,
+            'title' => '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!',
+            'subtitle' => 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.',
+            'end_time' => date('Y-m-d\TH:i:s', strtotime('+48 hours')),
+            'apply_to_coupons' => true
+        ],
         'banner' => [
             'enabled' => false,
             'text' => '🔥 Dėmesio: Šį savaitgalį dirbame ilgiau! Rezervuokite laiką iš anksto.',
@@ -617,6 +625,14 @@ if (!empty($_SESSION['admin_logged'])) {
     // 9. Išsaugoti visus svetainės nustatymus (TVS / CMS)
     if (isset($_POST['action']) && $_POST['action'] === 'save_site_settings') {
         $settings = loadSettingsData($settingsFile, $settingsDbFile);
+
+        // Akcija (Promo)
+        $settings['promo']['enabled'] = !empty($_POST['promo_enabled']);
+        $settings['promo']['discount'] = floatval($_POST['promo_discount'] ?? 5);
+        $settings['promo']['title'] = trim($_POST['promo_title'] ?? '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!');
+        $settings['promo']['subtitle'] = trim($_POST['promo_subtitle'] ?? 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.');
+        $settings['promo']['end_time'] = trim($_POST['promo_end_time'] ?? date('Y-m-d\TH:i:s', strtotime('+48 hours')));
+        $settings['promo']['apply_to_coupons'] = !empty($_POST['promo_apply_to_coupons']);
 
         // Baneris
         $settings['banner']['enabled'] = !empty($_POST['banner_enabled']);
@@ -1631,6 +1647,16 @@ if (!empty($_SESSION['admin_logged'])) {
     <!-- ======================================================= -->
     <?php if ($currentTab === 'nustatymai'): 
       $cfg = loadSettingsData($settingsFile, $settingsDbFile);
+      $promo = $cfg['promo'] ?? [
+          'enabled' => true,
+          'discount' => 5,
+          'title' => '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!',
+          'subtitle' => 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.',
+          'end_time' => date('Y-m-d\TH:i', strtotime('+48 hours')),
+          'apply_to_coupons' => true
+      ];
+      $promoEndTs = !empty($promo['end_time']) ? strtotime($promo['end_time']) : 0;
+      $isPromoActive = !empty($promo['enabled']) && ($promoEndTs > time());
       $b = $cfg['banner'] ?? [];
       $p = $cfg['prices'] ?? [];
       $h = $cfg['hours'] ?? [];
@@ -1644,7 +1670,7 @@ if (!empty($_SESSION['admin_logged'])) {
           <div>
             <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">Svetainės Turinio Valdymas (TVS)</h2>
             <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5;">
-              Čia galite bet kada pakeisti bet kurį svetainės elementą: kainas, darbo laiką, kontaktus ar įjungti ryškų pranešimų banerį viršuje.
+              Čia galite bet kada pakeisti bet kurį svetainės elementą: kainas, akcijas, darbo laiką, kontaktus ar įjungti ryškų pranešimų banerį viršuje.
               Paspaudus <strong>„Išsaugoti nustatymus“</strong>, visa internetinė svetainė atsinaujins akimirksniu gyvai!
             </p>
           </div>
@@ -1652,6 +1678,62 @@ if (!empty($_SESSION['admin_logged'])) {
 
         <form method="POST">
           <input type="hidden" name="action" value="save_site_settings">
+
+          <!-- 0. ŽAIBIŠKA AKCIJA (PROMO / NUOLAIDOS VALDYMAS) -->
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid <?= $isPromoActive ? '#22c55e' : 'var(--accent)' ?>; box-shadow: 0 0 25px <?= $isPromoActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 106, 0, 0.15)' ?>;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                  🔥 Žaibiška akcija (Nuolaida rezervacijoms ir kuponams)
+                </h3>
+                <span style="font-size: 0.82rem; font-weight: 700; color: <?= $isPromoActive ? '#22c55e' : '#94a3b8' ?>;">
+                  <?= $isPromoActive ? '🟢 ŠIUO METU AKTYVI (Svetainėje automatiškai taikoma -' . htmlspecialchars($promo['discount'] ?? 5) . ' € nuolaida)' : '⚪ Šiuo metu neaktyvi (arba pasibaigusi)' ?>
+                </span>
+              </div>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: <?= $isPromoActive ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255,255,255,0.05)' ?>; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid <?= $isPromoActive ? '#22c55e' : 'var(--border)' ?>;">
+                <input type="checkbox" name="promo_enabled" id="promo_enabled" value="1" <?= !empty($promo['enabled']) ? 'checked' : '' ?> style="width: 18px; height: 18px; accent-color: #22c55e; cursor: pointer;">
+                <span style="font-size: 0.9rem; font-weight: 800; color: #fff;">Įjungti akciją svetainėje</span>
+              </label>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 140px 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Nuolaidos suma (€):</label>
+                <input type="number" step="1" min="1" name="promo_discount" class="form-input" value="<?= htmlspecialchars($promo['discount'] ?? 5) ?>" required style="margin-bottom: 0; font-weight: 800; color: #22c55e; font-size: 1.1rem;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Akcijos pabaiga (Data ir Laikas):</label>
+                <input type="datetime-local" name="promo_end_time" id="promo_end_time" class="form-input" value="<?= htmlspecialchars(!empty($promo['end_time']) ? date('Y-m-d\TH:i', strtotime($promo['end_time'])) : date('Y-m-d\TH:i', strtotime('+48 hours'))) ?>" required style="margin-bottom: 0; font-weight: 700;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Greiti nustatymai (1 paspaudimu):</label>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.4rem 0.65rem;" onclick="setPromoHours(48)">+48 val.</button>
+                  <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.4rem 0.65rem;" onclick="setPromoHours(24)">+24 val.</button>
+                  <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.4rem 0.65rem;" onclick="setPromoWeekend()">Iki sekmadienio</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Akcijos antraštė (lentelėje ir viršuje):</label>
+                <input type="text" name="promo_title" class="form-input" value="<?= htmlspecialchars($promo['title'] ?? '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!') ?>" style="margin-bottom: 0;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Akcijos paaiškinimas (lentelėje):</label>
+                <input type="text" name="promo_subtitle" class="form-input" value="<?= htmlspecialchars($promo['subtitle'] ?? 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.') ?>" style="margin-bottom: 0;">
+              </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 0.85rem; color: #cbd5e1;">Taikyti šią nuolaidą ir <strong>dovanų kuponų</strong> pirkimui:</span>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" name="promo_apply_to_coupons" value="1" <?= !empty($promo['apply_to_coupons']) ? 'checked' : '' ?> style="width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">Taip, taikyti kuponams</span>
+              </label>
+            </div>
+          </div>
 
           <!-- 1. PRANEŠIMŲ JUOSTA (TOP BANNER) -->
           <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem;">
@@ -2795,6 +2877,30 @@ if (!empty($_SESSION['admin_logged'])) {
       if (box) {
         box.style.display = (act.includes('Kirvių') || act.includes('KOMBO')) ? 'block' : 'none';
       }
+    }
+
+    // Akcijos greito laiko nustatymas
+    function setPromoHours(hours) {
+      const d = new Date(Date.now() + hours * 3600 * 1000);
+      const pad = n => String(n).padStart(2, '0');
+      const val = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      const input = document.getElementById('promo_end_time');
+      const chk = document.getElementById('promo_enabled');
+      if (input) input.value = val;
+      if (chk) chk.checked = true;
+    }
+
+    function setPromoWeekend() {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = (7 - day) % 7;
+      d.setDate(d.getDate() + diff);
+      const pad = n => String(n).padStart(2, '0');
+      const val = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T23:59`;
+      const input = document.getElementById('promo_end_time');
+      const chk = document.getElementById('promo_enabled');
+      if (input) input.value = val;
+      if (chk) chk.checked = true;
     }
 
     // Inicializacija
