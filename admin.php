@@ -772,6 +772,10 @@ if (!empty($_SESSION['admin_logged'])) {
         exit;
     }
 }
+
+$adminSiteSettings = loadSettingsData($settingsFile, $settingsDbFile);
+$adminPromoActive = !empty($adminSiteSettings['promo']['enabled']) && (strtotime($adminSiteSettings['promo']['end_time'] ?? '') > time());
+$adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['discount'] ?? 5) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="lt">
@@ -1365,9 +1369,9 @@ if (!empty($_SESSION['admin_logged'])) {
               <div>
                 <label style="display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">Pramoga:</label>
                 <select name="m_activity" id="m_activity" class="form-input" style="margin-bottom:0;" onchange="updateManualLaneSelect()">
-                  <option value="Pykčio kambarys">Pykčio kambarys (30 €)</option>
-                  <option value="Kirvių mėtymas">Kirvių mėtymas (30 €)</option>
-                  <option value="KOMBO paketas">KOMBO paketas (50 €)</option>
+                  <option value="Pykčio kambarys">Pykčio kambarys (<?= $adminPromoActive ? '25 € - Akcija' : '30 €' ?>)</option>
+                  <option value="Kirvių mėtymas">Kirvių mėtymas (<?= $adminPromoActive ? '25 € - Akcija' : '30 €' ?>)</option>
+                  <option value="KOMBO paketas">KOMBO paketas (<?= $adminPromoActive ? '45 € - Akcija' : '50 €' ?>)</option>
                 </select>
               </div>
               <div id="m_lane_wrapper" style="display:none;">
@@ -1386,7 +1390,7 @@ if (!empty($_SESSION['admin_logged'])) {
               </div>
               <div>
                 <label style="display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">Kaina:</label>
-                <input type="text" name="m_price" id="m_price" class="form-input" value="30 €" style="margin-bottom:0;">
+                <input type="text" name="m_price" id="m_price" class="form-input" value="<?= $adminPromoActive ? '25 €' : '30 €' ?>" style="margin-bottom:0;">
               </div>
             </div>
 
@@ -2800,8 +2804,9 @@ if (!empty($_SESSION['admin_logged'])) {
       const laneWrap = document.getElementById('m_lane_wrapper');
       const prcInput = document.getElementById('m_price');
       laneWrap.style.display = (act.includes('Kirvių') || act.includes('KOMBO')) ? 'block' : 'none';
-      if (act.includes('KOMBO')) prcInput.value = '50 €';
-      else prcInput.value = '30 €';
+      const isPromo = <?= json_encode($adminPromoActive) ?>;
+      if (act.includes('KOMBO')) prcInput.value = isPromo ? '45 €' : '50 €';
+      else prcInput.value = isPromo ? '25 €' : '30 €';
       populateManualTimes();
     }
 

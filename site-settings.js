@@ -111,6 +111,20 @@
     const comboBtn = document.getElementById('btnBookCombo');
     if (comboBtn) comboBtn.textContent = `Rezervuoti KOMBO (${comboBase - discount} € 🔥)`;
 
+    // 3.1. Pramogų kortelės (#pramogos)
+    const actRagePrice = document.getElementById('promoActRagePrice');
+    if (actRagePrice) {
+      actRagePrice.innerHTML = `Kaina: <del style="opacity:0.6;font-size:0.95rem;">${rageBase} €</del> <strong style="color:#22c55e;">${rageBase - discount} €</strong> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;">-${discount} € AKCIJA</span> <span class="capacity-badge">30 indų | Iki 4 asm.</span>`;
+    }
+    const actAxePrice = document.getElementById('promoActAxePrice');
+    if (actAxePrice) {
+      actAxePrice.innerHTML = `Kaina: <del style="opacity:0.6;font-size:0.95rem;">${axeBase} €</del> <strong style="color:#22c55e;">${axeBase - discount} €</strong> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;">-${discount} € AKCIJA</span> <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>`;
+    }
+    const actRageBtn = document.getElementById('btnActRage');
+    if (actRageBtn) actRageBtn.textContent = `Rezervuoti (${rageBase - discount} € 🔥)`;
+    const actAxeBtn = document.getElementById('btnActAxe');
+    if (actAxeBtn) actAxeBtn.textContent = `Rezervuoti (${axeBase - discount} € 🔥)`;
+
     // 4. Kuponų sumos (#kuponai)
     if (!promo || promo.apply_to_coupons !== false) {
       const g30 = document.getElementById('giftCard30Price');
@@ -217,6 +231,20 @@
     if (axeBtn) axeBtn.textContent = `Rezervuoti (${p.axe_price} €)`;
     const comboBtn = document.getElementById('btnBookCombo');
     if (comboBtn) comboBtn.textContent = `Rezervuoti KOMBO (${p.combo_price} €)`;
+
+    // Pramogų kortelės (#pramogos)
+    const actRagePrice = document.getElementById('promoActRagePrice');
+    if (actRagePrice) {
+      actRagePrice.innerHTML = `Kaina: <strong>${p.rage_price} €</strong> <span class="capacity-badge">30 indų | Iki 4 asm.</span>`;
+    }
+    const actAxePrice = document.getElementById('promoActAxePrice');
+    if (actAxePrice) {
+      actAxePrice.innerHTML = `Kaina: <strong>${p.axe_price} €</strong> <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>`;
+    }
+    const actRageBtn = document.getElementById('btnActRage');
+    if (actRageBtn) actRageBtn.textContent = `Rezervuoti pyktį`;
+    const actAxeBtn = document.getElementById('btnActAxe');
+    if (actAxeBtn) actAxeBtn.textContent = `Rezervuoti taikinį`;
 
     // Kuponų sumos
     const g30 = document.getElementById('giftCard30Price');

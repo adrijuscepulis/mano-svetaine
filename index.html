@@ -77,7 +77,7 @@
     "keywords": "pramogos siauliuose, ka veikti siauliuose, pykcio kambarys siauliai, kirviu metymas siauliai, gimtadienis siauliuose, bernvakaris siauliuose, mergvakaris siauliai, aktyvus laisvalaikis siauliai",
     "telephone": "+37061988009",
     "email": "throwhousee@gmail.com",
-    "priceRange": "30€ - 50€",
+    "priceRange": "25€ - 45€",
     "currenciesAccepted": "EUR",
     "paymentAccepted": "BankLink, Kreditinės kortelės, OPAY, Grynieji",
     "areaServed": {
@@ -168,7 +168,7 @@
         "name": "Kiek indų įskaičiuota į pykčio kambarį ir ar galima gauti papildomai?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Standartinei pykčio kambario sesijai (30 €) jau yra įskaičiuota 30 paruoštų indų (lėkštės, buteliai, keramika). Taip pat rezervacijos metu arba vietoje galima užsisakyti papildomų indų tik už 0.60 € / vnt."
+          "text": "Standartinei pykčio kambario sesijai (šiuo metu su akcija tik 25 €, standartiškai 30 €) jau yra įskaičiuota 30 paruoštų indų (lėkštės, buteliai, keramika). Taip pat rezervacijos metu arba vietoje galima užsisakyti papildomų indų tik už 0.60 € / vnt."
         }
       },
       {
@@ -211,7 +211,7 @@
       }
     };
   </script>
-  <script src="site-settings.js?v=48h-promo-2"></script>
+  <script src="site-settings.js?v=48h-promo-3"></script>
   <style>
     :root {
       --bg-dark: #08050e;
@@ -1946,11 +1946,11 @@
               <li><span class="perk-check">✓</span> Trukmė: 1 valanda (1 privatus kambarys)</li>
             </ul>
             <div class="act-footer">
-              <div class="price-tag">
-                Kaina: <strong>30 €</strong>
+              <div class="price-tag" id="promoActRagePrice">
+                Kaina: <del style="opacity:0.6;font-size:0.95rem;">30 €</del> <strong style="color:#22c55e;">25 €</strong> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;">-5 € AKCIJA</span>
                 <span class="capacity-badge">30 indų | Iki 4 asm.</span>
               </div>
-              <a href="#rezervacija" class="btn btn-secondary btn-sm" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti pyktį</a>
+              <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActRage" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti (25 € 🔥)</a>
             </div>
           </div>
         </div>
@@ -1975,11 +1975,11 @@
               <li><span class="perk-check">✓</span> Trukmė: 1 valanda (iki 4 asmenų prie takelio)</li>
             </ul>
             <div class="act-footer">
-              <div class="price-tag">
-                Kaina: <strong>30 €</strong>
+              <div class="price-tag" id="promoActAxePrice">
+                Kaina: <del style="opacity:0.6;font-size:0.95rem;">30 €</del> <strong style="color:#22c55e;">25 €</strong> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;">-5 € AKCIJA</span>
                 <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>
               </div>
-              <a href="#rezervacija" class="btn btn-secondary btn-sm" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti taikinį</a>
+              <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActAxe" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti (25 € 🔥)</a>
             </div>
           </div>
         </div>
@@ -2479,9 +2479,9 @@
             <div class="calc-box">
               <div>
                 <strong>Bendra suma:</strong>
-                <span class="calc-note" id="calcBreakdown">Bazinė kaina (30 €) + 30 indų įskaičiuota</span>
+                <span class="calc-note" id="calcBreakdown">Bazinė kaina (30 € - 5 € akcija = 25 €) + 30 indų įskaičiuota (1 val.)</span>
               </div>
-              <div class="calc-price" id="calcPrice">30 €</div>
+              <div class="calc-price" id="calcPrice">25 €</div>
             </div>
 
             <!-- SUTIKIMAI IR PATVIRTINIMAI -->
@@ -2531,7 +2531,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Standartinei pykčio kambario sesijai (30 €) jau yra <strong>įskaičiuota 30 paruoštų indų</strong> (lėkštės, buteliai, keramika). Jei norite dar didesnės streso iškrovos, rezervacijos metu arba vietoje galite papildomai užsisakyti indų už itin gerą kainą - <strong>0.60 € už indą</strong>!
+            Standartinei pykčio kambario sesijai (šiuo metu su akcija tik <strong>25 €</strong>, standartiškai 30 €) jau yra <strong>įskaičiuota 30 paruoštų indų</strong> (lėkštės, buteliai, keramika). Jei norite dar didesnės streso iškrovos, rezervacijos metu arba vietoje galite papildomai užsisakyti indų už itin gerą kainą - <strong>0.60 € už indą</strong>!
           </div>
         </div>
 
@@ -2561,7 +2561,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Dovanų kuponą galite patogiai įsigyti susisiekę su mumis asmeniškai telefonu <strong>+370 619 88009</strong> arba el. paštu <strong>throwhousee@gmail.com</strong> (30 €, 50 € ar kita pasirinkta suma). Taip pat kuponą galima įsigyti atvykus tiesiogiai pas mus į vietą (Pramonės g. 15, Šiauliai). Kuponas su unikaliu kodu galioja <strong>6 mėnesius</strong> nuo išdavimo dienos, o apsilankymo laikas derinamas asmeniškai susisiekus iš anksto.
+            Dovanų kuponą galite patogiai įsigyti susisiekę su mumis asmeniškai telefonu <strong>+370 619 88009</strong> arba el. paštu <strong>throwhousee@gmail.com</strong> (šiuo metu su akcija tik 25 €, 45 € ar kita pasirinkta suma). Taip pat kuponą galima įsigyti atvykus tiesiogiai pas mus į vietą (Pramonės g. 15, Šiauliai). Kuponas su unikaliu kodu galioja <strong>6 mėnesius</strong> nuo išdavimo dienos, o apsilankymo laikas derinamas asmeniškai susisiekus iš anksto.
           </div>
         </div>
 
@@ -3902,12 +3902,13 @@
       }
     }
 
-    // Užtikrinimas, kad visada būtų žodis „ir“
+    // Užtikrinimas, kad visada būtų žodis „ir“ bei perskaičiuojamos akcinės kainos
     document.addEventListener('DOMContentLoaded', () => {
       const banner = document.querySelector('.halloween-hero-banner span');
       if (banner) banner.innerHTML = banner.innerHTML.replace(/\s*&\s*/g, ' ir ');
       const modalH2 = document.querySelector('#halloweenModal h2');
       if (modalH2) modalH2.innerHTML = modalH2.innerHTML.replace(/\s*&\s*/g, ' ir ');
+      if (typeof calcTotal === 'function') calcTotal();
     });
 
     // Automatiškai iššokti pranešimui TIK atsidarius puslapį (po 700ms)
