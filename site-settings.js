@@ -4,8 +4,11 @@
 
   async function loadSettings() {
     try {
-      const res = await fetch('nustatymai.json?v=' + Date.now(), { cache: 'no-store' });
-      if (!res.ok) return;
+      let res = await fetch('settings.php?v=' + Date.now(), { cache: 'no-store' });
+      if (!res || !res.ok) {
+        res = await fetch('nustatymai.json?v=' + Date.now(), { cache: 'no-store' });
+      }
+      if (!res || !res.ok) return;
       const data = await res.json();
       window.SITE_SETTINGS = data;
       applySettings(data);

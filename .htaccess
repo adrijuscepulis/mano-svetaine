@@ -38,3 +38,13 @@ DirectoryIndex index.html index.php
     Deny from all
   </IfModule>
 </FilesMatch>
+
+# Išimtis viešam nustatymų failui nustatymai.json
+<Files "nustatymai.json">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Allow from all
+  </IfModule>
+</Files>
