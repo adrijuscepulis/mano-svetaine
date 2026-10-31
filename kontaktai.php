@@ -35,7 +35,7 @@ $fromEmail = "noreply@" . $serverHost;
 $dateHeader = date('r');
 
 // =============================================================
-// 1. Sukuriame stilingą HTML laišką administratoriui (Helovyno tema)
+// 1. Sukuriame stilingą HTML laišką administratoriui
 // =============================================================
 $emailSubject = "=?UTF-8?B?" . base64_encode("Nauja užklausa iš svetainės [$subject] - $name") . "?=";
 
