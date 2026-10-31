@@ -84,8 +84,8 @@ if (isset($_GET['download'])) {
     /* VIRŠUTINĖ VALDYMO JUOSTA (TIK EKRANE) */
     .action-bar {
       width: 100%;
-      background: #0f172a;
-      border-bottom: 2px solid #ff6a00;
+      background: #0a0b0e;
+      border-bottom: 2px solid #ef4444;
       padding: 0.85rem 1.75rem;
       display: flex;
       align-items: center;
@@ -98,7 +98,7 @@ if (isset($_GET['download'])) {
     }
 
     .action-btn {
-      background: #ff6a00;
+      background: #ef4444;
       color: #ffffff;
       font-weight: 800;
       font-size: 0.95rem;
@@ -162,7 +162,7 @@ if (isset($_GET['download'])) {
       content: '';
       position: absolute;
       top: 14px; left: 14px; right: 14px; bottom: 14px;
-      border: 1.5px solid #ff6a00;
+      border: 1.5px solid #ef4444;
       border-radius: 12px;
       pointer-events: none;
     }
@@ -172,7 +172,7 @@ if (isset($_GET['download'])) {
       position: absolute;
       width: 28px;
       height: 28px;
-      border-color: #ff6a00;
+      border-color: #ef4444;
       border-style: solid;
       pointer-events: none;
     }
@@ -196,7 +196,7 @@ if (isset($_GET['download'])) {
       margin: 0;
       color: #0f172a;
     }
-    .v-logo span { color: #ff6a00; }
+    .v-logo span { color: #ef4444; }
     .v-sublogo {
       font-size: 0.9rem;
       text-transform: uppercase;
@@ -246,10 +246,10 @@ if (isset($_GET['download'])) {
       align-items: center;
       margin: 1.25rem 0;
       background: #fffaf5;
-      border: 3px solid #ff6a00;
+      border: 3px solid #ef4444;
       border-radius: 20px;
       padding: 1.25rem 4rem;
-      box-shadow: 0 8px 24px rgba(255, 106, 0, 0.12);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.12);
     }
     .v-amount-lbl {
       font-size: 0.9rem;
@@ -262,7 +262,7 @@ if (isset($_GET['download'])) {
       font-family: 'Outfit', sans-serif;
       font-size: 5.2rem;
       font-weight: 900;
-      color: #ff6a00;
+      color: #ef4444;
       line-height: 1;
       margin: 0.25rem 0;
     }
@@ -286,7 +286,7 @@ if (isset($_GET['download'])) {
       letter-spacing: 3px;
       color: #0f172a;
       background: #f8fafc;
-      border: 2px dashed #ff6a00;
+      border: 2px dashed #ef4444;
       padding: 0.6rem 1.6rem;
       border-radius: 10px;
       display: inline-block;
@@ -328,7 +328,7 @@ if (isset($_GET['download'])) {
       font-weight: 600;
     }
     .act-badge strong {
-      color: #ff6a00;
+      color: #ef4444;
       display: block;
       font-size: 1rem;
       margin-bottom: 3px;
@@ -339,7 +339,7 @@ if (isset($_GET['download'])) {
     .booking-warning-box {
       background: #fffbeb;
       border: 1px solid #fef3c7;
-      border-left: 5px solid #ff6a00;
+      border-left: 5px solid #ef4444;
       border-radius: 0 10px 10px 0;
       padding: 1rem 1.25rem;
       text-align: left;
@@ -449,7 +449,7 @@ if (isset($_GET['download'])) {
   <!-- VIRŠUTINĖ JUOSTA (TIK EKRANE) -->
   <div class="action-bar no-print">
     <div>
-      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #ff6a00;"><?= $cCode ?></span></div>
+      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #ef4444;"><?= $cCode ?></span></div>
       <div style="font-size: 0.78rem; color: #94a3b8;">Oficialus A4 formato dovanų sertifikatas · ThrowHouse Šiauliai</div>
     </div>
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
