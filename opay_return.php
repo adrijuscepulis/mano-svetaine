@@ -93,11 +93,11 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0b0e;
-      --card-bg: #12141a;
-      --card-border: rgba(239, 68, 68, 0.22);
-      --accent: #ef4444;
-      --accent-hover: #dc2626;
+      --bg: #0c0e12;
+      --card-bg: #14171f;
+      --card-border: rgba(245, 158, 11, 0.22);
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
       --text: #f8fafc;
       --muted: #94a3b8;
       --success: #22c55e;
@@ -115,8 +115,8 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
       justify-content: center;
       padding: 1.5rem;
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(239, 68, 68, 0.15), transparent),
-        radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.08), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.15), transparent),
+        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05), transparent);
     }
     .container {
       max-width: 620px;
@@ -213,14 +213,15 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
       border: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+      background: linear-gradient(135deg, #d97706 0%, var(--accent) 50%, #fbbf24 100%);
+      color: #0c0e12;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, var(--accent-hover), #b91c1c);
+      background: linear-gradient(135deg, var(--accent), #d97706);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+      color: #0c0e12;
     }
     .btn-secondary {
       background: rgba(255, 255, 255, 0.06);

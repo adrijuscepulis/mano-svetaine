@@ -318,18 +318,18 @@ function renderPinCodeEmailHtml($name, $pinCode) {
 <head><meta charset="utf-8"></head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px;">
   <div style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
-    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #ef4444;">
+    <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #f59e0b;">
       <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px; color: #ffffff;">ThrowHouse Šiauliai</h1>
-      <p style="margin: 6px 0 0; color: #ef4444; font-size: 13px; font-weight: 700; text-transform: uppercase;">Rezervacijos patvirtinimo kodas</p>
+      <p style="margin: 6px 0 0; color: #f59e0b; font-size: 13px; font-weight: 700; text-transform: uppercase;">Rezervacijos patvirtinimo kodas</p>
     </div>
     <div style="padding: 28px 24px; color: #1e293b; line-height: 1.6;">
       <p style="margin: 0 0 16px; font-size: 16px;">Sveiki, <strong>' . $cleanName . '</strong>!</p>
       <p style="margin: 0 0 20px; font-size: 15px; color: #475569;">
         Norėdami patvirtinti savo rezervaciją su apmokėjimu <strong>kortele vietoje</strong>, suveskite šį 4 skaitmenų patvirtinimo kodą svetainėje:
       </p>
-      <div style="background: linear-gradient(135deg, #0f172a 0%, #1a1d29 100%); border: 2px dashed #ef4444; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1a1d29 100%); border: 2px dashed #f59e0b; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
         <span style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Jūsų patvirtinimo PIN kodas:</span>
-        <span style="font-family: monospace, monospace; font-size: 38px; font-weight: 900; letter-spacing: 10px; color: #ef4444; display: inline-block; padding-left: 10px;">' . $pin . '</span>
+        <span style="font-family: monospace, monospace; font-size: 38px; font-weight: 900; letter-spacing: 10px; color: #f59e0b; display: inline-block; padding-left: 10px;">' . $pin . '</span>
       </div>
       <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 14px; margin: 18px 0; border-radius: 0 8px 8px 0;">
         <strong style="color: #92400e; font-size: 13px; display: block; margin-bottom: 2px;">⏱️ Kodas galioja 10 minučių</strong>
@@ -823,8 +823,8 @@ function renderVoucherHtml($coupon) {
   <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
     
     <!-- HEADER -->
-    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #ef4444;">
-      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #ef4444; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+    <div style="background-color: #0f172a; color: #ffffff; padding: 26px 20px; text-align: center; border-bottom: 3px solid #f59e0b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #f59e0b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
       <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Oficialus Dovanų Kuponas</p>
     </div>
 
@@ -838,16 +838,16 @@ function renderVoucherHtml($coupon) {
       </div>
 
       <!-- KUPONO KORTELĖ (ŠVIESI, MODERNI) -->
-      <div style="background: #ffffff; border: 2px solid #ef4444; border-radius: 14px; padding: 24px; color: #0f172a; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(239, 68, 68, 0.15);">
-        <span style="font-size: 12px; color: #ef4444; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">OFICIALUS DOVANŲ SERTIFIKATAS</span>
+      <div style="background: #ffffff; border: 2px solid #f59e0b; border-radius: 14px; padding: 24px; color: #0f172a; text-align: center; margin: 20px 0; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.15);">
+        <span style="font-size: 12px; color: #b45309; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 8px;">OFICIALUS DOVANŲ SERTIFIKATAS</span>
         <div style="font-size: 26px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 6px;">
           DOVANŲ KUPONAS
         </div>
-        <div style="font-size: 46px; font-weight: 900; color: #ef4444; line-height: 1; margin: 10px 0 14px 0;">
+        <div style="font-size: 46px; font-weight: 900; color: #f59e0b; line-height: 1; margin: 10px 0 14px 0;">
           ' . $amount . ' €
         </div>
         <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px;">UNIKALUS KUPONO KODAS</div>
-        <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px; font-family: monospace; color: #0f172a; background: #f8fafc; padding: 8px 18px; border-radius: 8px; display: inline-block; border: 2px dashed #ef4444; margin-bottom: 12px;">
+        <div style="font-size: 22px; font-weight: 900; letter-spacing: 3px; font-family: monospace; color: #0f172a; background: #f8fafc; padding: 8px 18px; border-radius: 8px; display: inline-block; border: 2px dashed #f59e0b; margin-bottom: 12px;">
           ' . $code . '
         </div>
         <div style="font-size: 13px; color: #64748b;">
@@ -859,20 +859,20 @@ function renderVoucherHtml($coupon) {
       <div style="text-align: center; margin: 18px 0 24px 0;">
         <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
           <tr>
-            <td align="center" bgcolor="#ef4444" style="border-radius: 8px;">
-              <a href="' . $baseUrl . '/kuponas_print.php?code=' . urlencode($code) . '&download=1" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #ef4444; color: #ffffff !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; text-align: center; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);">
+            <td align="center" bgcolor="#f59e0b" style="border-radius: 8px;">
+              <a href="' . $baseUrl . '/kuponas_print.php?code=' . urlencode($code) . '&download=1" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #f59e0b; color: #0c0e12 !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 13px 26px; border-radius: 8px; text-align: center; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
                 📥 Atsisiųsti kuponą PDF formatu (A4) ➔
               </a>
             </td>
           </tr>
         </table>
         <div style="font-size: 12px; color: #64748b; margin-top: 10px;">
-          Taip pat galite <a href="' . $baseUrl . '/kuponas_print.php?code=' . urlencode($code) . '" target="_blank" style="color: #ef4444; font-weight: bold; text-decoration: underline;">atidaryti ir atsispausdinti naršyklėje</a>
+          Taip pat galite <a href="' . $baseUrl . '/kuponas_print.php?code=' . urlencode($code) . '" target="_blank" style="color: #f59e0b; font-weight: bold; text-decoration: underline;">atidaryti ir atsispausdinti naršyklėje</a>
         </div>
       </div>
 
       <!-- INSTRUKCIJA: REZERVACIJA TIK ASMENIŠKAI -->
-      <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #ef4444; border-radius: 0 10px 10px 0; padding: 16px; margin: 18px 0;">
+      <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 16px; margin: 18px 0;">
         <span style="font-weight: 800; color: #92400e; margin-bottom: 8px; font-size: 15px; display: block;">⚠️ REZERVACIJA TIK ASMENIŠKAI SUSISIEKUS:</span>
         <p style="margin: 0; font-size: 14px; color: #78350f; line-height: 1.5;">
           Su šiuo dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>

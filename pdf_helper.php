@@ -39,36 +39,36 @@ function generateThrowHouseCouponPdf($code, $amount, $expiresAt) {
     // 2. Rėmeliai
     // Išorinis tamsus rėmelis
     $stream .= "0.12 0.16 0.23 RG 2.5 w 28 28 539.28 785.89 re S\n";
-    // Vidinis ThrowHouse oranžinis akcento rėmelis
-    $stream .= "1.0 0.416 0.0 RG 1.5 w 34 34 527.28 773.89 re S\n";
+    // Vidinis ThrowHouse gintarinis akcento rėmelis
+    $stream .= "0.961 0.620 0.043 RG 1.5 w 34 34 527.28 773.89 re S\n";
 
     // Kampiniai L akcentai (3.0 w)
-    $stream .= "1.0 0.416 0.0 RG 3.0 w\n";
+    $stream .= "0.961 0.620 0.043 RG 3.0 w\n";
     $stream .= "34 780 m 34 807.89 l 61.89 807.89 l S\n";
     $stream .= "561.28 780 m 561.28 807.89 l 533.39 807.89 l S\n";
     $stream .= "34 61.89 m 34 34 l 61.89 34 l S\n";
     $stream .= "561.28 61.89 m 561.28 34 l 533.39 34 l S\n";
 
     // 3. Viršūnė: Prekės ženklas (centruotas)
-    $stream .= $putCenter('F2', 26, 1.0, 0.416, 0.0, 762, 'THROW HOUSE');
+    $stream .= $putCenter('F2', 26, 0.961, 0.620, 0.043, 762, 'THROW HOUSE');
     $stream .= $putCenter('F2', 10, 0.35, 0.4, 0.5, 744, 'SIAULIAI - ADRENALINO IR PRAMOGU ERDVE');
 
     // Skiriamoji linija viršuje
     $stream .= "0.85 0.88 0.92 RG 1.0 w 60 728 m 535 728 l S\n";
 
     // Sertifikato ženklelis (Pill box)
-    $stream .= "0.99 0.95 0.90 rg 1.0 0.416 0.0 RG 1.0 w 185 696 225 22 re B\n";
-    $stream .= $putCenter('F2', 9, 0.85, 0.3, 0.0, 703, 'OFICIALUS DOVANU SERTIFIKATAS');
+    $stream .= "0.99 0.95 0.90 rg 0.961 0.620 0.043 RG 1.0 w 185 696 225 22 re B\n";
+    $stream .= $putCenter('F2', 9, 0.706, 0.325, 0.035, 703, 'OFICIALUS DOVANU SERTIFIKATAS');
 
     // 4. Centrinė dalis: DOVANŲ KUPONAS (Didelis, aiškus, centruotas)
     $stream .= $putCenter('F2', 34, 0.08, 0.12, 0.20, 650, 'DOVANU KUPONAS');
 
     // 5. Centrinė dalis: SUMA (Labai didelė, aiški dėžutė)
-    $stream .= "0.995 0.99 0.985 rg 1.0 0.416 0.0 RG 2.5 w 140 500 315 125 re B\n";
+    $stream .= "0.995 0.99 0.985 rg 0.961 0.620 0.043 RG 2.5 w 140 500 315 125 re B\n";
     $stream .= $putCenter('F1', 11, 0.45, 0.5, 0.58, 598, 'KUPONO VERTE');
     
     $amountStr = $safeAmount . " EUR";
-    $stream .= $putCenter('F2', 50, 1.0, 0.416, 0.0, 532, $amountStr);
+    $stream .= $putCenter('F2', 50, 0.961, 0.620, 0.043, 532, $amountStr);
 
     // 6. Unikalus registracijos kodas
     $stream .= "0.96 0.97 0.99 rg 0.7 0.75 0.82 RG 1.5 w 175 438 245 44 re B\n";
@@ -82,28 +82,28 @@ function generateThrowHouseCouponPdf($code, $amount, $expiresAt) {
     // 3 kortelės viduje
     // Kortelė 1: Pykčio kambarys
     $stream .= "1.0 1.0 1.0 rg 0.82 0.85 0.9 RG 1.0 w 68 328 146 54 re B\n";
-    $stream .= $put('F2', 10, 1.0, 0.416, 0.0, 78, 364, 'PYKCIO KAMBARYS');
+    $stream .= $put('F2', 10, 0.961, 0.620, 0.043, 78, 364, 'PYKCIO KAMBARYS');
     $stream .= $put('F1', 8.5, 0.35, 0.4, 0.45, 78, 348, 'Streso iskrovos sesija');
     $stream .= $put('F1', 8, 0.5, 0.55, 0.6, 78, 336, '(1 val. dalyviui)');
 
     // Kortelė 2: Kirvių mėtymas
     $stream .= "1.0 1.0 1.0 rg 0.82 0.85 0.9 RG 1.0 w 224 328 146 54 re B\n";
-    $stream .= $put('F2', 10, 1.0, 0.416, 0.0, 234, 364, 'KIRVIU METYMAS');
+    $stream .= $put('F2', 10, 0.961, 0.620, 0.043, 234, 364, 'KIRVIU METYMAS');
     $stream .= $put('F1', 8.5, 0.35, 0.4, 0.45, 234, 348, 'Taiklumo rungtys');
     $stream .= $put('F1', 8, 0.5, 0.55, 0.6, 234, 336, '(1 val. takelyje)');
 
     // Kortelė 3: KOMBO paketas
     $stream .= "1.0 1.0 1.0 rg 0.82 0.85 0.9 RG 1.0 w 380 328 146 54 re B\n";
-    $stream .= $put('F2', 10, 1.0, 0.416, 0.0, 390, 364, 'KOMBO PAKETAS');
+    $stream .= $put('F2', 10, 0.961, 0.620, 0.043, 390, 364, 'KOMBO PAKETAS');
     $stream .= $put('F1', 8.5, 0.35, 0.4, 0.45, 390, 348, 'Abi pramogos kartu!');
     $stream .= $put('F1', 8, 0.5, 0.55, 0.6, 390, 336, '(pilna 2 val. sesija)');
 
     // 8. Rezervacija TIK asmeniškai susisiekus
     $stream .= "0.995 0.965 0.93 rg 1.0 0.6 0.3 RG 1.0 w 55 210 485 88 re B\n";
-    // Kairioji stora oranžinė linija
-    $stream .= "1.0 0.416 0.0 rg 55 210 5 88 re f\n";
+    // Kairioji stora gintarinė linija
+    $stream .= "0.961 0.620 0.043 rg 55 210 5 88 re f\n";
 
-    $stream .= $put('F2', 10.5, 0.85, 0.25, 0.0, 72, 276, 'DEMESIO - REZERVACIJA TIK ASMENISKAI SUSISIEKUS:');
+    $stream .= $put('F2', 10.5, 0.706, 0.325, 0.035, 72, 276, 'DEMESIO - REZERVACIJA TIK ASMENISKAI SUSISIEKUS:');
     $stream .= $put('F1', 9.2, 0.2, 0.25, 0.3, 72, 258, 'Su dovanu kuponu apsilankymo laikas derinamas TIK is anksto asmeniskai.');
     $stream .= $put('F1', 9.2, 0.2, 0.25, 0.3, 72, 242, 'Paskambinkite arba parasykite ir nurodykite kupono koda ' . $safeCode . ':');
     $stream .= $put('F2', 10.5, 0.08, 0.12, 0.2, 72, 224, 'Tel.: +370 619 88009     |     El. pastas: throwhousee@gmail.com');
