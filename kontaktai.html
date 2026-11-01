@@ -11,7 +11,7 @@
   <meta name="keywords" content="pramogos siauliuose, ka veikti siauliuose, throwhouse siauliai kontaktai, pykcio kambarys siauliai, kirviu metymas siauliai">
   <link rel="canonical" href="https://throwhouse.lt/kontaktai.html">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#f59e0b">
+  <meta name="theme-color" content="#00f59b">
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WB80Z0184E"></script>
@@ -76,31 +76,32 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="site-settings.js"></script>
   <style>
     :root {
-      --bg-dark: #0c0e12;
-      --bg-surface: #14171f;
-      --bg-card: #1a1e29;
-      --border-color: rgba(245, 158, 11, 0.22);
+      --bg-dark: #07090e;
+      --bg-surface: #0e121a;
+      --bg-card: #131822;
+      --border-color: rgba(0, 245, 155, 0.20);
       
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --accent-glow: rgba(245, 158, 11, 0.45);
-      --accent-flame: #b45309;
-      --purple-glow: rgba(245, 158, 11, 0.25);
+      --accent: #00f59b;
+      --accent-hover: #00d684;
+      --accent-glow: rgba(0, 245, 155, 0.40);
+      --accent-flame: #059669;
+      --purple-glow: rgba(0, 245, 155, 0.18);
 
       --text-white: #ffffff;
-      --text-gray: #a3a3bd;
-      --text-muted: #71718c;
+      --text-gray: #94a3b8;
+      --text-muted: #64748b;
 
-      --font-head: 'Outfit', sans-serif;
+      --font-head: 'Oswald', sans-serif;
+      --font-sub: 'Space Grotesk', sans-serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
 
       --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,8 +109,11 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 85% 65%, rgba(59, 130, 246, 0.05) 0%, transparent 45%);
+        radial-gradient(circle at 15% 15%, rgba(0, 245, 155, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 65%, rgba(56, 189, 248, 0.04) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
       color: var(--text-white);
       font-family: var(--font-body);
       line-height: 1.6;
@@ -135,7 +139,9 @@
       gap: 0.5rem;
       font-family: var(--font-head);
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
       padding: 0.85rem 1.8rem;
       border-radius: var(--radius-md);
       cursor: pointer;
@@ -145,15 +151,16 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #d97706 0%, var(--accent) 50%, #fbbf24 100%);
-      color: #0c0e12;
+      background: linear-gradient(135deg, #00d684 0%, var(--accent) 50%, #5eead4 100%);
+      color: #06090e;
       box-shadow: 0 8px 24px var(--accent-glow);
     }
 
     .btn-primary:hover {
+      background: linear-gradient(135deg, #059669 0%, #00d684 50%, var(--accent) 100%);
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.55);
-      color: #ffffff;
+      box-shadow: 0 12px 30px rgba(0, 245, 155, 0.55);
+      color: #06090e;
     }
 
     .btn-secondary {
@@ -163,8 +170,9 @@
     }
 
     .btn-secondary:hover {
-      background: rgba(245, 158, 11, 0.15);
+      background: rgba(0, 245, 155, 0.12);
       border-color: var(--accent);
+      color: var(--accent);
       transform: translateY(-2px);
     }
 
@@ -182,7 +190,7 @@
       left: 0;
       width: 100%;
       z-index: 100;
-      background: rgba(12, 14, 18, 0.94);
+      background: rgba(7, 9, 14, 0.94);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border-color);
       padding: 0.9rem 0;
@@ -202,16 +210,18 @@
 
     .brand-title {
       font-family: var(--font-head);
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .brand-title span { color: var(--accent); }
     .brand-city {
+      font-family: var(--font-sub);
       font-size: 0.65rem;
-      font-weight: 800;
-      letter-spacing: 0.22em;
+      font-weight: 700;
+      letter-spacing: 0.26em;
       color: #94a3b8;
       margin-top: 3px;
     }
@@ -223,8 +233,11 @@
     }
 
     .nav-item {
+      font-family: var(--font-head);
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       color: var(--text-gray);
       transition: color 0.2s;
     }
@@ -256,39 +269,43 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-      padding: 0.4rem 1.2rem;
+      background: rgba(0, 245, 155, 0.10);
+      border: 1px solid rgba(0, 245, 155, 0.35);
+      color: #00f59b;
+      padding: 0.45rem 1.25rem;
       border-radius: 999px;
       font-size: 0.85rem;
       font-weight: 700;
+      font-family: var(--font-sub);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       margin-bottom: 1.25rem;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 20px rgba(0, 245, 155, 0.18);
     }
 
     .badge-dot {
       width: 8px;
       height: 8px;
-      background-color: #22c55e;
+      background-color: var(--accent);
       border-radius: 50%;
-      box-shadow: 0 0 10px #22c55e;
+      box-shadow: 0 0 10px var(--accent);
     }
 
     .hero-h1 {
       font-family: var(--font-head);
-      font-size: 3rem;
-      font-weight: 900;
-      line-height: 1.15;
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1.1;
       margin-bottom: 1rem;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .hero-h1 .gradient {
-      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 40%, #fde68a 70%, #d97706 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #00f59b 45%, #5eead4 80%, #00d684 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.4));
+      filter: drop-shadow(0 0 20px rgba(0, 245, 155, 0.5));
     }
 
     .hero-lead {
@@ -348,7 +365,7 @@
       width: 100%;
       padding: 0.85rem 1rem;
       background: #0c0e12;
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(0, 245, 155, 0.25);
       border-radius: var(--radius-sm);
       color: #fff;
       font-family: var(--font-body);
@@ -505,16 +522,16 @@
         width: 42px;
         height: 42px;
         border-radius: 10px;
-        background: rgba(245, 158, 11, 0.12);
+        background: rgba(0, 245, 155, 0.12);
         border: 1px solid var(--border-color);
-        color: #fbbf24;
+        color: #00f59b;
         font-size: 1.4rem;
         cursor: pointer;
         transition: all 0.2s;
       }
       .nav-toggle:active {
         transform: scale(0.95);
-        background: rgba(245, 158, 11, 0.25);
+        background: rgba(0, 245, 155, 0.25);
       }
 
       .nav-links {
@@ -523,7 +540,7 @@
         top: 100%;
         left: 0;
         width: 100%;
-        background: rgba(12, 14, 18, 0.98);
+        background: rgba(7, 9, 14, 0.98);
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
         flex-direction: column;
@@ -545,7 +562,7 @@
       }
       .nav-links .nav-item:active,
       .nav-links .nav-item:hover {
-        background: rgba(245, 158, 11, 0.15);
+        background: rgba(0, 245, 155, 0.15);
         color: var(--accent);
       }
       .nav-links .nav-btn {
@@ -686,7 +703,7 @@
               <div>
                 <strong>Tikslus adresas:</strong>
                 <span>Pramonės g. 15, Šiauliai (2-as aukštas)</span>
-                <span style="display:block; font-size:0.8rem; color:#f59e0b; margin-top:2px;">(Įėjimas pro duris „Floristika“)</span>
+                <span style="display:block; font-size:0.8rem; color:#00f59b; margin-top:2px;">(Įėjimas pro duris „Floristika“)</span>
               </div>
             </div>
 

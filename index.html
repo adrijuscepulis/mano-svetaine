@@ -11,7 +11,7 @@
   <meta name="keywords" content="throwhouse siauliai, pykcio kambarys siauliai, kirviu metymas siauliai, pramogos siauliuose, ka veikti siauliuose, aktyvus laisvalaikis siauliai, pramogos suaugusiems siauliuose, bernvakaris siauliuose, mergvakaris siauliai, gimtadienis siauliuose, dovanu kuponas siauliai">
   <link rel="canonical" href="https://throwhouse.lt/">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-  <meta name="theme-color" content="#f59e0b">
+  <meta name="theme-color" content="#00f59b">
   <meta name="author" content="ThrowHouse Šiauliai">
 
   <!-- Google tag (gtag.js) -->
@@ -218,13 +218,13 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     window.SITE_SETTINGS = {
       promo: {
         enabled: true,
         discount: 5,
-        title: "🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!",
+        title: "⚡ ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!",
         subtitle: "Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.",
         end_time: "2026-10-30T22:45:00+02:00",
         apply_to_coupons: true
@@ -252,27 +252,28 @@
   <script src="site-settings.js?v=custom-hours-1"></script>
   <style>
     :root {
-      --bg-dark: #0c0e12;
-      --bg-surface: #14171f;
-      --bg-card: #1a1e29;
-      --border-color: rgba(245, 158, 11, 0.22);
+      --bg-dark: #07090e;
+      --bg-surface: #0e121a;
+      --bg-card: #131822;
+      --border-color: rgba(0, 245, 155, 0.20);
       
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --accent-glow: rgba(245, 158, 11, 0.45);
-      --accent-flame: #b45309;
-      --purple-glow: rgba(245, 158, 11, 0.25);
+      --accent: #00f59b;
+      --accent-hover: #00d684;
+      --accent-glow: rgba(0, 245, 155, 0.40);
+      --accent-flame: #059669;
+      --purple-glow: rgba(0, 245, 155, 0.18);
 
       --text-white: #ffffff;
-      --text-gray: #a3a3bd;
-      --text-muted: #71718c;
+      --text-gray: #94a3b8;
+      --text-muted: #64748b;
 
-      --font-head: 'Outfit', sans-serif;
+      --font-head: 'Oswald', sans-serif;
+      --font-sub: 'Space Grotesk', sans-serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
 
       --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -280,8 +281,11 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 10% 15%, rgba(245, 158, 11, 0.1) 0%, transparent 45%),
-        radial-gradient(circle at 90% 65%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+        radial-gradient(circle at 10% 15%, rgba(0, 245, 155, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 90% 65%, rgba(56, 189, 248, 0.04) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
       color: var(--text-white);
       font-family: var(--font-body);
       line-height: 1.6;
@@ -307,7 +311,9 @@
       gap: 0.5rem;
       font-family: var(--font-head);
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
       padding: 0.85rem 1.8rem;
       border-radius: var(--radius-md);
       cursor: pointer;
@@ -317,16 +323,16 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #d97706 0%, var(--accent) 50%, #fbbf24 100%);
-      color: #0c0e12;
+      background: linear-gradient(135deg, #00d684 0%, var(--accent) 50%, #5eead4 100%);
+      color: #06090e;
       box-shadow: 0 8px 24px var(--accent-glow);
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, #b45309 0%, #d97706 50%, var(--accent) 100%);
+      background: linear-gradient(135deg, #059669 0%, #00d684 50%, var(--accent) 100%);
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.55);
-      color: #ffffff;
+      box-shadow: 0 12px 30px rgba(0, 245, 155, 0.55);
+      color: #06090e;
     }
 
     .btn-secondary {
@@ -336,8 +342,9 @@
     }
 
     .btn-secondary:hover {
-      background: rgba(245, 158, 11, 0.15);
+      background: rgba(0, 245, 155, 0.12);
       border-color: var(--accent);
+      color: var(--accent);
       transform: translateY(-2px);
     }
 
@@ -355,7 +362,7 @@
       left: 0;
       width: 100%;
       z-index: 100;
-      background: rgba(12, 14, 18, 0.94);
+      background: rgba(7, 9, 14, 0.94);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border-color);
       padding: 0.9rem 0;
@@ -375,16 +382,18 @@
 
     .brand-title {
       font-family: var(--font-head);
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .brand-title span { color: var(--accent); }
     .brand-city {
+      font-family: var(--font-sub);
       font-size: 0.65rem;
-      font-weight: 800;
-      letter-spacing: 0.22em;
+      font-weight: 700;
+      letter-spacing: 0.26em;
       color: #94a3b8;
       margin-top: 3px;
     }
@@ -396,8 +405,11 @@
     }
 
     .nav-item {
+      font-family: var(--font-head);
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       color: var(--text-gray);
       transition: color 0.2s;
     }
@@ -405,7 +417,7 @@
     .nav-item:hover { color: var(--accent); }
     .nav-btn {
       padding: 0.6rem 1.4rem;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
 
     .nav-toggle {
@@ -421,7 +433,7 @@
     .hero {
       position: relative;
       padding: 11rem 0 6rem 0;
-      background: linear-gradient(180deg, rgba(8, 5, 14, 0.8) 0%, rgba(8, 5, 14, 0.98) 100%),
+      background: linear-gradient(180deg, rgba(7, 9, 14, 0.75) 0%, rgba(7, 9, 14, 0.98) 100%),
                   url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
       text-align: center;
       border-bottom: 1px solid var(--border-color);
@@ -432,39 +444,43 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-      padding: 0.4rem 1.1rem;
+      background: rgba(0, 245, 155, 0.10);
+      border: 1px solid rgba(0, 245, 155, 0.35);
+      color: #00f59b;
+      padding: 0.45rem 1.25rem;
       border-radius: 999px;
       font-size: 0.85rem;
       font-weight: 700;
+      font-family: var(--font-sub);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       margin-bottom: 1.25rem;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 20px rgba(0, 245, 155, 0.18);
     }
 
     .badge-dot {
       width: 8px;
       height: 8px;
-      background-color: #22c55e;
+      background-color: var(--accent);
       border-radius: 50%;
-      box-shadow: 0 0 10px #22c55e;
+      box-shadow: 0 0 10px var(--accent);
     }
 
     .hero-h1 {
       font-family: var(--font-head);
-      font-size: 3.75rem;
-      font-weight: 900;
-      line-height: 1.1;
+      font-size: 4.2rem;
+      font-weight: 800;
+      line-height: 1.05;
       margin-bottom: 1.25rem;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .hero-h1 .gradient {
-      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 40%, #fde68a 70%, #d97706 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #00f59b 45%, #5eead4 80%, #00d684 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.45));
+      filter: drop-shadow(0 0 25px rgba(0, 245, 155, 0.5));
     }
 
     .hero-lead {
@@ -490,7 +506,7 @@
     }
 
     .feat-card {
-      background: rgba(17, 11, 30, 0.85);
+      background: rgba(14, 18, 26, 0.85);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border-color);
       padding: 1.25rem 1.5rem;
@@ -501,7 +517,7 @@
       transition: all 0.25s ease;
     }
 
-    .feat-card:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(245, 158, 11, 0.25); transform: translateY(-2px); }
+    .feat-card:hover { border-color: var(--accent); box-shadow: 0 0 22px rgba(0, 245, 155, 0.25); transform: translateY(-2px); }
     .feat-icon { font-size: 1.8rem; }
     .feat-card strong { display: block; font-size: 0.95rem; color: #fff; }
     .feat-card span { font-size: 0.825rem; color: var(--text-gray); }
@@ -519,22 +535,25 @@
 
     .tag {
       display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 800;
+      font-size: 0.8rem;
+      font-family: var(--font-sub);
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.12em;
       color: var(--accent);
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      padding: 0.35rem 0.9rem;
+      background: rgba(0, 245, 155, 0.12);
+      border: 1px solid rgba(0, 245, 155, 0.35);
+      padding: 0.35rem 1rem;
       border-radius: 999px;
       margin-bottom: 0.85rem;
     }
 
     .title {
       font-family: var(--font-head);
-      font-size: 2.4rem;
+      font-size: 2.6rem;
       font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       margin-bottom: 0.75rem;
     }
 
@@ -565,7 +584,7 @@
     .act-card:hover {
       transform: translateY(-5px);
       border-color: var(--accent);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 245, 155, 0.2);
     }
 
     .act-img {
@@ -578,7 +597,7 @@
     .act-img-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(18, 22, 36, 0.95) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(14, 18, 26, 0.95) 100%);
       display: flex;
       align-items: flex-end;
       padding: 1.5rem;
@@ -591,6 +610,7 @@
       padding: 0.35rem 0.9rem;
       border-radius: 999px;
       font-size: 0.825rem;
+      font-family: var(--font-sub);
       font-weight: 700;
       color: #fff;
     }
@@ -604,8 +624,10 @@
 
     .act-title {
       font-family: var(--font-head);
-      font-size: 1.75rem;
+      font-size: 1.85rem;
       font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       margin-bottom: 0.75rem;
     }
 
@@ -642,14 +664,16 @@
     }
 
     .price-tag { font-size: 0.85rem; color: var(--text-gray); }
-    .price-tag strong { display: block; font-size: 1.5rem; color: #fff; font-family: var(--font-head); }
+    .price-tag strong { display: block; font-size: 1.7rem; color: #fff; font-family: var(--font-head); letter-spacing: 0.03em; }
 
     .capacity-badge {
       display: inline-block;
       font-size: 0.8rem;
-      color: #fbbf24;
-      background: rgba(245, 158, 11, 0.1);
-      padding: 0.2rem 0.6rem;
+      font-family: var(--font-sub);
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(0, 245, 155, 0.12);
+      padding: 0.2rem 0.65rem;
       border-radius: var(--radius-sm);
       margin-top: 0.2rem;
     }
@@ -675,8 +699,8 @@
     .p-card:hover { border-color: rgba(255, 255, 255, 0.2); transform: translateY(-4px); }
     .p-card.popular {
       border-color: var(--accent);
-      background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, var(--bg-surface) 100%);
-      box-shadow: 0 14px 35px var(--accent-glow), 0 0 25px rgba(245, 158, 11, 0.2);
+      background: linear-gradient(180deg, rgba(0, 245, 155, 0.10) 0%, var(--bg-surface) 100%);
+      box-shadow: 0 14px 35px var(--accent-glow), 0 0 25px rgba(0, 245, 155, 0.2);
     }
 
     .pop-badge {
@@ -684,14 +708,16 @@
       top: -12px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #0c0e12;
+      background: linear-gradient(135deg, #00f59b, #00d684);
+      color: #07090e;
+      font-family: var(--font-head);
       font-weight: 800;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       padding: 0.3rem 1.1rem;
       border-radius: 999px;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 15px rgba(0, 245, 155, 0.5);
     }
 
     .p-head {
@@ -824,7 +850,7 @@
     .act-opt input { display: none; }
     .act-box {
       background: #0c0e12;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(0, 245, 155, 0.2);
       padding: 0.75rem 0.4rem;
       border-radius: var(--radius-sm);
       text-align: center;
@@ -833,16 +859,16 @@
 
     .act-opt input:checked + .act-box {
       border-color: var(--accent);
-      background: rgba(245, 158, 11, 0.16);
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+      background: rgba(0, 245, 155, 0.16);
+      box-shadow: 0 0 15px rgba(0, 245, 155, 0.25);
     }
 
     .act-box strong { display: block; font-size: 0.8rem; color: #fff; margin-top: 0.25rem; }
     .act-box small { display: block; font-size: 0.7rem; color: var(--accent); margin-top: 2px; }
 
     .lane-selector-box, .extra-dishes-box {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px dashed rgba(245, 158, 11, 0.4);
+      background: rgba(0, 245, 155, 0.08);
+      border: 1px dashed rgba(0, 245, 155, 0.4);
       padding: 0.85rem 1rem;
       border-radius: var(--radius-sm);
       margin-bottom: 1.25rem;
@@ -853,7 +879,7 @@
       width: 100%;
       padding: 0.8rem 1rem;
       background: #0c0e12;
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(0, 245, 155, 0.25);
       border-radius: var(--radius-sm);
       color: #fff;
       font-size: 0.95rem;
@@ -873,10 +899,10 @@
       left: 0;
       width: 100%;
       z-index: 50;
-      background: #14171f;
+      background: #10141e;
       border: 1px solid var(--accent);
       border-radius: var(--radius-md);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 25px rgba(245, 158, 11, 0.25);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 25px rgba(0, 245, 155, 0.25);
       padding: 1.25rem;
       margin-top: 0.5rem;
     }
@@ -904,7 +930,7 @@
     }
 
     .cal-nav-btn:hover { background: var(--accent); color: #000; }
-    .cal-month-title { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: #fff; }
+    .cal-month-title { font-family: var(--font-head); font-size: 1.15rem; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 700; color: #fff; }
 
     .cal-weekdays {
       display: grid;
@@ -937,9 +963,9 @@
       transition: all 0.15s ease;
     }
 
-    .cal-day:hover:not(.disabled):not(.unavailable) { background: rgba(245, 158, 11, 0.25); color: #fff; }
-    .cal-day.today { border: 1px solid rgba(245, 158, 11, 0.6); font-weight: 700; }
-    .cal-day.selected { background: var(--accent) !important; color: #0c0e12 !important; font-weight: 800; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+    .cal-day:hover:not(.disabled):not(.unavailable) { background: rgba(0, 245, 155, 0.25); color: #fff; }
+    .cal-day.today { border: 1px solid rgba(0, 245, 155, 0.6); font-weight: 700; }
+    .cal-day.selected { background: var(--accent) !important; color: #07090e !important; font-weight: 800; box-shadow: 0 0 12px rgba(0, 245, 155, 0.6); }
     .cal-day.disabled { color: #4b5563; background: transparent; cursor: not-allowed; opacity: 0.4; }
 
     /* Raudonu X užbrauktos dienos: kai nedirbame arba pilnai užimta */
@@ -991,7 +1017,7 @@
       align-items: center;
       gap: 0.6rem;
       background: #0c0e12;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(0, 245, 155, 0.2);
       padding: 0.85rem 1rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
@@ -1034,8 +1060,18 @@
     }
     .opay-bank-btn.active {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 0 0 2px rgba(0, 245, 155, 0.4), 0 4px 10px rgba(0,0,0,0.3);
       background: #ffffff;
+    }
+    .opay-bank-btn.active::after {
+      content: '✓';
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
     }
     .opay-bank-btn.active::after {
       content: '✓';
@@ -1124,7 +1160,7 @@
       overflow: hidden;
     }
 
-    .faq-row.open { border-color: rgba(245, 158, 11, 0.4); }
+    .faq-row.open { border-color: rgba(0, 245, 155, 0.4); }
     .faq-btn {
       width: 100%;
       background: none;
@@ -1132,7 +1168,9 @@
       padding: 1.25rem 1.5rem;
       color: #fff;
       font-family: var(--font-head);
-      font-size: 1.05rem;
+      font-size: 1.15rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
       font-weight: 700;
       text-align: left;
       display: flex;
@@ -1183,8 +1221,8 @@
     .c-box a:hover { color: var(--accent); }
 
     .entrance-instruction-box {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: rgba(0, 245, 155, 0.08);
+      border: 1px solid rgba(0, 245, 155, 0.35);
       border-radius: var(--radius-md);
       padding: 1.25rem 1.5rem;
       margin-top: 1.25rem;
@@ -1267,16 +1305,16 @@
         width: 42px;
         height: 42px;
         border-radius: 10px;
-        background: rgba(245, 158, 11, 0.12);
+        background: rgba(0, 245, 155, 0.12);
         border: 1px solid var(--border-color);
-        color: #fbbf24;
+        color: #00f59b;
         font-size: 1.4rem;
         cursor: pointer;
         transition: all 0.2s;
       }
       .nav-toggle:active {
         transform: scale(0.95);
-        background: rgba(245, 158, 11, 0.25);
+        background: rgba(0, 245, 155, 0.25);
       }
 
       .nav-links {
@@ -1285,7 +1323,7 @@
         top: 100%;
         left: 0;
         width: 100%;
-        background: rgba(12, 14, 18, 0.98);
+        background: rgba(7, 9, 14, 0.98);
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
         flex-direction: column;
@@ -1307,7 +1345,7 @@
       }
       .nav-links .nav-item:active,
       .nav-links .nav-item:hover {
-        background: rgba(245, 158, 11, 0.15);
+        background: rgba(0, 245, 155, 0.15);
         color: var(--accent);
       }
       .nav-links .nav-btn {
@@ -1473,29 +1511,30 @@
 
     /* INFORMACINĖ AKCIJOS LENTELĖ */
     .promo-notice-box {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(20, 23, 31, 0.95) 100%);
-      border: 2px solid #f59e0b;
+      background: linear-gradient(135deg, rgba(0, 245, 155, 0.12) 0%, rgba(14, 18, 26, 0.95) 100%);
+      border: 2px solid #00f59b;
       border-radius: var(--radius-md);
       padding: 1.25rem 1.4rem;
       margin-bottom: 1.5rem;
       position: relative;
-      box-shadow: 0 0 25px rgba(245, 158, 11, 0.25), 0 10px 20px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 25px rgba(0, 245, 155, 0.25), 0 10px 20px rgba(0, 0, 0, 0.5);
       animation: promoGlow 3s ease-in-out infinite alternate;
     }
 
     @keyframes promoGlow {
-      from { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
-      to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.45); border-color: #d97706; }
+      from { box-shadow: 0 0 15px rgba(0, 245, 155, 0.2); border-color: #00f59b; }
+      to { box-shadow: 0 0 30px rgba(0, 245, 155, 0.45); border-color: #00d684; }
     }
 
     .promo-notice-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      background: rgba(245, 158, 11, 0.22);
-      border: 1px solid #f59e0b;
-      color: #fbbf24;
+      background: rgba(0, 245, 155, 0.2);
+      border: 1px solid #00f59b;
+      color: #00f59b;
       font-size: 0.8rem;
+      font-family: var(--font-sub);
       font-weight: 800;
       letter-spacing: 0.8px;
       padding: 0.3rem 0.75rem;
@@ -1507,9 +1546,9 @@
     .promo-notice-badge .pulse-dot {
       width: 8px;
       height: 8px;
-      background: #22c55e;
+      background: #00f59b;
       border-radius: 50%;
-      box-shadow: 0 0 10px #22c55e;
+      box-shadow: 0 0 10px #00f59b;
       display: inline-block;
       animation: pulseDot 1.5s infinite;
     }
@@ -1522,8 +1561,10 @@
 
     .promo-notice-title {
       font-family: var(--font-head);
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
       color: #ffffff;
       line-height: 1.35;
       margin-bottom: 0.35rem;
@@ -1549,10 +1590,10 @@
     }
 
     .promo-timer-val {
-      font-family: 'JetBrains Mono', monospace, monospace;
-      font-size: 1rem;
+      font-family: 'Space Mono', monospace, monospace;
+      font-size: 1.05rem;
       font-weight: 800;
-      color: #fbbf24;
+      color: #00f59b;
       letter-spacing: 0.5px;
     }
   </style>
@@ -1560,14 +1601,14 @@
 <body>
 
   <!-- VIRŠUTINĖ PRANEŠIMŲ JUOSTA -->
-  <div id="topAnnouncementBanner" style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #b45309 100%); color:#0c0e12; padding:10px 16px; font-size:0.92rem; font-weight:800; text-align:center; position:sticky; top:0; z-index:1000; box-shadow:0 4px 20px rgba(245, 158, 11, 0.4);">
+  <div id="topAnnouncementBanner" style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, #059669 0%, #00f59b 50%, #00d684 100%); color:#07090e; padding:10px 16px; font-size:0.92rem; font-weight:800; text-align:center; position:sticky; top:0; z-index:1000; box-shadow:0 4px 20px rgba(0, 245, 155, 0.4);">
     <span style="display:inline-flex; align-items:center; gap:6px;">
       <span>⚡</span> <strong>ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!</strong>
     </span>
-    <span style="background:#0c0e12; color:#fbbf24; padding:3px 10px; border-radius:6px; font-family:monospace; font-size:0.95rem; font-weight:800; border:1px solid rgba(255,255,255,0.2);">
+    <span style="background:#07090e; color:#00f59b; padding:3px 10px; border-radius:6px; font-family:monospace; font-size:0.95rem; font-weight:800; border:1px solid rgba(0,245,155,0.4);">
       ⏳ Liko: <span id="bannerCountdownTimer">47:59:59</span>
     </span>
-    <a href="#rezervacija" style="background:#0c0e12; color:#ffffff; padding:4px 14px; border-radius:6px; font-size:0.84rem; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:4px; border:1px solid rgba(255,255,255,0.25);">
+    <a href="#rezervacija" style="background:#07090e; color:#ffffff; padding:4px 14px; border-radius:6px; font-size:0.84rem; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:4px; border:1px solid rgba(0,245,155,0.4);">
       Rezervuoti su nuolaida ➔
     </a>
   </div>
@@ -1594,8 +1635,9 @@
     </div>
   </header>
 
-  <!-- HERO SEKCIJA -->
-  <section class="hero">
+  <!-- HERO SEKCIJA SU SKRAIDANČIAIS KIRVIAIS -->
+  <section class="hero" id="heroSection">
+    <canvas id="heroAxesCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
     <div class="container" style="position: relative; z-index: 2;">
       <div class="hero-badge">
         <span class="badge-dot"></span> 🎯 Populiariausios aktyvios pramogos Šiauliuose | Pramonės g. 15
@@ -1902,7 +1944,7 @@
       </div>
 
       <!-- ASMENINIS SUSISIEKIMAS DĖL KUPONO -->
-      <div style="max-width: 680px; margin: 2rem auto 0 auto; background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(20, 23, 31, 0.85) 100%); border: 2px solid var(--accent); border-radius: var(--radius); padding: 2rem 1.8rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+      <div style="max-width: 680px; margin: 2rem auto 0 auto; background: linear-gradient(135deg, rgba(0, 245, 155, 0.1) 0%, rgba(14, 18, 26, 0.85) 100%); border: 2px solid var(--accent); border-radius: var(--radius); padding: 2rem 1.8rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
         <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🎁 📞</div>
         <h3 style="font-family: var(--font-head); font-size: 1.45rem; margin-bottom: 0.65rem; color: #ffffff;">Dovanų kuponų užsakymas – susisiekite asmeniškai</h3>
         <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.4rem;">
@@ -2006,7 +2048,7 @@
                 <option value="Takelis 1">1 takelis</option>
                 <option value="Takelis 2">2 takelis</option>
               </select>
-              <div id="laneNotice" style="display:none; font-size:0.83rem; margin-top:0.45rem; padding:0.45rem 0.75rem; border-radius:6px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; line-height: 1.4;"></div>
+              <div id="laneNotice" style="display:none; font-size:0.83rem; margin-top:0.45rem; padding:0.45rem 0.75rem; border-radius:6px; background:rgba(0,245,155,0.12); border:1px solid rgba(0,245,155,0.3); color:#00f59b; line-height: 1.4;"></div>
             </div>
 
             <!-- PAPILDOMI INDAI DAUŽYMUI (TIK PYKČIO KAMBARIUI IR KOMBO) -->
@@ -2105,7 +2147,7 @@
               <div class="pay-methods" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 
                 <!-- 1. Elektroninė bankininkystė su bankų pasirinkimu -->
-                <div id="payBankCardWrapper" style="border: 1.5px solid var(--accent); background: rgba(245, 158, 11, 0.05); border-radius: 12px; padding: 1rem; transition: all 0.2s;">
+                <div id="payBankCardWrapper" style="border: 1.5px solid var(--accent); background: rgba(0, 245, 155, 0.05); border-radius: 12px; padding: 1rem; transition: all 0.2s;">
                   <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-bottom: 0.85rem; padding: 0; background: none; border: none;">
                     <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
                     <strong style="color: #ffffff; font-size: 0.98rem;">💳 Elektroninė bankininkystė</strong>
@@ -2196,7 +2238,7 @@
             </div>
 
             <!-- PIN KODO ĮVEDIMO BLOKAS (MOKANT VIETOJE) -->
-            <div id="pinBoxWrapper" style="display: none; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(20, 23, 31, 0.95) 100%); border: 2px dashed var(--accent); border-radius: 12px; padding: 1.25rem 1rem; margin-bottom: 1.25rem; text-align: center;">
+            <div id="pinBoxWrapper" style="display: none; background: linear-gradient(135deg, rgba(0, 245, 155, 0.1) 0%, rgba(14, 18, 26, 0.95) 100%); border: 2px dashed var(--accent); border-radius: 12px; padding: 1.25rem 1rem; margin-bottom: 1.25rem; text-align: center;">
               <div style="font-size: 1.6rem; margin-bottom: 0.25rem;">✉️</div>
               <strong style="color: #ffffff; font-size: 1rem; display: block; margin-bottom: 0.35rem;">
                 Patvirtinimo PIN kodas
@@ -2207,7 +2249,7 @@
               </p>
               
               <div style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
-                <input type="text" id="resPinInput" maxlength="4" placeholder="••••" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" style="width: 170px; height: 50px; font-size: 1.85rem; font-weight: 900; letter-spacing: 10px; text-align: center; border-radius: 8px; border: 2px solid var(--accent); background: #0c0e12; color: #ffffff; outline: none; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);">
+                <input type="text" id="resPinInput" maxlength="4" placeholder="••••" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" style="width: 170px; height: 50px; font-size: 1.85rem; font-weight: 900; letter-spacing: 10px; text-align: center; border-radius: 8px; border: 2px solid var(--accent); background: #0c0e12; color: #00f59b; outline: none; box-shadow: 0 0 15px rgba(0, 245, 155, 0.3);">
               </div>
 
               <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-size: 0.82rem;">
@@ -3011,7 +3053,7 @@
             opt.textContent = isKombo
               ? `${hourStr} - ${endHourStr} val. (Liko 1 kirvių takelis 🔥)`
               : `${hourStr} - ${endHourStr} val. (Liko 1 takelis 🔥)`;
-            opt.style.color = '#f59e0b';
+            opt.style.color = '#00f59b';
           } else {
             opt.textContent = isKombo
               ? `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`
@@ -3186,7 +3228,7 @@
         if (selected === 'cash') {
           if (lblCash) {
             lblCash.style.borderColor = 'var(--accent)';
-            lblCash.style.background = 'rgba(245, 158, 11, 0.08)';
+            lblCash.style.background = 'rgba(0, 245, 155, 0.08)';
           }
           if (cardBankWrapper) {
             cardBankWrapper.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -3205,7 +3247,7 @@
         } else {
           if (cardBankWrapper) {
             cardBankWrapper.style.borderColor = 'var(--accent)';
-            cardBankWrapper.style.background = 'rgba(245, 158, 11, 0.05)';
+            cardBankWrapper.style.background = 'rgba(0, 245, 155, 0.05)';
           }
           if (bankSelectorBox) {
             bankSelectorBox.style.display = 'block';
@@ -3539,7 +3581,7 @@
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
           <strong>Data ir laikas:</strong> ${dateText}, ${timeOptionText}<br>
           <strong>Apmokėjimo būdas:</strong> ${payLabel}<br>
-          <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong> ${isCash ? '<span style="color:#fbbf24; font-size:0.85rem;">(Mokėsite atvykus)</span>' : ''}<br>
+          <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong> ${isCash ? '<span style="color:#00f59b; font-size:0.85rem;">(Mokėsite atvykus)</span>' : ''}<br>
           ${cashNoticeHtml}
           <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas sėkmingai išsiųstas į <strong>${email}</strong>!</span>
         `;
@@ -3623,6 +3665,287 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof calcTotal === 'function') calcTotal();
     });
+  </script>
+
+  <!-- INTERAKTYVIŲ SKRAIDANČIŲ KIRVIŲ IR ŽIEŽIRBŲ VARIKLIS -->
+  <script>
+  (function initFlyingAxesEngine() {
+    const canvas = document.getElementById('heroAxesCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let mouse = { x: -2000, y: -2000 };
+    const slashes = [];
+
+    function resize() {
+      const parent = canvas.parentElement || document.body;
+      width = canvas.width = parent.offsetWidth;
+      height = canvas.height = parent.offsetHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 1. Skraidančių 3D kirvių generavimas
+    const axeCount = window.innerWidth < 768 ? 6 : 9;
+    const axes = [];
+
+    for (let i = 0; i < axeCount; i++) {
+      axes.push({
+        x: Math.random() * (width || 1200),
+        y: Math.random() * (height || 700),
+        z: 0.55 + Math.random() * 0.75, // gylio mastelis
+        vx: (Math.random() - 0.5) * 0.75,
+        vy: (Math.random() - 0.5) * 0.55,
+        rot: Math.random() * Math.PI * 2,
+        spinSpeed: (Math.random() - 0.5) * 0.03 + (Math.random() > 0.5 ? 0.016 : -0.016),
+        size: 26 + Math.random() * 14,
+        opacity: 0.35 + Math.random() * 0.45
+      });
+    }
+
+    // 2. Skraidančių žiežirbų ir kinetinių dalelių generavimas
+    const sparkCount = window.innerWidth < 768 ? 16 : 28;
+    const sparks = [];
+    for (let i = 0; i < sparkCount; i++) {
+      sparks.push({
+        x: Math.random() * (width || 1200),
+        y: Math.random() * (height || 700),
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -0.25 - Math.random() * 0.55,
+        size: 1 + Math.random() * 2.2,
+        alpha: 0.2 + Math.random() * 0.65,
+        color: Math.random() > 0.35 ? '#00f59b' : '#5eead4'
+      });
+    }
+
+    // Pelės sekimas interaktyviam paralaksui
+    const heroSection = canvas.parentElement;
+    if (heroSection) {
+      heroSection.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      });
+      heroSection.addEventListener('mouseleave', () => {
+        mouse.x = -2000;
+        mouse.y = -2000;
+      });
+
+      // Kirtimo / smūgio efektas paspaudus
+      heroSection.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        slashes.push({
+          x: clickX,
+          y: clickY,
+          angle: (Math.random() - 0.5) * 1.5,
+          length: 120 + Math.random() * 70,
+          life: 1.0,
+          sparks: Array.from({ length: 8 }, () => ({
+            x: clickX,
+            y: clickY,
+            vx: (Math.random() - 0.5) * 7,
+            vy: (Math.random() - 0.5) * 7,
+            size: 2 + Math.random() * 3,
+            life: 1.0
+          }))
+        });
+      });
+    }
+
+    // Taktinio kirvio piešimas su metalo ašmenimis ir neono švytėjimu
+    function drawAxe(x, y, rot, size, scale, opacity) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = opacity;
+
+      // Kotas (anglies pluošto ir medienos tamsintas korpusas)
+      ctx.beginPath();
+      ctx.moveTo(-3, -size * 0.7);
+      ctx.lineTo(3, -size * 0.7);
+      ctx.lineTo(4, size * 0.9);
+      ctx.quadraticCurveTo(0, size * 1.02, -4, size * 0.9);
+      ctx.closePath();
+      ctx.fillStyle = '#161c26';
+      ctx.fill();
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(0, 245, 155, 0.35)';
+      ctx.stroke();
+
+      // Ergonominiai taktiniai apvijimai (rankena)
+      ctx.strokeStyle = '#00f59b';
+      ctx.lineWidth = 1.4;
+      for (let g = 0; g < 4; g++) {
+        ctx.beginPath();
+        ctx.moveTo(-3.2, size * 0.45 + g * 5);
+        ctx.lineTo(3.5, size * 0.45 + g * 5 + 1.6);
+        ctx.stroke();
+      }
+
+      // Kirvio galvos mova (plienas)
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-5, -size * 0.74, 10, size * 0.18);
+
+      // Kaltos geležtės ašmenys (išlenktas kirtis)
+      ctx.beginPath();
+      ctx.moveTo(-4, -size * 0.74);
+      ctx.lineTo(-size * 0.8, -size * 0.98); // viršutinis smaigalys
+      ctx.quadraticCurveTo(-size * 1.15, -size * 0.65, -size * 0.85, -size * 0.22); // pjaunančioji briauna
+      ctx.lineTo(-4, -size * 0.44); // barzdelė
+      ctx.closePath();
+
+      const bladeGrad = ctx.createLinearGradient(-size * 0.95, -size * 0.95, -4, -size * 0.4);
+      bladeGrad.addColorStop(0, '#5eead4');
+      bladeGrad.addColorStop(0.35, '#00f59b');
+      bladeGrad.addColorStop(0.75, '#1e293b');
+      bladeGrad.addColorStop(1, '#07090e');
+      ctx.fillStyle = bladeGrad;
+      ctx.fill();
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = '#5eead4';
+      ctx.stroke();
+
+      // Užpakalinis kūjelis / smaigas
+      ctx.beginPath();
+      ctx.moveTo(5, -size * 0.72);
+      ctx.lineTo(size * 0.48, -size * 0.7);
+      ctx.lineTo(size * 0.48, -size * 0.52);
+      ctx.lineTo(5, -size * 0.5);
+      ctx.closePath();
+      ctx.fillStyle = '#263345';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0, 245, 155, 0.45)';
+      ctx.stroke();
+
+      // Šviečiantys ašmenų ašmenys (neoninė linija)
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.8, -size * 0.98);
+      ctx.quadraticCurveTo(-size * 1.15, -size * 0.65, -size * 0.85, -size * 0.22);
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.shadowColor = '#00f59b';
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    let isVisible = true;
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(([entry]) => {
+        isVisible = entry.isIntersecting;
+      }, { threshold: 0.05 });
+      observer.observe(canvas);
+    }
+
+    function render() {
+      if (!isVisible || document.hidden) {
+        requestAnimationFrame(render);
+        return;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Žiežirbų dalelės
+      for (let s of sparks) {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.y < -15) { s.y = height + 15; s.x = Math.random() * width; }
+        if (s.x < -15) s.x = width + 15;
+        if (s.x > width + 15) s.x = -15;
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = s.alpha * 0.7;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 7;
+        ctx.fill();
+      }
+
+      // 2. Skraidantys kirviai
+      for (let a of axes) {
+        // Pelės gravitacija / atostūmis
+        if (mouse.x > -1000) {
+          const dx = mouse.x - a.x;
+          const dy = mouse.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 260 && dist > 5) {
+            const force = (260 - dist) / 260;
+            a.x -= (dx / dist) * force * 1.4;
+            a.y -= (dy / dist) * force * 1.4;
+          }
+        }
+
+        a.x += a.vx;
+        a.y += a.vy;
+        a.rot += a.spinSpeed;
+
+        const pad = 90;
+        if (a.x < -pad) a.x = width + pad;
+        if (a.x > width + pad) a.x = -pad;
+        if (a.y < -pad) a.y = height + pad;
+        if (a.y > height + pad) a.y = -pad;
+
+        drawAxe(a.x, a.y, a.rot, a.size, a.z, a.opacity);
+      }
+
+      // 3. Kirtimo / smūgio blyksniai
+      for (let i = slashes.length - 1; i >= 0; i--) {
+        const sl = slashes[i];
+        sl.life -= 0.045;
+        if (sl.life <= 0) {
+          slashes.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.translate(sl.x, sl.y);
+        ctx.rotate(sl.angle);
+        ctx.globalAlpha = sl.life;
+
+        ctx.beginPath();
+        ctx.moveTo(-sl.length * 0.5, 0);
+        ctx.quadraticCurveTo(0, -14 * sl.life, sl.length * 0.5, 0);
+        ctx.lineWidth = 4 * sl.life;
+        ctx.strokeStyle = '#00f59b';
+        ctx.shadowColor = '#00f59b';
+        ctx.shadowBlur = 18;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-sl.length * 0.4, 0);
+        ctx.quadraticCurveTo(0, -6 * sl.life, sl.length * 0.4, 0);
+        ctx.lineWidth = 1.6 * sl.life;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+        ctx.restore();
+
+        // Kirtimo kibirkštys
+        for (let sp of sl.sparks) {
+          sp.x += sp.vx;
+          sp.y += sp.vy;
+          sp.life -= 0.055;
+          if (sp.life > 0) {
+            ctx.beginPath();
+            ctx.arc(sp.x, sp.y, sp.size * sp.life, 0, Math.PI * 2);
+            ctx.fillStyle = '#00f59b';
+            ctx.globalAlpha = sp.life;
+            ctx.shadowColor = '#5eead4';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+          }
+        }
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+  })();
   </script>
 
 </body>

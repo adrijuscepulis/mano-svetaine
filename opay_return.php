@@ -90,17 +90,17 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
   <title><?= $isSuccess ? 'Apmokėjimas sėkmingas | ThrowHouse Šiauliai' : 'Apmokėjimas nebaigtas | ThrowHouse Šiauliai' ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0c0e12;
-      --card-bg: #14171f;
-      --card-border: rgba(245, 158, 11, 0.22);
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
+      --bg: #07090e;
+      --card-bg: #0e121a;
+      --card-border: rgba(0, 245, 155, 0.22);
+      --accent: #00f59b;
+      --accent-hover: #00d684;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --success: #22c55e;
+      --success: #00f59b;
       --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,7 +115,7 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
       justify-content: center;
       padding: 1.5rem;
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.15), transparent),
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 245, 155, 0.15), transparent),
         radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05), transparent);
     }
     .container {
@@ -141,7 +141,7 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
     .icon-success {
-      background: rgba(34, 197, 94, 0.15);
+      background: rgba(0, 245, 155, 0.15);
       border: 2px solid var(--success);
       color: var(--success);
     }
@@ -151,12 +151,13 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
       color: var(--danger);
     }
     h1 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.85rem;
+      font-family: 'Oswald', sans-serif;
+      font-size: 2rem;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
       color: #fff;
       margin-bottom: 0.75rem;
-      letter-spacing: -0.02em;
     }
     .subtitle {
       font-size: 1rem;
@@ -213,15 +214,15 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
       border: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg, #d97706 0%, var(--accent) 50%, #fbbf24 100%);
-      color: #0c0e12;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+      background: linear-gradient(135deg, #00d684 0%, var(--accent) 50%, #5eead4 100%);
+      color: #06090e;
+      box-shadow: 0 4px 15px rgba(0, 245, 155, 0.35);
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, var(--accent), #d97706);
+      background: linear-gradient(135deg, #059669 0%, #00d684 50%, var(--accent) 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
-      color: #0c0e12;
+      box-shadow: 0 6px 20px rgba(0, 245, 155, 0.45);
+      color: #06090e;
     }
     .btn-secondary {
       background: rgba(255, 255, 255, 0.06);

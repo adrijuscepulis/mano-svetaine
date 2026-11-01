@@ -918,15 +918,15 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
   <title>ThrowHouse Šiauliai | Valdymo Pultas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090a0f;
-      --surface: #12141c;
-      --surface-2: #1a1d29;
-      --border: rgba(255, 255, 255, 0.08);
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
+      --bg: #07090e;
+      --surface: #0e121a;
+      --surface-2: #131822;
+      --border: rgba(0, 245, 155, 0.14);
+      --accent: #00f59b;
+      --accent-hover: #00d684;
       --text: #f8fafc;
       --muted: #94a3b8;
       --danger: #ef4444;
@@ -1042,7 +1042,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       transition: all 0.2s;
     }
     .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.04); }
-    .tab-btn.active { background: rgba(245, 158, 11, 0.15); color: var(--accent); border: 1px solid rgba(245,158,11,0.3); }
+    .tab-btn.active { background: rgba(0, 245, 155, 0.15); color: var(--accent); border: 1px solid rgba(0, 245, 155, 0.3); }
 
     /* LENTELĖS */
     .table-card {
@@ -1153,12 +1153,12 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     }
     .cal-day-cell:hover {
       border-color: var(--accent);
-      background: rgba(245,158,11,0.08);
+      background: rgba(0, 245, 155, 0.08);
     }
     .cal-day-cell.active {
       border-color: var(--accent);
-      background: rgba(245,158,11,0.14);
-      box-shadow: 0 0 12px rgba(245,158,11,0.25);
+      background: rgba(0, 245, 155, 0.14);
+      box-shadow: 0 0 12px rgba(0, 245, 155, 0.25);
     }
     .cal-day-cell.today {
       border-color: #3b82f6;
@@ -1195,7 +1195,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     .pill-rage { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
     .pill-axe { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
     .pill-kombo { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
-    .pill-total { background: rgba(245, 158, 11, 0.2); color: var(--accent); font-weight: 800; }
+    .pill-total { background: rgba(0, 245, 155, 0.2); color: var(--accent); font-weight: 800; }
 
     /* DEŠINYSIS DIENOS SKYDELIS */
     .day-schedule-card {
@@ -1409,7 +1409,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             <button class="cal-nav-btn" onclick="adminPrevMonth()">◄</button>
             <h3 class="cal-header-title" id="adminCalMonthLabel">Spalis 2026</h3>
             <button class="cal-nav-btn" onclick="adminNextMonth()">►</button>
-            <button class="cal-nav-btn" onclick="adminGoToday()" style="background:rgba(245,158,11,0.2); color:var(--accent);">Šiandien</button>
+            <button class="cal-nav-btn" onclick="adminGoToday()" style="background:rgba(0, 245, 155, 0.2); color:var(--accent);">Šiandien</button>
           </div>
 
           <div class="cal-grid-head">
@@ -1851,7 +1851,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     ?>
       <div style="max-width: 980px; margin: 0 auto;">
         
-        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
+        <div style="background: rgba(0, 245, 155, 0.08); border: 1px solid rgba(0, 245, 155, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
           <div style="font-size: 2rem; line-height: 1;">⚙️</div>
           <div>
             <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">Svetainės Turinio Valdymas (TVS)</h2>
@@ -2401,9 +2401,9 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                 <input type="checkbox" name="opay_enabled" value="1" <?= !empty($opayCfg['opay_enabled']) ? 'checked' : '' ?> style="width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer;">
               </div>
 
-              <div style="margin-bottom: 1.25rem; background: rgba(245,158,11,0.05); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid rgba(245,158,11,0.2); display: flex; align-items: center; justify-content: space-between;">
+              <div style="margin-bottom: 1.25rem; background: rgba(0, 245, 155, 0.05); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid rgba(0, 245, 155, 0.2); display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                  <div style="font-weight: 700; color: #fbbf24; font-size: 0.95rem;">Testavimo režimas (Sandbox)</div>
+                  <div style="font-weight: 700; color: #00f59b; font-size: 0.95rem;">Testavimo režimas (Sandbox)</div>
                   <div style="font-size: 0.8rem; color: var(--muted);">Pažymėkite TIK jei naudojate OPAY bandomąją aplinką (sandbox-api.opay.eu)</div>
                 </div>
                 <input type="checkbox" name="sandbox" value="1" <?= !empty($opayCfg['sandbox']) ? 'checked' : '' ?> style="width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer;">

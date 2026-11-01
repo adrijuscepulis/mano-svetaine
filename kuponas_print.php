@@ -64,7 +64,7 @@ if (isset($_GET['download'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700;800&family=Space+Grotesk:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
 
@@ -84,8 +84,8 @@ if (isset($_GET['download'])) {
     /* VIRŠUTINĖ VALDYMO JUOSTA (TIK EKRANE) */
     .action-bar {
       width: 100%;
-      background: #0c0e12;
-      border-bottom: 2px solid #f59e0b;
+      background: #07090e;
+      border-bottom: 2px solid #00f59b;
       padding: 0.85rem 1.75rem;
       display: flex;
       align-items: center;
@@ -98,8 +98,8 @@ if (isset($_GET['download'])) {
     }
 
     .action-btn {
-      background: #f59e0b;
-      color: #0c0e12;
+      background: #00f59b;
+      color: #06090e;
       font-weight: 800;
       font-size: 0.95rem;
       padding: 0.75rem 1.4rem;
@@ -110,13 +110,13 @@ if (isset($_GET['download'])) {
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 4px 12px rgba(0, 245, 155, 0.35);
       transition: all 0.2s ease;
     }
     .action-btn:hover {
-      background: #d97706;
+      background: #00d684;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 6px 16px rgba(0, 245, 155, 0.45);
     }
 
     .action-btn-secondary {
@@ -162,7 +162,7 @@ if (isset($_GET['download'])) {
       content: '';
       position: absolute;
       top: 14px; left: 14px; right: 14px; bottom: 14px;
-      border: 1.5px solid #f59e0b;
+      border: 1.5px solid #00f59b;
       border-radius: 12px;
       pointer-events: none;
     }
@@ -172,7 +172,7 @@ if (isset($_GET['download'])) {
       position: absolute;
       width: 28px;
       height: 28px;
-      border-color: #f59e0b;
+      border-color: #00f59b;
       border-style: solid;
       pointer-events: none;
     }
@@ -189,15 +189,16 @@ if (isset($_GET['download'])) {
       border-bottom: 2px solid #f1f5f9;
     }
     .v-logo {
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Oswald', sans-serif;
       font-size: 2.6rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 2px;
       margin: 0;
       color: #0f172a;
     }
-    .v-logo span { color: #f59e0b; }
+    .v-logo span { color: #00f59b; }
     .v-sublogo {
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 3px;
@@ -219,9 +220,9 @@ if (isset($_GET['download'])) {
       text-transform: uppercase;
       letter-spacing: 2.5px;
       font-weight: 800;
-      color: #b45309;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
+      color: #059669;
+      background: rgba(0, 245, 155, 0.08);
+      border: 1px solid rgba(0, 245, 155, 0.3);
       padding: 0.4rem 1.4rem;
       border-radius: 30px;
       margin-bottom: 1rem;
@@ -229,9 +230,9 @@ if (isset($_GET['download'])) {
 
     /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: DOVANŲ KUPONAS */
     .v-hero-title {
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Oswald', sans-serif;
       font-size: 3.8rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 2px;
       color: #0f172a;
       text-transform: uppercase;
@@ -245,11 +246,11 @@ if (isset($_GET['download'])) {
       flex-direction: column;
       align-items: center;
       margin: 1.25rem 0;
-      background: #fffdf5;
-      border: 3px solid #f59e0b;
+      background: #f0fdf4;
+      border: 3px solid #00f59b;
       border-radius: 20px;
       padding: 1.25rem 4rem;
-      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 245, 155, 0.12);
     }
     .v-amount-lbl {
       font-size: 0.9rem;
@@ -259,10 +260,10 @@ if (isset($_GET['download'])) {
       font-weight: 800;
     }
     .v-hero-amount {
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Oswald', sans-serif;
       font-size: 5.2rem;
-      font-weight: 900;
-      color: #f59e0b;
+      font-weight: 800;
+      color: #059669;
       line-height: 1;
       margin: 0.25rem 0;
     }
@@ -286,7 +287,7 @@ if (isset($_GET['download'])) {
       letter-spacing: 3px;
       color: #0f172a;
       background: #f8fafc;
-      border: 2px dashed #f59e0b;
+      border: 2px dashed #00f59b;
       padding: 0.6rem 1.6rem;
       border-radius: 10px;
       display: inline-block;
@@ -328,7 +329,7 @@ if (isset($_GET['download'])) {
       font-weight: 600;
     }
     .act-badge strong {
-      color: #f59e0b;
+      color: #059669;
       display: block;
       font-size: 1rem;
       margin-bottom: 3px;
@@ -337,15 +338,15 @@ if (isset($_GET['download'])) {
 
     /* REZERVACIJA TIK ASMENIŠKAI */
     .booking-warning-box {
-      background: #fffbeb;
-      border: 1px solid #fef3c7;
-      border-left: 5px solid #f59e0b;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 5px solid #00f59b;
       border-radius: 0 10px 10px 0;
       padding: 1rem 1.25rem;
       text-align: left;
     }
     .booking-warning-box strong {
-      color: #b45309;
+      color: #059669;
       font-size: 0.95rem;
       display: block;
       margin-bottom: 0.35rem;
@@ -353,7 +354,7 @@ if (isset($_GET['download'])) {
     .booking-warning-box p {
       margin: 0;
       font-size: 0.9rem;
-      color: #78350f;
+      color: #064e3b;
       line-height: 1.5;
     }
     .booking-warning-box .contact-highlight {
@@ -391,7 +392,7 @@ if (isset($_GET['download'])) {
       border-top: 1px dashed #cbd5e1;
       padding-top: 0.85rem;
     }
-    .v-legal-notes strong { color: #d97706; }
+    .v-legal-notes strong { color: #059669; }
 
     /* ============================================================ */
     /* STANDARTINIO A4 SPAUSDINIMO (PRINT / PDF) TAISYKLĖS */
@@ -449,7 +450,7 @@ if (isset($_GET['download'])) {
   <!-- VIRŠUTINĖ JUOSTA (TIK EKRANE) -->
   <div class="action-bar no-print">
     <div>
-      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #f59e0b;"><?= $cCode ?></span></div>
+      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #00f59b;"><?= $cCode ?></span></div>
       <div style="font-size: 0.78rem; color: #94a3b8;">Oficialus A4 formato dovanų sertifikatas · ThrowHouse Šiauliai</div>
     </div>
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
