@@ -50,6 +50,114 @@ if (!$orderNr) {
     exit;
 }
 
+// =========================================================================
+// 1. Jei tai dovanų kupono užsakymas (TH-KUP-...)
+// =========================================================================
+if (strpos($orderNr, 'TH-KUP-') === 0) {
+    require_once __DIR__ . '/pdf_helper.php';
+
+    $kupFile = __DIR__ . '/kuponai.json';
+    $kupDbFile = __DIR__ . '/kuponai_db.json';
+
+    $coupons = file_exists($kupDbFile) ? (json_decode(@file_get_contents($kupDbFile), true) ?: []) : [];
+    if (empty($coupons) && file_exists($kupFile)) {
+        $coupons = json_decode(@file_get_contents($kupFile), true) ?: [];
+    }
+
+    $foundKupIdx = -1;
+    foreach ($coupons as $kIdx => $c) {
+        if (($c['code'] ?? '') === $orderNr) {
+            $foundKupIdx = $kIdx;
+            break;
+        }
+    }
+
+    if ($foundKupIdx === -1) {
+        @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | Kuponas $orderNr nerastas sistemoje.\n", FILE_APPEND);
+        echo "OK";
+        exit;
+    }
+
+    $coupon = &$coupons[$foundKupIdx];
+    $cStatus = $coupon['status'] ?? '';
+
+    if ($status === '1') {
+        if (strpos($cStatus, 'Aktyvus') !== false && strpos($cStatus, 'OPAY') !== false) {
+            echo "OK";
+            exit;
+        }
+
+        $coupon['status'] = 'Aktyvus (Apmokėta per OPAY)';
+        $coupon['paid_at'] = date('Y-m-d H:i:s');
+        $coupon['opay_transaction_id'] = $transId;
+        $coupon['payment'] = 'OPAY elektroninė bankininkystė';
+
+        $jsonStr = json_encode(array_values($coupons), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        @file_put_contents($kupFile, $jsonStr, LOCK_EX);
+        @file_put_contents($kupDbFile, $jsonStr, LOCK_EX);
+
+        $code = $coupon['code'];
+        $amount = $coupon['amount'];
+        $expiresAt = $coupon['expires_at'];
+        $recipientEmail = $coupon['recipient_email'] ?? $coupon['buyer_email'];
+        $buyerEmail = $coupon['buyer_email'] ?? '';
+
+        $pdfAttachment = [];
+        try {
+            $pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt);
+            if (!empty($pdfContent)) {
+                $pdfAttachment = [
+                    [
+                        'filename' => "ThrowHouse_Kuponas_{$code}.pdf",
+                        'data' => $pdfContent,
+                        'type' => 'application/pdf'
+                    ]
+                ];
+            }
+        } catch (\Throwable $pdfEx) {
+            @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | PDF_ERROR: " . $pdfEx->getMessage() . "\n", FILE_APPEND);
+        }
+
+        // 1. Kupono laiškas gavėjui su prisegtu PDF
+        $subVoucher = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$code] ($amount €)";
+        $voucherHtml = renderVoucherHtml($coupon);
+        sendThrowHouseMail($recipientEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
+
+        // 2. Jei pirkėjas pirko draugui (skirtingas el. paštas), siunčiame pirkimo patvirtinimo kvitą pirkėjui
+        if (!empty($buyerEmail) && strcasecmp($buyerEmail, $recipientEmail) !== 0) {
+            $subReceipt = "Dovanų kupono pirkimo patvirtinimas [$code] - ThrowHouse Šiauliai";
+            $receiptHtml = renderVoucherBuyerReceiptHtml($coupon);
+            sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'throwhousee@gmail.com', 'ThrowHouse Kuponai');
+        }
+
+        // 3. Pranešimas administratoriui su prisegtu PDF
+        $subAdmin = "🎁 Naujas APMOKĖTAS dovanų kuponas per OPAY [$code] ($amount €)";
+        $adminHtml = renderVoucherAdminHtml($coupon);
+        sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Kuponai', $pdfAttachment);
+
+        @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | SĖKMĖ: Kuponas $orderNr apmokėtas per OPAY (TransID: $transId)\n", FILE_APPEND);
+        echo "OK";
+        exit;
+
+    } elseif ($status === '3' || $status === '0') {
+        if ($cStatus === 'Laukiama apmokėjimo') {
+            $coupon['status'] = 'Atšaukta (Neapmokėta per OPAY)';
+            $jsonStr = json_encode(array_values($coupons), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            @file_put_contents($kupFile, $jsonStr, LOCK_EX);
+            @file_put_contents($kupDbFile, $jsonStr, LOCK_EX);
+            @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | Kuponas $orderNr pažymėtas kaip atšauktas (Statusas: $status)\n", FILE_APPEND);
+        }
+        echo "OK";
+        exit;
+    }
+
+    echo "OK";
+    exit;
+}
+
+// =========================================================================
+// 2. Jei tai laiko rezervacijos užsakymas (TH-...)
+// =========================================================================
 $resFile = __DIR__ . '/rezervacijos.json';
 $resDbFile = __DIR__ . '/rezervacijos_db.json';
 $all = loadAllReservationsHelper($resFile, $resDbFile);

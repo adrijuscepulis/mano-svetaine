@@ -226,7 +226,7 @@
         discount: 5,
         title: "⚡ ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!",
         subtitle: "Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.",
-        end_time: "2026-10-30T22:45:00+02:00",
+        end_time: "2026-12-31T23:59:59+02:00",
         apply_to_coupons: true
       },
       prices: {
@@ -1109,6 +1109,121 @@
       color: var(--accent);
     }
 
+    /* DOVANŲ KUPONO BANKŲ PASIRINKIMO TINKLELIS */
+    .gift-opay-bank-btn {
+      background: #ffffff;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.45rem 0.6rem;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .gift-opay-bank-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      border-color: #cbd5e1;
+    }
+    .gift-opay-bank-btn.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0, 245, 155, 0.4), 0 4px 10px rgba(0,0,0,0.3);
+      background: #ffffff;
+    }
+    .gift-opay-bank-btn.active::after {
+      content: '✓';
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .gift-opay-bank-btn img {
+      max-height: 28px;
+      max-width: 88%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .gift-opay-bank-btn.opay-other-btn {
+      background: #f1f5f9;
+      border: 1.5px dashed #94a3b8;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.2px;
+    }
+    .gift-opay-bank-btn.opay-other-btn:hover {
+      background: #e2e8f0;
+      border-color: #64748b;
+    }
+    .gift-opay-bank-btn.opay-other-btn.active {
+      background: #fff7ed;
+      border-color: var(--accent);
+      border-style: solid;
+      color: var(--accent);
+    }
+
+    /* DOVANŲ KUPONO SUMOS PASIRINKIMO TABLETĖS */
+    .gift-pill-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.55rem;
+    }
+    @media (max-width: 580px) {
+      .gift-pill-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.45rem;
+      }
+    }
+    .gift-pill {
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.14);
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .gift-pill:hover {
+      border-color: rgba(0, 245, 155, 0.5);
+      background: rgba(0, 245, 155, 0.06);
+      transform: translateY(-1px);
+    }
+    .gift-pill.active {
+      border-color: var(--accent);
+      background: rgba(0, 245, 155, 0.12);
+      box-shadow: 0 0 14px rgba(0, 245, 155, 0.22);
+    }
+    .gift-pill .pill-price {
+      font-family: var(--font-head);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+    .gift-pill.active .pill-price {
+      color: var(--accent);
+    }
+    .gift-pill .pill-sub {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+    .gift-pill.active .pill-sub {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
     .calc-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-color);
@@ -1923,9 +2038,9 @@
             <div class="gift-amount" id="giftCard30Price"><del style="opacity:0.5;font-size:1.15rem;margin-right:6px;">30 €</del> 25 € <span style="font-size:0.75rem;background:#22c55e;color:#052e16;padding:2px 6px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px;">-5 €</span></div>
             <p class="gift-desc">1 valandos sesija pasirinktinai: Pykčio kambarys (su 30 indų) arba Kirvių mėtymas.</p>
           </div>
-          <a href="kontaktai.html?tema=kuponas#contactForm" class="btn btn-secondary btn-block" style="text-decoration: none; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
-            Užsakyti
-          </a>
+          <button type="button" class="btn btn-secondary btn-block" onclick="openGiftModal(30, 'Pramogos Kuponas')" style="justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            🎟️ Pirkti kuponą
+          </button>
         </div>
 
         <!-- 50 € -->
@@ -1937,30 +2052,235 @@
             <div class="gift-amount" id="giftCard50Price"><del style="opacity:0.5;font-size:1.15rem;margin-right:6px;">50 €</del> 45 € <span style="font-size:0.75rem;background:#22c55e;color:#052e16;padding:2px 6px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px;">-5 €</span></div>
             <p class="gift-desc">Abi pramogos kartu! Ir kirvių mėtymas, ir pilnavertis pykčio kambarys (30 indų).</p>
           </div>
-          <a href="kontaktai.html?tema=kuponas#contactForm" class="btn btn-primary btn-block" style="text-decoration: none; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
-            Užsakyti
-          </a>
+          <button type="button" class="btn btn-primary btn-block" onclick="openGiftModal(50, 'KOMBO Kuponas')" style="justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            ⚡ Pirkti KOMBO kuponą
+          </button>
         </div>
       </div>
 
-      <!-- ASMENINIS SUSISIEKIMAS DĖL KUPONO -->
-      <div style="max-width: 680px; margin: 2rem auto 0 auto; background: linear-gradient(135deg, rgba(0, 245, 155, 0.1) 0%, rgba(14, 18, 26, 0.85) 100%); border: 2px solid var(--accent); border-radius: var(--radius); padding: 2rem 1.8rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
-        <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🎁 📞</div>
-        <h3 style="font-family: var(--font-head); font-size: 1.45rem; margin-bottom: 0.65rem; color: #ffffff;">Dovanų kuponų užsakymas – susisiekite asmeniškai</h3>
-        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.4rem;">
-          Dovanų kuponus ruošiame ir išduodame <strong>asmeniškai susisiekus</strong>.<br>
-          Paskambinkite arba parašykite mums per kontaktų formą – suderinsime norimą kupono vertę ir patogiausią perdavimo būdą:
+      <!-- KUPONO PIRKIMO MODALAS / FORMA -->
+      <div id="giftModal" class="form-wrap" style="display: none; max-width: 680px; margin: 2.5rem auto 0 auto; border: 2px solid var(--accent); box-shadow: 0 0 35px rgba(0, 245, 155, 0.18); border-radius: var(--radius-lg); position: relative; background: var(--bg-surface);">
+        
+        <!-- Antraštė ir Uždarymo mygtukas -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+          <div>
+            <span class="tag" style="margin-bottom: 0.35rem; display: inline-block;">Momentinis išsiuntimas</span>
+            <h3 style="font-family: var(--font-head); font-size: 1.65rem; color: #ffffff; margin: 0;" id="giftModalTitle">Dovanų kupono užsakymas</h3>
+          </div>
+          <button type="button" onclick="closeGiftModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Uždaryti" aria-label="Uždaryti langą">✕</button>
+        </div>
+
+        <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+          Pasirinkite norimą kupono vertę, nurodykite kontaktus ir apmokėkite internetu per savo el. banką. Paruoštas PDF dovanų kuponas su unikaliu kodu ir instrukcija iškart pasieks nurodytą el. paštą!
         </p>
-        <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
-          <a href="tel:+37061988009" class="btn btn-primary" style="padding: 0.85rem 1.8rem; font-weight: 800; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-            📞 Skambinti
+
+        <form id="giftForm" onsubmit="submitGiftCoupon(event)">
+          <input type="hidden" id="giftAmount" value="30">
+          <input type="hidden" id="giftTitle" value="Pramogos Kuponas">
+
+          <!-- 1. KUPONO VERTĖS PASIRINKIMAS (PILLS) -->
+          <div style="margin-bottom: 1.5rem;">
+            <label class="f-label" style="margin-bottom: 0.6rem;">1. Pasirinkite kupono sumą / pramogą:</label>
+            <div class="gift-pill-grid" id="giftAmountPills">
+              <button type="button" class="gift-pill active" data-amount="30" onclick="selectGiftAmount(30, 'Pramogos Kuponas', this)">
+                <div class="pill-price">30 €</div>
+                <div class="pill-sub">Pramoga (1 val.)</div>
+              </button>
+              <button type="button" class="gift-pill" data-amount="50" onclick="selectGiftAmount(50, 'KOMBO Kuponas', this)">
+                <div class="pill-price">50 €</div>
+                <div class="pill-sub">KOMBO (2 val.)</div>
+              </button>
+              <button type="button" class="gift-pill" data-amount="70" onclick="selectGiftAmount(70, 'VIP sesija (70 €)', this)">
+                <div class="pill-price">70 €</div>
+                <div class="pill-sub">VIP sesija</div>
+              </button>
+              <button type="button" class="gift-pill" data-amount="100" onclick="selectGiftAmount(100, 'Grupės kuponas (100 €)', this)">
+                <div class="pill-price">100 €</div>
+                <div class="pill-sub">Grupė / Šventė</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. PIRKĖJO KONTAKTAI -->
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.15rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+              2. Jūsų duomenys (Pirkėjas)
+            </div>
+            <div class="form-row" style="margin-bottom: 0.75rem;">
+              <div class="form-col">
+                <label class="f-label" for="giftBuyerName">Vardas ir Pavardė *</label>
+                <input type="text" id="giftBuyerName" class="f-input" placeholder="Jūsų vardas ir pavardė" required autocomplete="name">
+              </div>
+              <div class="form-col">
+                <label class="f-label" for="giftBuyerPhone">Telefono numeris *</label>
+                <input type="tel" id="giftBuyerPhone" class="f-input" placeholder="+370 6XX XXXXX" required autocomplete="tel">
+              </div>
+            </div>
+            <div class="f-group" style="margin-bottom: 0;">
+              <label class="f-label" for="giftBuyerEmail">Jūsų el. paštas (mokėjimo patvirtinimui ir kuponui) *</label>
+              <input type="email" id="giftBuyerEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required autocomplete="email">
+            </div>
+          </div>
+
+          <!-- 3. DOVANA TIESIAI DRAUGUI (GAVĖJAS) -->
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.15rem; margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.92rem; color: #ffffff; cursor: pointer; user-select: none;">
+              <input type="checkbox" id="giftIsDirect" onchange="toggleGiftRecipient()" style="accent-color: var(--accent); width: 18px; height: 18px; cursor: pointer;">
+              <span>🎁 <strong>Noriu išsiųsti kuponą kaip dovaną tiesiai gavėjui į el. paštą</strong></span>
+            </label>
+
+            <div id="giftRecipientBox" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.12);">
+              <div class="form-row" style="margin-bottom: 0.75rem;">
+                <div class="form-col">
+                  <label class="f-label" for="giftRecipientName">Gavėjo Vardas ir Pavardė *</label>
+                  <input type="text" id="giftRecipientName" class="f-input" placeholder="Kam dovanojate?">
+                </div>
+                <div class="form-col">
+                  <label class="f-label" for="giftRecipientEmail">Gavėjo el. pašto adresas *</label>
+                  <input type="email" id="giftRecipientEmail" class="f-input" placeholder="gavejas@pavyzdys.lt">
+                </div>
+              </div>
+              <div class="f-group" style="margin-bottom: 0;">
+                <label class="f-label" for="giftGreeting">Jūsų asmeninis sveikinimas (bus įrašytas į kupono PDF):</label>
+                <textarea id="giftGreeting" class="f-input" rows="2" placeholder="Pvz.: Su gimtadieniu, broli! Išsikrauk iš širdies ir gerai praleisk laiką! 🪓" style="resize: vertical;"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. APMOKĖJIMO BŪDO PASIRINKIMAS (OPAY TINKLELIS) -->
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.15rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+              <label class="f-label" style="margin-bottom: 0;">4. Pasirinkite savo banką apmokėjimui:</label>
+              <div style="font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                <span>Saugus atsiskaitymas per</span>
+                <strong style="color: #cbd5e1; letter-spacing: 0.5px;">OPAY</strong>
+              </div>
+            </div>
+
+            <div class="opay-banks-grid" id="giftOpayBanksGrid">
+              <label class="gift-opay-bank-btn active" title="Swedbank">
+                <input type="radio" name="giftOpayBank" value="pis_swedbank" checked style="display: none;">
+                <img src="bank_logos/pis_swedbank.png" alt="Swedbank" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="SEB">
+                <input type="radio" name="giftOpayBank" value="pis_seb" style="display: none;">
+                <img src="bank_logos/pis_seb.png" alt="SEB" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Luminor">
+                <input type="radio" name="giftOpayBank" value="pis_dnb" style="display: none;">
+                <img src="bank_logos/pis_dnb.png" alt="Luminor" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Citadele">
+                <input type="radio" name="giftOpayBank" value="pis_citadele" style="display: none;">
+                <img src="bank_logos/pis_citadele.png" alt="Citadele" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Artea (Šiaulių bankas)">
+                <input type="radio" name="giftOpayBank" value="pis_sb" style="display: none;">
+                <img src="bank_logos/pis_sb.png" alt="Artea" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Urbo">
+                <input type="radio" name="giftOpayBank" value="pis_medbank" style="display: none;">
+                <img src="bank_logos/pis_medbank.png" alt="Urbo" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Lietuvos centrinė kredito unija">
+                <input type="radio" name="giftOpayBank" value="pis_lku" style="display: none;">
+                <img src="bank_logos/pis_lku.png" alt="Lietuvos centrinė kredito unija" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Paysera">
+                <input type="radio" name="giftOpayBank" value="pis_paysera" style="display: none;">
+                <img src="bank_logos/pis_paysera.png" alt="Paysera" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Revolut">
+                <input type="radio" name="giftOpayBank" value="pis_revolut" style="display: none;">
+                <img src="bank_logos/pis_revolut.png" alt="Revolut" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="Wise">
+                <input type="radio" name="giftOpayBank" value="pis_wise" style="display: none;">
+                <img src="bank_logos/pis_wise.png" alt="Wise" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn" title="N26">
+                <input type="radio" name="giftOpayBank" value="pis_n26" style="display: none;">
+                <img src="bank_logos/pis_n26.png" alt="N26" loading="lazy">
+              </label>
+
+              <label class="gift-opay-bank-btn opay-other-btn" title="Kitas mokėjimo būdas">
+                <input type="radio" name="giftOpayBank" value="" style="display: none;">
+                <span>Kitas būdas</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 5. KAINOS SUVESTINĖ -->
+          <div class="calc-box" style="margin-bottom: 1.25rem;">
+            <div>
+              <strong>Kupono vertė apmokėjimui:</strong>
+              <span class="calc-note">Kuponas galioja 6 mėnesius nuo pirkimo dienos</span>
+            </div>
+            <div class="calc-price" id="giftPriceDisplay">30 €</div>
+          </div>
+
+          <!-- 6. SUTIKIMAS SU TAISYKLĖMIS -->
+          <div class="f-group" style="margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; line-height: 1.5;">
+              <input type="checkbox" id="giftTermsAgree" required style="accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;">
+              <span>Susipažinau ir sutinku su <a href="taisykles.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Pirkimo–pardavimo taisyklėmis</a> bei <a href="privatumas.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Privatumo politika</a> *</span>
+            </label>
+          </div>
+
+          <!-- 7. VEIKSMŲ MYGTUKAI -->
+          <div class="gift-modal-actions" style="display: flex; gap: 0.75rem;">
+            <button type="submit" id="giftSubmitBtn" class="btn btn-primary" style="flex: 2; padding: 0.95rem 1.25rem; font-weight: 800; font-size: 1.05rem; justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              Apmokėti per el. bankininkystę ➔
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeGiftModal()" style="flex: 1; justify-content: center; display: inline-flex; align-items: center; cursor: pointer;">
+              Atšaukti
+            </button>
+          </div>
+        </form>
+
+        <!-- SĖKMĖS PRANEŠIMAS -->
+        <div id="giftSuccess" class="res-success" style="display: none; margin-top: 1.5rem;">
+          <div class="res-success-head">
+            <div class="res-success-icon">✓</div>
+            <div>
+              <h3 style="margin-bottom: 0.25rem;">Dovanų kuponas paruoštas!</h3>
+              <p style="font-size: 0.9rem; margin-bottom: 0;">Kupono informacija ir PDF atsiųsta el. paštu.</p>
+            </div>
+          </div>
+          <div class="res-summary" id="giftSummaryText"></div>
+          <button type="button" class="btn btn-secondary" onclick="closeGiftModal()" style="margin-top: 1.25rem; width: 100%; cursor: pointer;">Uždaryti</button>
+        </div>
+
+      </div>
+
+      <!-- FIZINIS KUPONAS ARBA KONSULTACIJA -->
+      <div style="max-width: 680px; margin: 2.5rem auto 0 auto; background: linear-gradient(135deg, rgba(0, 245, 155, 0.08) 0%, rgba(14, 18, 26, 0.9) 100%); border: 1.5px solid rgba(0, 245, 155, 0.3); border-radius: var(--radius); padding: 1.75rem 1.6rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+        <div style="font-size: 2rem; margin-bottom: 0.4rem;">🎁 🏢</div>
+        <h3 style="font-family: var(--font-head); font-size: 1.35rem; margin-bottom: 0.5rem; color: #ffffff;">Reikia fizinio dovanų kupono ar sąskaitos įmonei?</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Dovanų kuponą galite atsiimti ir <strong>fizinėje dovanų dėžutėje</strong> pas mus vietoje arba išrašome išankstinę sąskaitą įmonėms:<br>
+          Paskambinkite arba parašykite – suderinsime patogiausią atsiėmimą ar pristatymą:
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <a href="tel:+37061988009" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 800; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            📞 Skambinti +370 619 88009
           </a>
-          <a href="kontaktai.html?tema=kuponas#contactForm" class="btn btn-secondary" style="padding: 0.85rem 1.8rem; font-weight: 700; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-            ✉️ Kontaktų forma
+          <a href="kontaktai.html?tema=kuponas#contactForm" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            ✉️ Rašyti žinutę
           </a>
         </div>
-        <div style="margin-top: 1.25rem; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.85rem;">
-          📍 Taip pat dovanų kuponą galite įsigyti atvykę pas mus į vietą: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong>
+        <div style="margin-top: 1.15rem; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem;">
+          📍 Vieta: <strong>Pramonės g. 15, Šiauliai (2-as aukštas)</strong>
         </div>
       </div>
     </div>
@@ -2521,18 +2841,41 @@
     }
 
     /* DOVANŲ KUPONAI */
-    function toggleGiftTarget() {
-      // Funkcija palikta suderinamumui
+    function toggleGiftRecipient() {
+      const isDirect = document.getElementById('giftIsDirect')?.checked;
+      const box = document.getElementById('giftRecipientBox');
+      if (box) box.style.display = isDirect ? 'block' : 'none';
+      const rName = document.getElementById('giftRecipientName');
+      const rEmail = document.getElementById('giftRecipientEmail');
+      if (rName) rName.required = !!isDirect;
+      if (rEmail) rEmail.required = !!isDirect;
     }
 
-    function openGiftModal(amount, title) {
-      if (window.SITE_SETTINGS && window.SITE_SETTINGS.prices) {
-        if (title.includes('KOMBO')) {
-          amount = Number(window.SITE_SETTINGS.prices.combo_price) || amount;
-        } else {
-          amount = Number(window.SITE_SETTINGS.prices.rage_price) || amount;
-        }
+    function selectGiftAmount(amount, title, clickedBtn) {
+      amount = Number(amount) || 30;
+      if (!title) {
+        if (amount === 30) title = 'Pramogos Kuponas';
+        else if (amount === 50) title = 'KOMBO Kuponas';
+        else if (amount === 70) title = 'VIP sesija (70 €)';
+        else if (amount === 100) title = 'Grupės kuponas (100 €)';
+        else title = amount + ' € Kuponas';
       }
+
+      const hiddenAmt = document.getElementById('giftAmount');
+      if (hiddenAmt) hiddenAmt.value = amount;
+      const hiddenTitle = document.getElementById('giftTitle');
+      if (hiddenTitle) hiddenTitle.value = title;
+
+      // Atnaujiname tablečių aktyvumą
+      const pills = document.querySelectorAll('.gift-pill');
+      pills.forEach(p => {
+        const pAmt = Number(p.getAttribute('data-amount'));
+        if (pAmt === amount) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
 
       // Nuolaida kuponams jei akcija aktyvi
       const promo = (window.SITE_SETTINGS && window.SITE_SETTINGS.promo) ? window.SITE_SETTINGS.promo : null;
@@ -2540,15 +2883,12 @@
       const discount = isPromoActive ? (Number(promo.discount) || 5) : 0;
       const payAmount = Math.max(0, amount - discount);
 
-      const modal = document.getElementById('giftModal');
-      document.getElementById('giftAmount').value = amount;
-
       const priceDisp = document.getElementById('giftPriceDisplay');
       if (priceDisp) {
         if (isPromoActive) {
-          priceDisp.innerHTML = `<del style="opacity:0.6;font-size:1.1rem;margin-right:6px;">${amount} €</del> <span style="color:#22c55e;font-weight:800;">${payAmount} €</span> <span style="font-size:0.75rem;background:#22c55e;color:#000;padding:2px 6px;border-radius:4px;font-weight:800;vertical-align:middle;margin-left:4px;">-5 € AKCIJA</span>`;
+          priceDisp.innerHTML = `<del style="opacity:0.5;font-size:1.15rem;margin-right:8px;color:#94a3b8;">${amount} €</del> <span style="color:var(--accent); font-weight:800;">${payAmount} €</span> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;padding:2px 7px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px;">-${discount} € AKCIJA</span>`;
         } else {
-          priceDisp.textContent = amount + ' €';
+          priceDisp.innerHTML = `<span style="color:var(--accent); font-weight:800;">${amount} €</span>`;
         }
       }
 
@@ -2559,14 +2899,59 @@
           : `Užsakyti: ${amount} € ${title}`;
       }
 
-      modal.style.display = 'block';
-      modal.scrollIntoView({ behavior: 'smooth' });
+      const submitBtn = document.getElementById('giftSubmitBtn');
+      if (submitBtn) {
+        submitBtn.innerHTML = `Apmokėti <strong>${payAmount} €</strong> per el. bankininkystę ➔`;
+      }
+    }
+
+    function openGiftModal(amount, title) {
+      if (window.SITE_SETTINGS && window.SITE_SETTINGS.prices) {
+        if (title.includes('KOMBO')) {
+          amount = Number(window.SITE_SETTINGS.prices.combo_price) || amount;
+        } else if (title.includes('Pramogos')) {
+          amount = Number(window.SITE_SETTINGS.prices.rage_price) || amount;
+        }
+      }
+
+      const modal = document.getElementById('giftModal');
+      const form = document.getElementById('giftForm');
+      const successBox = document.getElementById('giftSuccess');
+
+      if (form) form.style.display = 'block';
+      if (successBox) successBox.style.display = 'none';
+
+      selectGiftAmount(amount, title);
+      initGiftBankSelection();
+
+      if (modal) {
+        modal.style.display = 'block';
+        modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     function closeGiftModal() {
-      document.getElementById('giftModal').style.display = 'none';
-      document.getElementById('giftForm').style.display = 'block';
-      document.getElementById('giftSuccess').style.display = 'none';
+      const modal = document.getElementById('giftModal');
+      if (modal) modal.style.display = 'none';
+      const form = document.getElementById('giftForm');
+      if (form) form.style.display = 'block';
+      const successBox = document.getElementById('giftSuccess');
+      if (successBox) successBox.style.display = 'none';
+    }
+
+    function initGiftBankSelection() {
+      const giftBankBtns = document.querySelectorAll('.gift-opay-bank-btn');
+      giftBankBtns.forEach(btn => {
+        if (btn.dataset.bound === '1') return;
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          giftBankBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const r = btn.querySelector('input[name="giftOpayBank"]');
+          if (r) r.checked = true;
+        });
+      });
     }
 
     async function submitGiftCoupon(e) {
@@ -2583,20 +2968,41 @@
         return;
       }
 
-      const amount = document.getElementById('giftAmount').value;
-      const buyerName = document.getElementById('giftBuyerName').value;
-      const buyerPhone = document.getElementById('giftBuyerPhone').value;
-      const buyerEmail = document.getElementById('giftBuyerEmail').value;
+      const amount = Number(document.getElementById('giftAmount').value) || 30;
+      const title = document.getElementById('giftTitle').value || 'Dovanų Kuponas';
+      const buyerName = document.getElementById('giftBuyerName').value.trim();
+      const buyerPhone = document.getElementById('giftBuyerPhone').value.trim();
+      const buyerEmail = document.getElementById('giftBuyerEmail').value.trim();
 
+      const isDirectGift = !!document.getElementById('giftIsDirect')?.checked;
+      const recipientName = isDirectGift ? (document.getElementById('giftRecipientName')?.value.trim() || '') : '';
+      const recipientEmail = isDirectGift ? (document.getElementById('giftRecipientEmail')?.value.trim() || '') : '';
+      const greeting = isDirectGift ? (document.getElementById('giftGreeting')?.value.trim() || '') : '';
+
+      if (isDirectGift && (!recipientName || !recipientEmail)) {
+        alert('Prašome nurodyti gavėjo vardą ir el. pašto adresą arba atžymėkite siuntimą tiesiai gavėjui.');
+        return;
+      }
+
+      const selectedBankRadio = document.querySelector('input[name="giftOpayBank"]:checked');
+      const opayChannel = selectedBankRadio ? selectedBankRadio.value : 'pis_swedbank';
+
+      const originalBtnHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.textContent = 'Generuojamas kuponas...';
+      btn.textContent = 'Ruošiamas apmokėjimas...';
 
       try {
         const payload = {
           amount,
+          title,
           buyerName,
           buyerPhone,
-          buyerEmail
+          buyerEmail,
+          isDirectGift,
+          recipientName,
+          recipientEmail,
+          greeting,
+          opay_channel: opayChannel
         };
 
         const res = await fetch('kuponas.php', {
@@ -2615,31 +3021,44 @@
 
         if (!data.success) {
           alert('⚠️ ' + (data.message || 'Nepavyko sugeneruoti kupono.'));
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHtml;
           return;
         }
 
+        // Nukreipimas į OPAY el. bankininkystę
+        if (data.opay_redirect && data.redirect_url) {
+          btn.textContent = 'Nukreipiama į banką / OPAY...';
+          window.location.href = data.redirect_url;
+          return;
+        }
+
+        // Tiesioginė sėkmė (jei OPAY testavimo režime arba išjungtas)
         form.style.display = 'none';
         successBox.style.display = 'block';
 
         const code = data.coupon?.code || ('TH-KUP-' + Math.floor(1000 + Math.random() * 9000));
+        const finalEmail = isDirectGift ? recipientEmail : buyerEmail;
 
         summaryText.innerHTML = `
-          <strong>Kupono kodas:</strong> <span style="font-size:1.3rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
-          <strong>Vertė:</strong> ${amount} €<br>
+          <strong>Kupono kodas:</strong> <span style="font-size:1.35rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
+          <strong>Kupono vertė:</strong> ${amount} € (${title})<br>
           <strong>Pirkėjas:</strong> ${buyerName}<br>
-          <strong>Galiojimas:</strong> 6 mėnesiai<br><br>
-          <span style="color:#4ade80; font-weight:700;">✓ Dovanų kuponas sėkmingai sugeneruotas ir išsiųstas į Jūsų el. paštą <strong>${buyerEmail}</strong>!</span><br><br>
-          <div style="margin-top: 10px; margin-bottom: 8px;">
-            <a href="kuponas_print.php?code=${encodeURIComponent(code)}" target="_blank" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; padding:0.8rem 1.5rem; font-weight:800; border-radius:8px; box-shadow:0 4px 15px rgba(255,106,0,0.4);">
+          ${isDirectGift ? '<strong>Gavėjas:</strong> ' + recipientName + ' (' + recipientEmail + ')<br>' : ''}
+          <strong>Galiojimas:</strong> 6 mėnesiai nuo pirkimo datos<br><br>
+          <span style="color:#4ade80; font-weight:700;">✓ Dovanų kuponas sėkmingai paruoštas ir išsiųstas į el. paštą <strong>${finalEmail}</strong>!</span><br><br>
+          <div style="margin-top: 12px; margin-bottom: 8px;">
+            <a href="kuponas_print.php?code=${encodeURIComponent(code)}" target="_blank" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; padding:0.85rem 1.6rem; font-weight:800; border-radius:8px; box-shadow:0 4px 15px rgba(0,245,155,0.3);">
               🖨️ Atsisiųsti / Spausdinti PDF kuponą ➔
             </a>
           </div>
         `;
+        successBox.scrollIntoView({ behavior: 'smooth' });
       } catch (err) {
         alert('Įvyko klaida: ' + (err.message || 'tinklo ryšio sutrikimas. Prašome pabandyti dar kartą.'));
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Apmokėti ir gauti kuponą ➔';
+        btn.innerHTML = originalBtnHtml;
       }
     }
 
@@ -3633,6 +4052,7 @@
     initTodaySelection();
     onActivityChange();
     initPaymentMethodLogic();
+    initGiftBankSelection();
 
     // Sinchronizuojame užimtų laikų žemėlapį iš serverio
     fetchBookedSlots().then(() => {

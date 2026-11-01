@@ -34,52 +34,133 @@ $orderNr = trim($parsedData['order_nr'] ?? '');
 $status = trim((string)($parsedData['status'] ?? ''));
 $transId = trim($parsedData['transaction_id'] ?? '');
 
-$resFile = __DIR__ . '/rezervacijos.json';
-$resDbFile = __DIR__ . '/rezervacijos_db.json';
-$all = loadAllReservationsHelper($resFile, $resDbFile);
-
-$reservation = null;
-$resIndex = -1;
-foreach ($all as $idx => $r) {
-    if (($r['id'] ?? '') === $orderNr) {
-        $reservation = $r;
-        $resIndex = $idx;
-        break;
-    }
-}
-
-// Jei statusas 1 (sėkmingas apmokėjimas)
 $isSuccess = ($status === '1');
+$isCoupon = (strpos($orderNr, 'TH-KUP-') === 0);
+$coupon = null;
+$coupIndex = -1;
 
-// Papildomas saugiklis: jei webhook'as dar nespėjo atnaujinti, atnaujiname čia pat
-if ($isSuccess && $reservation && strpos($reservation['status'] ?? '', 'Patvirtinta') === false) {
-    $all[$resIndex]['status'] = 'Patvirtinta (Apmokėta per OPAY)';
-    $all[$resIndex]['paid_at'] = date('Y-m-d H:i:s');
-    $all[$resIndex]['opay_transaction_id'] = $transId;
-    $all[$resIndex]['payment'] = 'OPAY elektroninė bankininkystė';
-    saveAllReservationsHelper($resFile, $resDbFile, $all);
-    $reservation = $all[$resIndex];
+if ($isCoupon) {
+    require_once __DIR__ . '/pdf_helper.php';
+    $kupFile = __DIR__ . '/kuponai.json';
+    $kupDbFile = __DIR__ . '/kuponai_db.json';
 
-    // Išsiunčiame patvirtinimus, jei dar nebuvo išsiųsti
-    $clientEmail = $reservation['email'] ?? '';
-    if ($clientEmail) {
-        $clientHtml = renderNewReservationClientHtml($reservation);
-        sendThrowHouseMail($clientEmail, "Jūsų rezervacija ThrowHouse Šiauliai [$orderNr] - Apmokėta", $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+    $coupons = file_exists($kupDbFile) ? (json_decode(@file_get_contents($kupDbFile), true) ?: []) : [];
+    if (empty($coupons) && file_exists($kupFile)) {
+        $coupons = json_decode(@file_get_contents($kupFile), true) ?: [];
     }
-    $adminHtml = renderNewReservationAdminHtml($reservation);
-    sendThrowHouseMail('throwhousee@gmail.com', "💳 Naujas APMOKĖTAS užsakymas per OPAY [$orderNr]: " . ($reservation['name'] ?? ''), $adminHtml, $clientEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Rezervacijos');
-}
 
-// Jei rezervacija jau anksčiau buvo patvirtinta
-if ($reservation && strpos($reservation['status'] ?? '', 'Patvirtinta') !== false) {
-    $isSuccess = true;
-}
+    foreach ($coupons as $idx => $c) {
+        if (($c['code'] ?? '') === $orderNr) {
+            $coupon = $c;
+            $coupIndex = $idx;
+            break;
+        }
+    }
 
-// Jei mokėjimas nebuvo atliktas (atšauktas ar nutrauktas), iškart atlaisviname rezervaciją
-if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama apmokėjimo') {
-    $all[$resIndex]['status'] = 'Atšaukta (Neapmokėta)';
-    saveAllReservationsHelper($resFile, $resDbFile, $all);
-    $reservation = $all[$resIndex];
+    // Papildomas saugiklis: jei webhook'as dar nespėjo atnaujinti, atnaujiname čia pat
+    if ($isSuccess && $coupon && strpos($coupon['status'] ?? '', 'Aktyvus') === false) {
+        $coupons[$coupIndex]['status'] = 'Aktyvus (Apmokėta per OPAY)';
+        $coupons[$coupIndex]['paid_at'] = date('Y-m-d H:i:s');
+        $coupons[$coupIndex]['opay_transaction_id'] = $transId;
+        $coupons[$coupIndex]['payment'] = 'OPAY elektroninė bankininkystė';
+
+        $jsonStr = json_encode(array_values($coupons), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        @file_put_contents($kupFile, $jsonStr, LOCK_EX);
+        @file_put_contents($kupDbFile, $jsonStr, LOCK_EX);
+        $coupon = $coupons[$coupIndex];
+
+        $code = $coupon['code'];
+        $amount = $coupon['amount'];
+        $expiresAt = $coupon['expires_at'];
+        $recipientEmail = $coupon['recipient_email'] ?? $coupon['buyer_email'];
+        $buyerEmail = $coupon['buyer_email'] ?? '';
+
+        $pdfAttachment = [];
+        try {
+            $pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt);
+            if (!empty($pdfContent)) {
+                $pdfAttachment = [
+                    [
+                        'filename' => "ThrowHouse_Kuponas_{$code}.pdf",
+                        'data' => $pdfContent,
+                        'type' => 'application/pdf'
+                    ]
+                ];
+            }
+        } catch (\Throwable $pdfEx) {}
+
+        $subVoucher = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$code] ($amount €)";
+        $voucherHtml = renderVoucherHtml($coupon);
+        sendThrowHouseMail($recipientEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
+
+        if (!empty($buyerEmail) && strcasecmp($buyerEmail, $recipientEmail) !== 0) {
+            $subReceipt = "Dovanų kupono pirkimo patvirtinimas [$code] - ThrowHouse Šiauliai";
+            $receiptHtml = renderVoucherBuyerReceiptHtml($coupon);
+            sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'throwhousee@gmail.com', 'ThrowHouse Kuponai');
+        }
+
+        $subAdmin = "🎁 Naujas APMOKĖTAS dovanų kuponas per OPAY [$code] ($amount €)";
+        $adminHtml = renderVoucherAdminHtml($coupon);
+        sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Kuponai', $pdfAttachment);
+    }
+
+    if ($coupon && strpos($coupon['status'] ?? '', 'Aktyvus') !== false) {
+        $isSuccess = true;
+    }
+
+    if (!$isSuccess && $coupon && ($coupon['status'] ?? '') === 'Laukiama apmokėjimo') {
+        $coupons[$coupIndex]['status'] = 'Atšaukta (Neapmokėta)';
+        $jsonStr = json_encode(array_values($coupons), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        @file_put_contents($kupFile, $jsonStr, LOCK_EX);
+        @file_put_contents($kupDbFile, $jsonStr, LOCK_EX);
+        $coupon = $coupons[$coupIndex];
+    }
+
+} else {
+    $resFile = __DIR__ . '/rezervacijos.json';
+    $resDbFile = __DIR__ . '/rezervacijos_db.json';
+    $all = loadAllReservationsHelper($resFile, $resDbFile);
+
+    $reservation = null;
+    $resIndex = -1;
+    foreach ($all as $idx => $r) {
+        if (($r['id'] ?? '') === $orderNr) {
+            $reservation = $r;
+            $resIndex = $idx;
+            break;
+        }
+    }
+
+    // Papildomas saugiklis: jei webhook'as dar nespėjo atnaujinti, atnaujiname čia pat
+    if ($isSuccess && $reservation && strpos($reservation['status'] ?? '', 'Patvirtinta') === false) {
+        $all[$resIndex]['status'] = 'Patvirtinta (Apmokėta per OPAY)';
+        $all[$resIndex]['paid_at'] = date('Y-m-d H:i:s');
+        $all[$resIndex]['opay_transaction_id'] = $transId;
+        $all[$resIndex]['payment'] = 'OPAY elektroninė bankininkystė';
+        saveAllReservationsHelper($resFile, $resDbFile, $all);
+        $reservation = $all[$resIndex];
+
+        // Išsiunčiame patvirtinimus, jei dar nebuvo išsiųsti
+        $clientEmail = $reservation['email'] ?? '';
+        if ($clientEmail) {
+            $clientHtml = renderNewReservationClientHtml($reservation);
+            sendThrowHouseMail($clientEmail, "Jūsų rezervacija ThrowHouse Šiauliai [$orderNr] - Apmokėta", $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+        }
+        $adminHtml = renderNewReservationAdminHtml($reservation);
+        sendThrowHouseMail('throwhousee@gmail.com', "💳 Naujas APMOKĖTAS užsakymas per OPAY [$orderNr]: " . ($reservation['name'] ?? ''), $adminHtml, $clientEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Rezervacijos');
+    }
+
+    // Jei rezervacija jau anksčiau buvo patvirtinta
+    if ($reservation && strpos($reservation['status'] ?? '', 'Patvirtinta') !== false) {
+        $isSuccess = true;
+    }
+
+    // Jei mokėjimas nebuvo atliktas (atšauktas ar nutrauktas), iškart atlaisviname rezervaciją
+    if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama apmokėjimo') {
+        $all[$resIndex]['status'] = 'Atšaukta (Neapmokėta)';
+        saveAllReservationsHelper($resFile, $resDbFile, $all);
+        $reservation = $all[$resIndex];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -244,61 +325,114 @@ if (!$isSuccess && $reservation && ($reservation['status'] ?? '') === 'Laukiama 
 
   <div class="container">
     <?php if ($isSuccess): ?>
-      <div class="icon-badge icon-success">✓</div>
-      <h1>Apmokėjimas sėkmingas!</h1>
-      <p class="subtitle">
-        Dėkojame! Jūsų rezervacija patvirtinta. Patvirtinimo laiškas su visa atvykimo informacija ir instrukcija išsiųstas į Jūsų el. pašto dėžutę.
-      </p>
+      <?php if ($isCoupon): ?>
+        <div class="icon-badge icon-success">🎁</div>
+        <h1>Dovanų kuponas apmokėtas!</h1>
+        <p class="subtitle">
+          Nuoširdžiai dėkojame! Jūsų dovanų kuponas sėkmingai apmokėtas. Oficialus sertifikatas PDF formatu jau išsiųstas į Jūsų nurodytą el. paštą.
+        </p>
 
-      <?php if ($reservation): ?>
-        <div class="info-card">
-          <div class="info-row">
-            <span class="info-label">Rezervacijos numeris:</span>
-            <span class="info-val" style="color:var(--accent); font-family:monospace; font-size:1.05rem;"><?= htmlspecialchars($reservation['id']) ?></span>
+        <?php if ($coupon): ?>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="info-label">Kupono kodas:</span>
+              <span class="info-val" style="color:var(--accent); font-family:monospace; font-size:1.35rem; font-weight:800;"><?= htmlspecialchars($coupon['code'] ?? $orderNr) ?></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Kupono vertė:</span>
+              <span class="info-val" style="color:#00f59b; font-size:1.25rem; font-weight:800;"><?= htmlspecialchars($coupon['amount'] ?? 30) ?> €</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Pramoga:</span>
+              <span class="info-val"><?= htmlspecialchars($coupon['target_type'] ?? 'Dovanų kuponas') ?></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Pirkėjas:</span>
+              <span class="info-val"><?= htmlspecialchars($coupon['buyer'] ?? '') ?></span>
+            </div>
+            <?php if (!empty($coupon['recipient']) && $coupon['recipient'] !== $coupon['buyer']): ?>
+              <div class="info-row">
+                <span class="info-label">Gavėjas:</span>
+                <span class="info-val"><?= htmlspecialchars($coupon['recipient']) ?></span>
+              </div>
+            <?php endif; ?>
+            <div class="info-row">
+              <span class="info-label">Galiojimas:</span>
+              <span class="info-val">6 mėn. (iki <?= htmlspecialchars($coupon['expires_at'] ?? '') ?>)</span>
+            </div>
           </div>
-          <div class="info-row">
-            <span class="info-label">Pramoga:</span>
-            <span class="info-val"><?= htmlspecialchars($reservation['activity'] . (!empty($reservation['lane']) ? ' (' . $reservation['lane'] . ')' : '')) ?></span>
+        <?php endif; ?>
+
+        <div class="btn-wrap">
+          <a href="kuponas_print.php?code=<?= urlencode($coupon['code'] ?? $orderNr) ?>&download=1" target="_blank" class="btn btn-primary">
+            📥 Atsisiųsti / Spausdinti PDF kuponą ➔
+          </a>
+          <a href="index.html" class="btn btn-secondary">🌐 Grįžti į ThrowHouse.lt</a>
+        </div>
+
+        <div class="notice">
+          Su šiuo dovanų kuponu apsilankymo laikas derinamas asmeniškai tel. +370 619 88009 arba el. paštu throwhousee@gmail.com nurodant kupono kodą.
+        </div>
+
+      <?php else: ?>
+        <div class="icon-badge icon-success">✓</div>
+        <h1>Apmokėjimas sėkmingas!</h1>
+        <p class="subtitle">
+          Dėkojame! Jūsų rezervacija patvirtinta. Patvirtinimo laiškas su visa atvykimo informacija ir instrukcija išsiųstas į Jūsų el. pašto dėžutę.
+        </p>
+
+        <?php if ($reservation): ?>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="info-label">Rezervacijos numeris:</span>
+              <span class="info-val" style="color:var(--accent); font-family:monospace; font-size:1.05rem;"><?= htmlspecialchars($reservation['id']) ?></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Pramoga:</span>
+              <span class="info-val"><?= htmlspecialchars($reservation['activity'] . (!empty($reservation['lane']) ? ' (' . $reservation['lane'] . ')' : '')) ?></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Data ir laikas:</span>
+              <span class="info-val"><?= htmlspecialchars($reservation['date']) ?>, <?= htmlspecialchars($reservation['time']) ?> val.</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Dalyvių skaičius:</span>
+              <span class="info-val"><?= htmlspecialchars($reservation['count']) ?> asm.</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Apmokėta suma:</span>
+              <span class="info-val" style="color:#00f59b; font-size:1.1rem;"><?= htmlspecialchars($reservation['price']) ?></span>
+            </div>
           </div>
-          <div class="info-row">
-            <span class="info-label">Data ir laikas:</span>
-            <span class="info-val"><?= htmlspecialchars($reservation['date']) ?>, <?= htmlspecialchars($reservation['time']) ?> val.</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Dalyvių skaičius:</span>
-            <span class="info-val"><?= htmlspecialchars($reservation['count']) ?> asm.</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Apmokėta suma:</span>
-            <span class="info-val" style="color:#4ade80; font-size:1.1rem;"><?= htmlspecialchars($reservation['price']) ?></span>
-          </div>
+        <?php endif; ?>
+
+        <div class="btn-wrap">
+          <a href="index.html" class="btn btn-primary">Grįžti į ThrowHouse.lt ➔</a>
+          <a href="tel:+37061988009" class="btn btn-secondary">📞 Skambinti (+370 619 88009)</a>
+        </div>
+
+        <div class="notice">
+          📍 <strong>Adresas:</strong> Pramonės g. 15, Šiauliai (2-as aukštas).<br>
+          👟 <strong>Apranga:</strong> Būtina patogi, visiškai uždara avalynė (sportbačiai).
         </div>
       <?php endif; ?>
-
-      <div class="btn-wrap">
-        <a href="index.html" class="btn btn-primary">Grįžti į ThrowHouse.lt ➔</a>
-        <a href="tel:+37061988009" class="btn btn-secondary">📞 Skambinti (+370 619 88009)</a>
-      </div>
-
-      <div class="notice">
-        📍 <strong>Adresas:</strong> Pramonės g. 15, Šiauliai (2-as aukštas).<br>
-        👟 <strong>Apranga:</strong> Būtina patogi, visiškai uždara avalynė (sportbačiai).
-      </div>
 
     <?php else: ?>
       <div class="icon-badge icon-cancel">✕</div>
       <h1>Apmokėjimas nebaigtas</h1>
       <p class="subtitle">
-        Apmokėjimas buvo atšauktas arba bankas nepatvirtino operacijos. Jūsų rezervuotas laikas nebuvo patvirtintas.
+        <?= $isCoupon ? 'Apmokėjimas už dovanų kuponą buvo nutrauktas arba bankas nepatvirtino operacijos.' : 'Apmokėjimas buvo atšauktas arba bankas nepatvirtino operacijos. Jūsų rezervuotas laikas nebuvo patvirtintas.' ?>
       </p>
 
       <div class="btn-wrap">
-        <a href="index.html#rezervacija" class="btn btn-primary">Bandyti rezervuoti iš naujo ➔</a>
+        <a href="<?= $isCoupon ? 'index.html#kuponai' : 'index.html#rezervacija' ?>" class="btn btn-primary">
+          <?= $isCoupon ? 'Bandyti pirkti kuponą iš naujo ➔' : 'Bandyti rezervuoti iš naujo ➔' ?>
+        </a>
         <a href="tel:+37061988009" class="btn btn-secondary">📞 Susisiekti telefonu (+370 619 88009)</a>
       </div>
 
       <div class="notice">
-        Jeigu iš Jūsų sąskaitos pinigai buvo nuskaičiuoti, maloniai prašome nedelsiant susisiekti tel. +370 619 88009 arba el. paštu throwhousee@gmail.com ir mes rankiniu būdu patvirtinsime Jūsų rezervaciją.
+        Jeigu iš Jūsų sąskaitos pinigai buvo nuskaičiuoti, maloniai prašome nedelsiant susisiekti tel. +370 619 88009 arba el. paštu throwhousee@gmail.com ir mes rankiniu būdu patvirtinsime Jūsų užsakymą.
       </div>
     <?php endif; ?>
   </div>
