@@ -1171,59 +1171,6 @@
       color: var(--accent);
     }
 
-    /* DOVANŲ KUPONO SUMOS PASIRINKIMO TABLETĖS */
-    .gift-pill-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.55rem;
-    }
-    @media (max-width: 580px) {
-      .gift-pill-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.45rem;
-      }
-    }
-    .gift-pill {
-      padding: 0.75rem 0.5rem;
-      text-align: center;
-      border-radius: 8px;
-      border: 1.5px solid rgba(255,255,255,0.14);
-      background: rgba(255, 255, 255, 0.03);
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: inherit;
-    }
-    .gift-pill:hover {
-      border-color: rgba(0, 245, 155, 0.5);
-      background: rgba(0, 245, 155, 0.06);
-      transform: translateY(-1px);
-    }
-    .gift-pill.active {
-      border-color: var(--accent);
-      background: rgba(0, 245, 155, 0.12);
-      box-shadow: 0 0 14px rgba(0, 245, 155, 0.22);
-    }
-    .gift-pill .pill-price {
-      font-family: var(--font-head);
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1.1;
-    }
-    .gift-pill.active .pill-price {
-      color: var(--accent);
-    }
-    .gift-pill .pill-sub {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      margin-top: 3px;
-    }
-    .gift-pill.active .pill-sub {
-      color: #e2e8f0;
-      font-weight: 600;
-    }
-
     .calc-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-color);
@@ -2019,32 +1966,30 @@
         <p class="subtitle">Padovanokite nepamirštamą adrenalino dozę draugui, kolegai ar antrai pusei. Kuponas galioja 6 mėnesius!</p>
       </div>
 
-      <div class="gift-cards-row">
-        <!-- 30 € -->
-        <div class="gift-card-box">
-          <div>
-            <div class="gift-icon">🎟️</div>
-            <h3>Pramogos Kuponas</h3>
-            <div class="gift-amount" id="giftCard30Price">30 €</div>
-            <p class="gift-desc">1 valandos sesija pasirinktinai: Pykčio kambarys (su 30 indų) arba Kirvių mėtymas.</p>
+      <!-- UNIVERSALUS DOVANŲ KUPONAS (LAISVA SUMA) -->
+      <div style="max-width: 680px; margin: 0 auto; background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius-lg); padding: 2.25rem 2rem; box-shadow: 0 0 35px rgba(0, 245, 155, 0.12); text-align: center; position: relative;">
+        <div class="pop-badge" style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap;">Laisvai pasirenkama suma</div>
+        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎁 🪓</div>
+        <h3 style="font-family: var(--font-head); font-size: 1.85rem; color: #fff; margin-bottom: 0.6rem; letter-spacing: 0.5px;">Universalus Dovanų Kuponas</h3>
+        <p style="color: var(--text-gray); font-size: 0.95rem; line-height: 1.6; max-width: 540px; margin: 0 auto 1.5rem auto;">
+          Padovanokite nepamirštamą adrenalino dozę! Įveskite norimą sumą, o gavėjas galės ją panaudoti bet kuriai ThrowHouse pramogai: Pykčio kambariui, Kirvių mėtymui ar KOMBO paketui.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <label for="giftCardQuickAmount" style="font-weight: 700; color: #cbd5e1; font-size: 1rem;">Kupono vertė:</label>
+          <div style="position: relative; display: inline-block;">
+            <input type="number" id="giftCardQuickAmount" class="f-input" min="10" max="1000" step="5" value="50" style="width: 140px; font-size: 1.45rem; font-weight: 800; font-family: var(--font-head); text-align: center; padding-right: 32px; color: var(--accent); border: 2px solid var(--accent); border-radius: 8px;">
+            <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-weight: 800; color: #fff; font-size: 1.2rem; pointer-events: none;">€</span>
           </div>
-          <button type="button" class="btn btn-secondary btn-block" onclick="openGiftModal(30, 'Pramogos Kuponas')" style="justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-            🎟️ Pirkti kuponą
+          <button type="button" class="btn btn-primary" onclick="openGiftModal(document.getElementById('giftCardQuickAmount').value)" style="padding: 0.85rem 1.8rem; font-weight: 800; font-size: 1.05rem; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            🎟️ Pirkti dovanų kuponą ➔
           </button>
         </div>
 
-        <!-- 50 € -->
-        <div class="gift-card-box" style="border-color: var(--accent);">
-          <div class="pop-badge">Populiariausia dovana</div>
-          <div>
-            <div class="gift-icon">🔥</div>
-            <h3>KOMBO Kuponas</h3>
-            <div class="gift-amount" id="giftCard50Price">50 €</div>
-            <p class="gift-desc">Abi pramogos kartu! Ir kirvių mėtymas, ir pilnavertis pykčio kambarys (30 indų).</p>
-          </div>
-          <button type="button" class="btn btn-primary btn-block" onclick="openGiftModal(50, 'KOMBO Kuponas')" style="justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-            ⚡ Pirkti KOMBO kuponą
-          </button>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem;">
+          <span>✓ Galioja 6 mėnesius</span>
+          <span>✓ PDF paruošiamas akimirksniu</span>
+          <span>✓ Galima dovanoti tiesiai draugui į el. paštą</span>
         </div>
       </div>
 
@@ -2061,33 +2006,26 @@
         </div>
 
         <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
-          Pasirinkite norimą kupono vertę, nurodykite kontaktus ir apmokėkite internetu per savo el. banką. Paruoštas PDF dovanų kuponas su unikaliu kodu ir instrukcija iškart pasieks nurodytą el. paštą!
+          Įveskite pageidaujamą dovanų kupono sumą, nurodykite kontaktus ir apmokėkite internetu per el. banką. Paruoštas PDF dovanų kuponas su unikaliu kodu ir instrukcija iškart pasieks nurodytą el. paštą!
         </p>
 
         <form id="giftForm" onsubmit="submitGiftCoupon(event)">
-          <input type="hidden" id="giftAmount" value="30">
-          <input type="hidden" id="giftTitle" value="Pramogos Kuponas">
+          <input type="hidden" id="giftAmount" value="50">
+          <input type="hidden" id="giftTitle" value="Dovanų Kuponas (50 €)">
 
-          <!-- 1. KUPONO VERTĖS PASIRINKIMAS (PILLS) -->
-          <div style="margin-bottom: 1.5rem;">
-            <label class="f-label" style="margin-bottom: 0.6rem;">1. Pasirinkite kupono sumą / pramogą:</label>
-            <div class="gift-pill-grid" id="giftAmountPills">
-              <button type="button" class="gift-pill active" data-amount="30" onclick="selectGiftAmount(30, 'Pramogos Kuponas', this)">
-                <div class="pill-price">30 €</div>
-                <div class="pill-sub">Pramoga (1 val.)</div>
-              </button>
-              <button type="button" class="gift-pill" data-amount="50" onclick="selectGiftAmount(50, 'KOMBO Kuponas', this)">
-                <div class="pill-price">50 €</div>
-                <div class="pill-sub">KOMBO (2 val.)</div>
-              </button>
-              <button type="button" class="gift-pill" data-amount="70" onclick="selectGiftAmount(70, 'VIP sesija (70 €)', this)">
-                <div class="pill-price">70 €</div>
-                <div class="pill-sub">VIP sesija</div>
-              </button>
-              <button type="button" class="gift-pill" data-amount="100" onclick="selectGiftAmount(100, 'Grupės kuponas (100 €)', this)">
-                <div class="pill-price">100 €</div>
-                <div class="pill-sub">Grupė / Šventė</div>
-              </button>
+          <!-- 1. KUPONO SUMOS ĮVEDIMAS -->
+          <div style="margin-bottom: 1.5rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1.25rem;">
+            <label class="f-label" for="giftCustomAmount" style="margin-bottom: 0.6rem; font-size: 0.95rem; color: #ffffff;">
+              1. Įveskite norimą dovanų kupono sumą (€) *:
+            </label>
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <div style="position: relative; width: 170px;">
+                <input type="number" id="giftCustomAmount" class="f-input" min="10" max="1000" step="5" value="50" placeholder="50" required style="font-size: 1.5rem; font-weight: 800; font-family: var(--font-head); padding-right: 36px; color: var(--accent); border: 2px solid var(--accent); text-align: center;" oninput="onCustomAmountInput(this.value)">
+                <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.25rem; font-weight: 800; color: #fff; pointer-events: none;">€</span>
+              </div>
+              <span style="font-size: 0.85rem; color: var(--text-gray);">
+                Minimali suma: 10 €. Įrašykite bet kokią norimą dovanos vertę.
+              </span>
             </div>
           </div>
 
@@ -2830,7 +2768,7 @@
       onActivityChange();
     }
 
-    /* DOVANŲ KUPONAI */
+    /* DOVANŲ KUPONAI (LAISVAI PASIRENKAMA SUMA) */
     function toggleGiftRecipient() {
       const isDirect = document.getElementById('giftIsDirect')?.checked;
       const box = document.getElementById('giftRecipientBox');
@@ -2841,77 +2779,45 @@
       if (rEmail) rEmail.required = !!isDirect;
     }
 
-    function selectGiftAmount(amount, title, clickedBtn) {
-      amount = Number(amount) || 30;
-      if (!title) {
-        if (amount === 30) title = 'Pramogos Kuponas';
-        else if (amount === 50) title = 'KOMBO Kuponas';
-        else if (amount === 70) title = 'VIP sesija (70 €)';
-        else if (amount === 100) title = 'Grupės kuponas (100 €)';
-        else title = amount + ' € Kuponas';
-      }
+    function onCustomAmountInput(val) {
+      let amount = Number(val);
+      if (isNaN(amount) || amount < 0) amount = 0;
 
       const hiddenAmt = document.getElementById('giftAmount');
       if (hiddenAmt) hiddenAmt.value = amount;
       const hiddenTitle = document.getElementById('giftTitle');
-      if (hiddenTitle) hiddenTitle.value = title;
-
-      // Atnaujiname tablečių aktyvumą
-      const pills = document.querySelectorAll('.gift-pill');
-      pills.forEach(p => {
-        const pAmt = Number(p.getAttribute('data-amount'));
-        if (pAmt === amount) {
-          p.classList.add('active');
-        } else {
-          p.classList.remove('active');
-        }
-      });
-
-      // Nuolaida kuponams jei akcija aktyvi
-      const promo = (window.SITE_SETTINGS && window.SITE_SETTINGS.promo) ? window.SITE_SETTINGS.promo : null;
-      const isPromoActive = promo && promo.enabled && (new Date(promo.end_time).getTime() > Date.now()) && (promo.apply_to_coupons !== false);
-      const discount = isPromoActive ? (Number(promo.discount) || 5) : 0;
-      const payAmount = Math.max(0, amount - discount);
+      if (hiddenTitle) hiddenTitle.value = 'Dovanų Kuponas (' + amount + ' €)';
 
       const priceDisp = document.getElementById('giftPriceDisplay');
       if (priceDisp) {
-        if (isPromoActive) {
-          priceDisp.innerHTML = `<del style="opacity:0.5;font-size:1.15rem;margin-right:8px;color:#94a3b8;">${amount} €</del> <span style="color:var(--accent); font-weight:800;">${payAmount} €</span> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;padding:2px 7px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px;">-${discount} € AKCIJA</span>`;
-        } else {
-          priceDisp.innerHTML = `<span style="color:var(--accent); font-weight:800;">${amount} €</span>`;
-        }
+        priceDisp.innerHTML = `<span style="color:var(--accent); font-weight:800;">${amount} €</span>`;
       }
 
       const modalTitle = document.getElementById('giftModalTitle');
       if (modalTitle) {
-        modalTitle.textContent = isPromoActive 
-          ? `Užsakyti: ${amount} € ${title} (Kaina dabar tik ${payAmount} €!)`
-          : `Užsakyti: ${amount} € ${title}`;
+        modalTitle.textContent = amount > 0 ? `Dovanų kupono užsakymas (${amount} €)` : 'Dovanų kupono užsakymas';
       }
 
       const submitBtn = document.getElementById('giftSubmitBtn');
       if (submitBtn) {
-        submitBtn.innerHTML = `Apmokėti <strong>${payAmount} €</strong> per el. bankininkystę ➔`;
+        submitBtn.innerHTML = `Apmokėti <strong>${amount} €</strong> per el. bankininkystę ➔`;
       }
     }
 
-    function openGiftModal(amount, title) {
-      if (window.SITE_SETTINGS && window.SITE_SETTINGS.prices) {
-        if (title.includes('KOMBO')) {
-          amount = Number(window.SITE_SETTINGS.prices.combo_price) || amount;
-        } else if (title.includes('Pramogos')) {
-          amount = Number(window.SITE_SETTINGS.prices.rage_price) || amount;
-        }
-      }
+    function openGiftModal(amount) {
+      let initialAmt = Number(amount) || Number(document.getElementById('giftCardQuickAmount')?.value) || 50;
+      if (initialAmt < 10) initialAmt = 50;
 
       const modal = document.getElementById('giftModal');
       const form = document.getElementById('giftForm');
       const successBox = document.getElementById('giftSuccess');
+      const customInput = document.getElementById('giftCustomAmount');
 
       if (form) form.style.display = 'block';
       if (successBox) successBox.style.display = 'none';
 
-      selectGiftAmount(amount, title);
+      if (customInput) customInput.value = initialAmt;
+      onCustomAmountInput(initialAmt);
       initGiftBankSelection();
 
       if (modal) {
@@ -2958,8 +2864,14 @@
         return;
       }
 
-      const amount = Number(document.getElementById('giftAmount').value) || 30;
-      const title = document.getElementById('giftTitle').value || 'Dovanų Kuponas';
+      const amount = Number(document.getElementById('giftCustomAmount')?.value || document.getElementById('giftAmount')?.value);
+      if (!amount || amount < 10) {
+        alert('Prašome įvesti dovanų kupono sumą (minimali suma – 10 €).');
+        document.getElementById('giftCustomAmount')?.focus();
+        return;
+      }
+
+      const title = 'Dovanų Kuponas (' + amount + ' €)';
       const buyerName = document.getElementById('giftBuyerName').value.trim();
       const buyerPhone = document.getElementById('giftBuyerPhone').value.trim();
       const buyerEmail = document.getElementById('giftBuyerEmail').value.trim();
@@ -3023,7 +2935,7 @@
           return;
         }
 
-        // Tiesioginė sėkmė (jei OPAY testavimo režime arba išjungtas)
+        // Tiesioginė sėkmė
         form.style.display = 'none';
         successBox.style.display = 'block';
 
@@ -3032,7 +2944,7 @@
 
         summaryText.innerHTML = `
           <strong>Kupono kodas:</strong> <span style="font-size:1.35rem; color:var(--accent); font-weight:800; letter-spacing:1px;">${code}</span><br>
-          <strong>Kupono vertė:</strong> ${amount} € (${title})<br>
+          <strong>Kupono vertė:</strong> ${amount} €<br>
           <strong>Pirkėjas:</strong> ${buyerName}<br>
           ${isDirectGift ? '<strong>Gavėjas:</strong> ' + recipientName + ' (' + recipientEmail + ')<br>' : ''}
           <strong>Galiojimas:</strong> 6 mėnesiai nuo pirkimo datos<br><br>
