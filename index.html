@@ -222,12 +222,12 @@
   <script>
     window.SITE_SETTINGS = {
       promo: {
-        enabled: true,
+        enabled: false,
         discount: 5,
         title: "⚡ ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!",
         subtitle: "Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.",
-        end_time: "2026-12-31T23:59:59+02:00",
-        apply_to_coupons: true
+        end_time: "2026-10-30T22:45:00+02:00",
+        apply_to_coupons: false
       },
       prices: {
         rage_price: 30,
@@ -1716,7 +1716,7 @@
 <body>
 
   <!-- VIRŠUTINĖ PRANEŠIMŲ JUOSTA -->
-  <div id="topAnnouncementBanner" style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, #059669 0%, #00f59b 50%, #00d684 100%); color:#07090e; padding:10px 16px; font-size:0.92rem; font-weight:800; text-align:center; position:sticky; top:0; z-index:1000; box-shadow:0 4px 20px rgba(0, 245, 155, 0.4);">
+  <div id="topAnnouncementBanner" style="display:none; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, #059669 0%, #00f59b 50%, #00d684 100%); color:#07090e; padding:10px 16px; font-size:0.92rem; font-weight:800; text-align:center; position:sticky; top:0; z-index:1000; box-shadow:0 4px 20px rgba(0, 245, 155, 0.4);">
     <span style="display:inline-flex; align-items:center; gap:6px;">
       <span>⚡</span> <strong>ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!</strong>
     </span>
@@ -1836,15 +1836,10 @@
             </ul>
             <div class="act-footer">
               <div class="price-tag" id="promoActRagePrice">
-                Kaina:
-                <div style="display: flex; align-items: baseline; gap: 6px; margin: 3px 0;">
-                  <del style="opacity: 0.55; font-size: 1.15rem; text-decoration: line-through; color: var(--text-gray);">30 €</del>
-                  <strong style="display: inline-block; color: #22c55e; font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">25 €</strong>
-                  <span style="font-size: 0.72rem; background: #22c55e; color: #052e16; font-weight: 800; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">-5 € AKCIJA</span>
-                </div>
+                Kaina: <strong style="display: inline-block; color: var(--accent); font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">30 €</strong>
                 <span class="capacity-badge">30 indų | Iki 4 asm.</span>
               </div>
-              <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActRage" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti (25 € 🔥)</a>
+              <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActRage" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti (30 €)</a>
             </div>
           </div>
         </div>
@@ -1870,15 +1865,10 @@
             </ul>
             <div class="act-footer">
               <div class="price-tag" id="promoActAxePrice">
-                Kaina:
-                <div style="display: flex; align-items: baseline; gap: 6px; margin: 3px 0;">
-                  <del style="opacity: 0.55; font-size: 1.15rem; text-decoration: line-through; color: var(--text-gray);">30 €</del>
-                  <strong style="display: inline-block; color: #22c55e; font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">25 €</strong>
-                  <span style="font-size: 0.72rem; background: #22c55e; color: #052e16; font-weight: 800; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">-5 € AKCIJA</span>
-                </div>
+                Kaina: <strong style="display: inline-block; color: var(--accent); font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">30 €</strong>
                 <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>
               </div>
-              <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActAxe" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti (25 € 🔥)</a>
+              <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActAxe" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti (30 €)</a>
             </div>
           </div>
         </div>
@@ -1953,7 +1943,7 @@
           <div class="p-head">
             <h3>Pykčio kambarys</h3>
             <p>1 valandos streso iškrovos sesija</p>
-            <div class="p-cost" id="priceCardRageCost"><del style="font-size:1.3rem;opacity:0.5;margin-right:6px;">30 €</del> 25 <span>€</span> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 7px;border-radius:999px;vertical-align:middle;margin-left:6px;">-5 € AKCIJA</span></div>
+            <div class="p-cost" id="priceCardRageCost">30 <span>€</span></div>
           </div>
           <ul class="p-list">
             <li>✓ Trukmė: 1 valanda</li>
@@ -1963,7 +1953,7 @@
             <li>✓ Pilna apsauginė apranga ir įrankiai</li>
             <li>✓ 1 kambarys (maks. privatumas)</li>
           </ul>
-          <a href="#rezervacija" class="btn btn-secondary btn-block" id="btnBookRage" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti (25 € 🔥)</a>
+          <a href="#rezervacija" class="btn btn-secondary btn-block" id="btnBookRage" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti (30 €)</a>
         </div>
 
         <!-- 2. KIRVIŲ MĖTYMAS -->
@@ -1971,7 +1961,7 @@
           <div class="p-head">
             <h3>Kirvių mėtymas</h3>
             <p>1 valandos taiklumo ir azarto rungtys</p>
-            <div class="p-cost" id="priceCardAxeCost"><del style="font-size:1.3rem;opacity:0.5;margin-right:6px;">30 €</del> 25 <span>€</span> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 7px;border-radius:999px;vertical-align:middle;margin-left:6px;">-5 € AKCIJA</span></div>
+            <div class="p-cost" id="priceCardAxeCost">30 <span>€</span></div>
           </div>
           <ul class="p-list">
             <li>✓ Trukmė: 1 valanda</li>
@@ -1980,7 +1970,7 @@
             <li>✓ Instruktoriaus apmokymai ir turnyras</li>
             <li>✓ Profesionalūs turnyrų kirviai</li>
           </ul>
-          <a href="#rezervacija" class="btn btn-secondary btn-block" id="btnBookAxe" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti (25 € 🔥)</a>
+          <a href="#rezervacija" class="btn btn-secondary btn-block" id="btnBookAxe" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti (30 €)</a>
         </div>
 
         <!-- 3. KOMBO PAKETAS (POPULIARIAUSIAS) -->
@@ -1989,7 +1979,7 @@
           <div class="p-head">
             <h3>KOMBO Paketas</h3>
             <p>Kirvių mėtymas + Pykčio kambarys kartu!</p>
-            <div class="p-cost" id="priceCardComboCost"><del style="font-size:1.3rem;opacity:0.5;margin-right:6px;">50 €</del> 45 <span>€</span> <span style="font-size:0.75rem;background:#22c55e;color:#052e16;font-weight:800;padding:2px 7px;border-radius:999px;vertical-align:middle;margin-left:6px;">-5 € AKCIJA</span></div>
+            <div class="p-cost" id="priceCardComboCost">50 <span>€</span></div>
           </div>
           <ul class="p-list">
             <li>✓ Abi pramogos vieno apsilankymo metu</li>
@@ -1998,7 +1988,7 @@
             <li>✓ Sutaupote net 10 €</li>
             <li>✓ Kirvių turnyras + visiška streso iškrova</li>
           </ul>
-          <a href="#rezervacija" class="btn btn-primary btn-block" id="btnBookCombo" onclick="setBookingActivity('KOMBO: Pyktis + Kirviai')">Rezervuoti KOMBO (45 € 🔥)</a>
+          <a href="#rezervacija" class="btn btn-primary btn-block" id="btnBookCombo" onclick="setBookingActivity('KOMBO: Pyktis + Kirviai')">Rezervuoti KOMBO (50 €)</a>
         </div>
 
         <!-- 4. ŠVENTĖ / VIP GRUPĖ -->
@@ -2035,7 +2025,7 @@
           <div>
             <div class="gift-icon">🎟️</div>
             <h3>Pramogos Kuponas</h3>
-            <div class="gift-amount" id="giftCard30Price"><del style="opacity:0.5;font-size:1.15rem;margin-right:6px;">30 €</del> 25 € <span style="font-size:0.75rem;background:#22c55e;color:#052e16;padding:2px 6px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px;">-5 €</span></div>
+            <div class="gift-amount" id="giftCard30Price">30 €</div>
             <p class="gift-desc">1 valandos sesija pasirinktinai: Pykčio kambarys (su 30 indų) arba Kirvių mėtymas.</p>
           </div>
           <button type="button" class="btn btn-secondary btn-block" onclick="openGiftModal(30, 'Pramogos Kuponas')" style="justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
@@ -2049,7 +2039,7 @@
           <div>
             <div class="gift-icon">🔥</div>
             <h3>KOMBO Kuponas</h3>
-            <div class="gift-amount" id="giftCard50Price"><del style="opacity:0.5;font-size:1.15rem;margin-right:6px;">50 €</del> 45 € <span style="font-size:0.75rem;background:#22c55e;color:#052e16;padding:2px 6px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px;">-5 €</span></div>
+            <div class="gift-amount" id="giftCard50Price">50 €</div>
             <p class="gift-desc">Abi pramogos kartu! Ir kirvių mėtymas, ir pilnavertis pykčio kambarys (30 indų).</p>
           </div>
           <button type="button" class="btn btn-primary btn-block" onclick="openGiftModal(50, 'KOMBO Kuponas')" style="justify-content: center; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
@@ -2318,7 +2308,7 @@
 
         <div class="form-wrap">
           <!-- INFORMACINĖ AKCIJOS LENTELĖ -->
-          <div id="promoNoticeBox" class="promo-notice-box" style="display: block;">
+          <div id="promoNoticeBox" class="promo-notice-box" style="display: none;">
             <div class="promo-notice-badge">
               <span class="pulse-dot"></span> 🔥 ŽAIBIŠKA AKCIJA -5 €
             </div>
@@ -2339,7 +2329,7 @@
                   <div class="act-box">
                     <span>🔨</span>
                     <strong>Pykčio kambarys</strong>
-                    <small id="actPriceRage"><del style="opacity:0.6;">30 €</del> <strong style="color:#22c55e;">25 €</strong> (30 indų)</small>
+                    <small id="actPriceRage">30 € (30 indų)</small>
                   </div>
                 </label>
                 <label class="act-opt">
@@ -2347,7 +2337,7 @@
                   <div class="act-box">
                     <span>🪓</span>
                     <strong>Kirvių mėtymas</strong>
-                    <small id="actPriceAxe"><del style="opacity:0.6;">30 €</del> <strong style="color:#22c55e;">25 €</strong> (2 tak.)</small>
+                    <small id="actPriceAxe">30 € (1 val.)</small>
                   </div>
                 </label>
                 <label class="act-opt">
@@ -2355,7 +2345,7 @@
                   <div class="act-box">
                     <span>🔥</span>
                     <strong>KOMBO</strong>
-                    <small id="actPriceCombo"><del style="opacity:0.6;">50 €</del> <strong style="color:#22c55e;">45 €</strong></small>
+                    <small id="actPriceCombo">50 € (2 val.)</small>
                   </div>
                 </label>
               </div>
@@ -4042,6 +4032,15 @@
       }
     }
 
+    function syncPromoUI() {
+      const p = (window.SITE_SETTINGS && window.SITE_SETTINGS.promo) ? window.SITE_SETTINGS.promo : null;
+      const isPromoActive = p && p.enabled && (new Date(p.end_time).getTime() > Date.now());
+      const banner = document.getElementById('topAnnouncementBanner');
+      if (banner) banner.style.display = isPromoActive ? 'flex' : 'none';
+      const notice = document.getElementById('promoNoticeBox');
+      if (notice) notice.style.display = isPromoActive ? 'block' : 'none';
+    }
+
     function initTodaySelection() {
       const today = new Date();
       currentCalDate = new Date(today);
@@ -4050,6 +4049,7 @@
 
     // Nedelsiant inicializuojame datą ir formą
     initTodaySelection();
+    syncPromoUI();
     onActivityChange();
     initPaymentMethodLogic();
     initGiftBankSelection();

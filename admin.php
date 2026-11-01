@@ -131,12 +131,12 @@ function saveCouponsData($kupFile, $kupDbFile, $data) {
 function getDefaultSettings() {
     return [
         'promo' => [
-            'enabled' => true,
+            'enabled' => false,
             'discount' => 5,
             'title' => '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!',
             'subtitle' => 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.',
             'end_time' => date('Y-m-d\TH:i:s', strtotime('+48 hours')),
-            'apply_to_coupons' => true
+            'apply_to_coupons' => false
         ],
         'banner' => [
             'enabled' => false,

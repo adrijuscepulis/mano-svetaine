@@ -18,12 +18,12 @@ if (file_exists($file)) {
 // Jei nustatymai dar neužkrauti, naudojame numatytąjį promo
 if (empty($data['promo'])) {
     $data['promo'] = [
-        'enabled' => true,
+        'enabled' => false,
         'discount' => 5,
         'title' => '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!',
         'subtitle' => 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.',
         'end_time' => '2026-10-30T22:45:00+02:00',
-        'apply_to_coupons' => true
+        'apply_to_coupons' => false
     ];
 }
 
