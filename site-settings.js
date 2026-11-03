@@ -386,15 +386,12 @@
     }
 
     // Socialiniai tinklai
-    if (c.instagram_url) {
-      document.querySelectorAll('a[href*="instagram.com"]').forEach(a => a.href = c.instagram_url);
-    }
-    if (c.facebook_url) {
-      document.querySelectorAll('a[href*="facebook.com"]').forEach(a => a.href = c.facebook_url);
-    }
-    if (c.tiktok_url) {
-      document.querySelectorAll('a[href*="tiktok.com"]').forEach(a => a.href = c.tiktok_url);
-    }
+    const igUrl = c.instagram_url || 'https://www.instagram.com/throwhousesiauliai/';
+    const fbUrl = c.facebook_url || 'https://www.facebook.com/p/ThrowHouse-%C5%A0iauliai-61594304310440/';
+    const ttUrl = c.tiktok_url || 'https://www.tiktok.com/@throwhousesiauliai?is_from_webapp=1&sender_device=pc';
+    document.querySelectorAll('a[href*="instagram.com"]').forEach(a => a.href = igUrl);
+    document.querySelectorAll('a[href*="facebook.com"]').forEach(a => a.href = fbUrl);
+    document.querySelectorAll('a[href*="tiktok.com"]').forEach(a => a.href = ttUrl);
   }
 
   function applyHours(h) {

@@ -23,12 +23,12 @@
     "coordinates": "55.910730, 23.315700",
     "google_maps_url": "https://www.google.com/maps?q=55.910730,23.315700",
     "waze_url": "https://waze.com/ul?ll=55.910730,23.315700&navigate=yes",
-    "instagram_url": "https://www.instagram.com/throwhouse_siauliai",
-    "facebook_url": "https://www.facebook.com/throwhouse",
-    "tiktok_url": "https://www.tiktok.com/@throwhouse"
+    "instagram_url": "https://www.instagram.com/throwhousesiauliai/",
+    "facebook_url": "https://www.facebook.com/p/ThrowHouse-%C5%A0iauliai-61594304310440/",
+    "tiktok_url": "https://www.tiktok.com/@throwhousesiauliai?is_from_webapp=1&sender_device=pc"
   },
   "hours": {
-    "workdays": "I-IV: 16:00 - 22:00",
+    "workdays": "I–IV: Nedirbame",
     "friday": "09:00 - 24:00",
     "saturday": "09:00 - 24:00",
     "sunday": "09:00 - 20:00",
@@ -36,10 +36,10 @@
   },
   "schedule": {
     "days": {
-      "1": { "name": "Pirmadienis", "enabled": true, "start": 16, "end": 22 },
-      "2": { "name": "Antradienis", "enabled": true, "start": 16, "end": 22 },
-      "3": { "name": "Trečiadienis", "enabled": true, "start": 16, "end": 22 },
-      "4": { "name": "Ketvirtadienis", "enabled": true, "start": 16, "end": 22 },
+      "1": { "name": "Pirmadienis", "enabled": false, "start": 0, "end": 0 },
+      "2": { "name": "Antradienis", "enabled": false, "start": 0, "end": 0 },
+      "3": { "name": "Trečiadienis", "enabled": false, "start": 0, "end": 0 },
+      "4": { "name": "Ketvirtadienis", "enabled": false, "start": 0, "end": 0 },
       "5": { "name": "Penktadienis", "enabled": true, "start": 9, "end": 24 },
       "6": { "name": "Šeštadienis", "enabled": true, "start": 9, "end": 24 },
       "0": { "name": "Sekmadienis", "enabled": true, "start": 9, "end": 20 }
