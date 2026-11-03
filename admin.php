@@ -480,6 +480,60 @@ if (!empty($_SESSION['admin_logged'])) {
         exit;
     }
 
+    // 5.5. Išsiųsti bandomąjį dovanų kuponą su PDF į nurodytą el. paštą
+    if (isset($_POST['action']) && $_POST['action'] === 'send_test_coupon') {
+        require_once __DIR__ . '/email_helper.php';
+        require_once __DIR__ . '/pdf_helper.php';
+
+        $targetEmail = filter_var(trim($_POST['test_coupon_email'] ?? ''), FILTER_VALIDATE_EMAIL);
+        $amount = intval($_POST['amount'] ?? 50);
+        if ($amount <= 0) $amount = 50;
+
+        if (!$targetEmail) {
+            $_SESSION['admin_flash'] = "Klaida: Nurodykite teisingą gavėjo el. pašto adresą!";
+            header('Location: admin.php?tab=kuponai');
+            exit;
+        }
+
+        $testCode = 'TH-TEST-' . rand(1000, 9999);
+        $expiresAt = date('Y-m-d', strtotime('+6 months'));
+
+        $couponData = [
+            'id' => $testCode,
+            'code' => $testCode,
+            'amount' => $amount,
+            'buyer' => 'ThrowHouse Administratorius',
+            'recipient' => 'Bandomasis Gavėjas',
+            'expires_at' => $expiresAt,
+            'greeting' => 'Tai bandomasis ThrowHouse Šiauliai dovanų kuponas sistemos patikrinimui!'
+        ];
+
+        $pdfAttachment = [];
+        try {
+            $pdfContent = generateThrowHouseCouponPdf($testCode, $amount, $expiresAt);
+            if (!empty($pdfContent)) {
+                $pdfAttachment[] = [
+                    'filename' => "ThrowHouse_Kuponas_{$testCode}.pdf",
+                    'content' => $pdfContent,
+                    'type' => 'application/pdf'
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        $voucherHtml = renderVoucherHtml($couponData);
+        $subject = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$testCode] ($amount €) [BANDYMAS]";
+
+        $sent = sendThrowHouseMail($targetEmail, $subject, $voucherHtml, 'info@throwhouse.lt', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
+
+        if ($sent) {
+            $_SESSION['admin_flash'] = "✓ Bandomasis dovanų kuponas ($testCode) su PDF prisegtuku sėkmingai išsiųstas į $targetEmail!";
+        } else {
+            $_SESSION['admin_flash'] = "Nepavyko išsiųsti laiško į $targetEmail. Patikrinkite SMTP nustatymus skiltyje „El. paštas (SMTP)“.";
+        }
+        header('Location: admin.php?tab=kuponai');
+        exit;
+    }
+
     // 6. Uždaryti / Atidaryti konkrečią valandą (arba konkrečią pramogą)
     if (isset($_POST['action']) && $_POST['action'] === 'toggle_slot_block') {
         $targetDate = htmlspecialchars(trim($_POST['b_date'] ?? ''));
@@ -1836,6 +1890,38 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
 
             <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
               + Sugeneruoti kuponą
+            </button>
+          </form>
+        </div>
+
+        <!-- BANDOMASIS KUPONO SIUNTIMAS Į EL. PAŠTĄ -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-top: 1.5rem;">
+          <h3 style="font-family: 'Outfit'; font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            🧪 Bandomasis kuponas
+          </h3>
+          <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+            Atsiųskite sau bandomąjį el. laišką su oficialiu PDF kuponu, kad pamatytumėte, kaip viską mato klientas:
+          </p>
+
+          <form method="POST">
+            <input type="hidden" name="action" value="send_test_coupon">
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Gavėjo el. pašto adresas:</label>
+              <input type="email" name="test_coupon_email" class="form-input" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'info@throwhouse.lt') ?>" placeholder="vardas@gmail.com" style="margin-bottom: 0;" required>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Kupono vertė:</label>
+              <select name="amount" class="form-input" style="margin-bottom: 0;">
+                <option value="30">30 €</option>
+                <option value="50" selected>50 €</option>
+                <option value="100">100 €</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center; font-weight: 700; color: #fff; border-color: var(--accent);">
+              🚀 Siųsti bandomąjį kuponą su PDF
             </button>
           </form>
         </div>
