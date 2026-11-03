@@ -542,7 +542,7 @@ function renderNewReservationAdminHtml($res) {
       <div style="background-color: #fff1f2; border: 2px solid #e11d48; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
         <strong style="color: #be123c; font-size: 15px; display: block; margin-bottom: 6px;">⚠️ DĖMESIO – KLIENTAS MOKĖS KORTELE VIETOJE:</strong>
         <p style="margin: 0 0 12px 0; color: #881337; font-size: 14px; line-height: 1.5;">
-          Šis užsakymas neapmokėtas internetu (klientas sėkmingai patvirtino savo el. paštą PIN kodu). <strong>Būtina pasiskambinti klientui ir patvirtinti atvykimą!</strong>
+          Šis užsakymas neapmokėtas internetu (pasirinktas apmokėjimas kortele vietoje). <strong>Būtina pasiskambinti klientui ir patvirtinti atvykimą!</strong>
         </p>
         <a href="tel:' . $phone . '" style="display:inline-block; background-color:#e11d48; color:#ffffff; font-weight:bold; text-decoration:none; padding:10px 18px; border-radius:6px; font-size:13px;">📞 Skambinti klientui dabar (' . $phone . ')</a>
       </div>' : '') . '

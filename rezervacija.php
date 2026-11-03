@@ -573,25 +573,11 @@ if (isDisposableOrFakeEmail($email)) {
     exit;
 }
 
-// Jei mokama grynaisiais vietoje – tikriname IP limitus ir 4 skaitmenų PIN kodą
+// Jei mokama kortele / grynaisiais vietoje – tikriname IP limitus
 if ($isCash) {
     $rateCheck = checkRateLimit($ip, $email, 'cash_booking');
     if (!$rateCheck['allowed']) {
         echo json_encode(['success' => false, 'message' => $rateCheck['message']]);
-        exit;
-    }
-
-    if (!$pinCode || strlen($pinCode) < 4) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Prašome suvesti 4 skaitmenų patvirtinimo kodą, kurį išsiuntėme į Jūsų el. paštą.'
-        ]);
-        exit;
-    }
-
-    $pinCheck = verifyPinCode($email, $pinCode);
-    if (!$pinCheck['success']) {
-        echo json_encode(['success' => false, 'message' => $pinCheck['message']]);
         exit;
     }
 }

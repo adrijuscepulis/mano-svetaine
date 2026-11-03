@@ -1844,21 +1844,6 @@
         align-items: center;
         text-align: center;
       }
-      #pinBoxWrapper {
-        padding: 0.85rem 0.75rem !important;
-      }
-      #pinBoxWrapper strong {
-        font-size: 0.92rem !important;
-      }
-      #pinBoxWrapper p {
-        font-size: 0.78rem !important;
-      }
-      #resPinInput {
-        width: 140px !important;
-        height: 42px !important;
-        font-size: 1.45rem !important;
-        letter-spacing: 6px !important;
-      }
 
       /* DUK Akordeonas */
       .faq-container { gap: 0.45rem; }
@@ -2813,28 +2798,6 @@
                   <strong style="color: #ffffff; font-size: 0.95rem;">💳 Mokėti kortele vietoje</strong>
                 </label>
 
-              </div>
-            </div>
-
-            <!-- PIN KODO ĮVEDIMO BLOKAS (MOKANT VIETOJE) -->
-            <div id="pinBoxWrapper" style="display: none; background: linear-gradient(135deg, rgba(229, 142, 38, 0.1) 0%, rgba(20, 17, 14, 0.95) 100%); border: 2px dashed var(--accent); border-radius: var(--radius-sm); padding: 1.25rem 1rem; margin-bottom: 1.25rem; text-align: center;">
-              <div style="font-size: 1.6rem; margin-bottom: 0.25rem;">✉️</div>
-              <strong style="color: #ffffff; font-size: 1rem; display: block; margin-bottom: 0.35rem;">
-                Patvirtinimo PIN kodas
-              </strong>
-              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin: 0 0 0.85rem 0;">
-                Išsiuntėme 4 skaitmenų kodą į <span id="pinTargetEmail" style="color: var(--accent); font-weight: 700;"></span>.<br>
-                Įveskite jį žemiau rezervacijos patvirtinimui:
-              </p>
-              
-              <div style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
-                <input type="text" id="resPinInput" maxlength="4" placeholder="••••" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" style="width: 170px; height: 50px; font-size: 1.85rem; font-weight: 900; letter-spacing: 10px; text-align: center; border-radius: 6px; border: 2px solid var(--accent); background: #14110e; color: #f59e0b; outline: none; box-shadow: 0 0 15px rgba(229, 142, 38, 0.3);">
-              </div>
-
-              <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-size: 0.82rem;">
-                <span style="color: #94a3b8;">Negavote kodo?</span>
-                <button type="button" id="btnResendPin" onclick="requestPinCode(true)" style="background: none; border: none; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 600; padding: 0;">Siųsti dar kartą</button>
-                <span id="pinTimerNote" style="color: #64748b; font-size: 0.78rem;"></span>
               </div>
             </div>
 
@@ -3859,15 +3822,11 @@
     /* -----------------------------------------------------------------
        MOKĖJIMO BŪDO VALDYMAS IR PIN KODO PATVIRTINIMAS (MOKANT VIETOJE)
        ----------------------------------------------------------------- */
-    let isPinSent = false;
-    let pinCooldownTimer = null;
-
     function initPaymentMethodLogic() {
       const payRadios = document.querySelectorAll('input[name="resPay"]');
       const cardBankWrapper = document.getElementById('payBankCardWrapper');
       const bankSelectorBox = document.getElementById('bankSelectorBox');
       const lblCash = document.getElementById('payLblCash');
-      const pinBox = document.getElementById('pinBoxWrapper');
       const submitBtn = document.getElementById('submitBtn');
       const bankBtns = document.querySelectorAll('.opay-bank-btn');
 
@@ -3875,7 +3834,7 @@
       bankBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
-          // Jei buvo pasirinktas mokėjimas grynaisiais, automatiškai perjungiame į elektroninę bankininkystę
+          // Jei buvo pasirinktas mokėjimas vietoje, automatiškai perjungiame į elektroninę bankininkystę
           const bankRadio = document.querySelector('input[name="resPay"][value="banklink"]');
           if (bankRadio && !bankRadio.checked) {
             bankRadio.checked = true;
@@ -3902,13 +3861,7 @@
           if (bankSelectorBox) {
             bankSelectorBox.style.display = 'none';
           }
-          if (isPinSent) {
-            if (pinBox) pinBox.style.display = 'block';
-            if (submitBtn) submitBtn.textContent = 'Patvirtinti rezervaciją (Mokėti vietoje) ➔';
-          } else {
-            if (pinBox) pinBox.style.display = 'none';
-            if (submitBtn) submitBtn.textContent = 'Gauti patvirtinimo kodą į el. paštą ➔';
-          }
+          if (submitBtn) submitBtn.textContent = 'Patvirtinti rezervaciją (Mokėti vietoje) ➔';
         } else {
           if (cardBankWrapper) {
             cardBankWrapper.style.borderColor = 'var(--accent)';
@@ -3921,7 +3874,6 @@
             lblCash.style.borderColor = 'rgba(255, 255, 255, 0.15)';
             lblCash.style.background = 'rgba(255, 255, 255, 0.03)';
           }
-          if (pinBox) pinBox.style.display = 'none';
           if (submitBtn) submitBtn.textContent = 'Apmokėti ir patvirtinti rezervaciją ➔';
         }
       }
@@ -3944,122 +3896,6 @@
       if (/^(\d)\1{6}$/.test(s)) return false; // 0000000, 1111111 ir pan.
       if (s === '1234567' || s === '7654321' || s === '0123456') return false;
       return true;
-    }
-
-    // Prašyti 4 skaitmenų PIN kodo į el. paštą (mokant vietoje)
-    async function requestPinCode(isResend) {
-      const name = document.getElementById('resName')?.value.trim();
-      const phone = document.getElementById('resPhone')?.value.trim();
-      const email = document.getElementById('resEmail')?.value.trim();
-      const submitBtn = document.getElementById('submitBtn');
-      const resendBtn = document.getElementById('btnResendPin');
-
-      if (!name) {
-        alert('Prašome įvesti savo vardą ir pavardę!');
-        document.getElementById('resName')?.focus();
-        return;
-      }
-      if (!phone || !isValidLtPhone(phone)) {
-        alert('Prašome nurodyti teisingą lietuvišką mobiliojo ryšio numerį (+370 6XX XXXXX arba 86XXXXXXX)!');
-        document.getElementById('resPhone')?.focus();
-        return;
-      }
-      if (!email || !email.includes('@') || !email.includes('.')) {
-        alert('Prašome nurodyti galiojantį asmeninį el. pašto adresą kodui gauti!');
-        document.getElementById('resEmail')?.focus();
-        return;
-      }
-
-      const prevBtnText = submitBtn ? submitBtn.textContent : '';
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Siunčiamas kodas į el. paštą...';
-      }
-      if (resendBtn) resendBtn.disabled = true;
-
-      try {
-        const payload = {
-          action: 'request_pin',
-          name, phone, email,
-          extra_security_check: document.getElementById('extraSecurityCheck')?.value || ''
-        };
-
-        const res = await fetch('rezervacija.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-
-        if (!data.success) {
-          alert('⚠️ ' + data.message);
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = prevBtnText;
-          }
-          if (resendBtn) resendBtn.disabled = false;
-          return;
-        }
-
-        isPinSent = true;
-        const pinBox = document.getElementById('pinBoxWrapper');
-        if (pinBox) pinBox.style.display = 'block';
-        const targetEmailEl = document.getElementById('pinTargetEmail');
-        if (targetEmailEl) targetEmailEl.textContent = email;
-
-        const pinInput = document.getElementById('resPinInput');
-        if (pinInput) {
-          pinInput.value = '';
-          pinInput.focus();
-        }
-
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Patvirtinti rezervaciją (Mokėti vietoje) ➔';
-        }
-
-        startPinCooldown(30);
-
-        if (isResend) {
-          alert('✓ Naujas 4 skaitmenų kodas sėkmingai išsiųstas į ' + email);
-        } else {
-          pinBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-      } catch (e) {
-        alert('Tinklo ryšio klaida siunčiant kodą. Prašome pabandyti dar kartą.');
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = prevBtnText;
-        }
-        if (resendBtn) resendBtn.disabled = false;
-      }
-    }
-
-    function startPinCooldown(seconds) {
-      const resendBtn = document.getElementById('btnResendPin');
-      const timerNote = document.getElementById('pinTimerNote');
-      if (!resendBtn) return;
-
-      clearInterval(pinCooldownTimer);
-      let left = seconds;
-      resendBtn.disabled = true;
-      resendBtn.style.opacity = '0.5';
-      resendBtn.style.pointerEvents = 'none';
-      if (timerNote) timerNote.textContent = `(galima po ${left} s)`;
-
-      pinCooldownTimer = setInterval(() => {
-        left--;
-        if (left <= 0) {
-          clearInterval(pinCooldownTimer);
-          resendBtn.disabled = false;
-          resendBtn.style.opacity = '1';
-          resendBtn.style.pointerEvents = 'auto';
-          if (timerNote) timerNote.textContent = '';
-        } else {
-          if (timerNote) timerNote.textContent = `(galima po ${left} s)`;
-        }
-      }, 1000);
     }
 
     /* REZERVACIJOS SIUNTIMAS */
@@ -4145,25 +3981,6 @@
       const selectedBankRadio = document.querySelector('input[name="opayBank"]:checked');
       const opayChannel = isCash ? '' : (selectedBankRadio ? selectedBankRadio.value : 'pis_swedbank');
 
-      // Jei pasirinktas mokėjimas grynaisiais vietoje:
-      let pinVal = '';
-      if (isCash) {
-        if (!isPinSent) {
-          // 1 žingsnis: išsiunčiame 4 skaitmenų PIN kodą į el. paštą
-          requestPinCode(false);
-          return;
-        }
-
-        // 2 žingsnis: patikriname ar suvestas 4 skaitmenų PIN kodas
-        const pinInput = document.getElementById('resPinInput');
-        pinVal = pinInput ? pinInput.value.trim() : '';
-        if (!pinVal || pinVal.length < 4 || !/^\d{4}$/.test(pinVal)) {
-          alert('Prašome įvesti 4 skaitmenų patvirtinimo kodą, kurį išsiuntėme į ' + email + '!');
-          pinInput?.focus();
-          return;
-        }
-      }
-
       btn.disabled = true;
       btn.textContent = 'Tikrinama ir apdorojama...';
 
@@ -4195,7 +4012,6 @@
           price: prc,
           pay_method: isCash ? 'cash' : 'banklink',
           opay_channel: opayChannel,
-          pin_code: pinVal,
           extra_security_check: document.getElementById('extraSecurityCheck')?.value || ''
         };
 
@@ -4267,10 +4083,6 @@
       const box = document.getElementById('resSuccess');
       if (form && box) {
         form.reset();
-        isPinSent = false;
-        clearInterval(pinCooldownTimer);
-        const pinBox = document.getElementById('pinBoxWrapper');
-        if (pinBox) pinBox.style.display = 'none';
 
         // Atstatome Swedbank kaip numatytąjį pasirinkimą
         const bankBtns = document.querySelectorAll('.opay-bank-btn');
