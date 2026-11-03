@@ -249,7 +249,7 @@
       }
     };
   </script>
-  <script src="site-settings.js?v=custom-hours-1"></script>
+  <script src="site-settings.js?v=20261103-v4"></script>
   <style>
     :root {
       --bg-dark: #0c0a09;
@@ -3991,10 +3991,17 @@
       });
     });
 
-    // Užtikrinimas, kad būtų perskaičiuojamos akcinės kainos
+    // Užtikrinimas, kad būtų perskaičiuojamos akcinės kainos ir mygtukai būtų "Rezervuoti"
+    function enforceReserveButtons() {
+      const r = document.getElementById('btnActRage'); if (r) r.textContent = 'Rezervuoti';
+      const a = document.getElementById('btnActAxe'); if (a) a.textContent = 'Rezervuoti';
+    }
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof calcTotal === 'function') calcTotal();
+      enforceReserveButtons();
     });
+    window.addEventListener('load', enforceReserveButtons);
+    setTimeout(enforceReserveButtons, 500);
   </script>
 
   <!-- INTERAKTYVIŲ SKRAIDANČIŲ KIRVIŲ IR ŽIEŽIRBŲ VARIKLIS -->

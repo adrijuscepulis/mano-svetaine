@@ -184,9 +184,9 @@
       `;
     }
     const actRageBtn = document.getElementById('btnActRage');
-    if (actRageBtn) actRageBtn.textContent = `Rezervuoti (${rageBase - discount} € 🔥)`;
+    if (actRageBtn) actRageBtn.textContent = `Rezervuoti`;
     const actAxeBtn = document.getElementById('btnActAxe');
-    if (actAxeBtn) actAxeBtn.textContent = `Rezervuoti (${axeBase - discount} € 🔥)`;
+    if (actAxeBtn) actAxeBtn.textContent = `Rezervuoti`;
 
     // 4. Kuponų sumos (#kuponai)
     if (!promo || promo.apply_to_coupons !== false) {
