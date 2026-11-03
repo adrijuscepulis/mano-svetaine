@@ -218,7 +218,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     window.SITE_SETTINGS = {
       promo: {
@@ -249,13 +249,13 @@
       }
     };
   </script>
-  <script src="site-settings.js?v=design-v2"></script>
+  <script src="site-settings.js?v=20261103-v4"></script>
   <style>
     :root {
-      --bg-dark: #0a0806;
+      --bg-dark: #0c0a09;
       --bg-surface: #14110e;
-      --bg-card: #1a1511;
-      --bg-card-hover: #221c17;
+      --bg-card: #1c1713;
+      --bg-card-hover: #241e19;
       --border-color: rgba(229, 142, 38, 0.22);
       --border-strong: rgba(229, 142, 38, 0.45);
       
@@ -270,14 +270,14 @@
       --text-gray: #a8a29e;
       --text-muted: #78716c;
 
-      --font-display: 'Montserrat', sans-serif;
-      --font-head: 'Montserrat', sans-serif;
+      --font-display: 'Cinzel', serif;
+      --font-head: 'Oswald', sans-serif;
       --font-sub: 'Space Grotesk', sans-serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
 
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 10px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -443,9 +443,9 @@
     /* HERO */
     .hero {
       position: relative;
-      padding: 10rem 0 5.5rem 0;
-      background: linear-gradient(180deg, rgba(10, 8, 6, 0.4) 0%, rgba(10, 8, 6, 0.72) 45%, rgba(10, 8, 6, 0.98) 100%),
-                  url('hero-bg.jpg?v=2') center 18% / cover no-repeat;
+      padding: 11rem 0 6rem 0;
+      background: linear-gradient(180deg, rgba(12, 10, 9, 0.45) 0%, rgba(12, 10, 9, 0.72) 45%, rgba(12, 10, 9, 0.95) 100%),
+                  url('hero-bg.jpg?v=2') center top / cover no-repeat;
       text-align: center;
       border-bottom: 2px solid rgba(229, 142, 38, 0.25);
       overflow: hidden;
@@ -1365,11 +1365,6 @@
       .hero-h1 { font-size: 2.85rem; }
       .prices-row { grid-template-columns: repeat(2, 1fr); }
       .contact-row { grid-template-columns: 1fr; gap: 2rem; }
-      .features-row { grid-template-columns: repeat(2, 1fr); }
-      .trust-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-      .trust-stat-item:nth-child(2) { border-right: none; }
-      .activities-grid { grid-template-columns: 1fr; gap: 2rem; }
-      .how-it-works-grid { grid-template-columns: 1fr; gap: 1.5rem; }
     }
 
     @media (max-width: 768px) {
@@ -1483,17 +1478,6 @@
       .section-head { margin-bottom: 2.25rem; }
       .title { font-size: 1.85rem; line-height: 1.2; }
       .subtitle { font-size: 0.95rem; }
-
-      /* Modernios pramogų kortelės ir statistika */
-      .trust-stats-grid { grid-template-columns: 1fr; gap: 1.25rem; }
-      .trust-stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem; }
-      .trust-stat-item:last-child { border-bottom: none; }
-      .act-box-img { height: 210px; }
-      .act-box-content { padding: 1.5rem 1.25rem; }
-      .act-box-title { font-size: 1.6rem; }
-      .act-box-footer { flex-direction: column; align-items: stretch; gap: 1rem; }
-      .act-box-footer .btn { width: 100%; }
-      .how-step-card { padding: 1.5rem 1.25rem; }
 
       /* Pramogų kortelės */
       .activities-row {
@@ -1685,221 +1669,6 @@
       color: #f59e0b;
       letter-spacing: 0.5px;
     }
-
-    /* =================================================================
-       MODERNAUS DIZAINO IR BLOKŲ IŠDĖSTYMO SISTEMA
-       ================================================================= */
-
-    /* 1. PASITIKĖJIMO IR STATISTIKOS JUOSTA */
-    .trust-stats-bar {
-      background: linear-gradient(180deg, #120e0b 0%, #17130f 100%);
-      border-bottom: 1px solid var(--border-color);
-      border-top: 1px solid rgba(229, 142, 38, 0.2);
-      padding: 2.25rem 0;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    }
-
-    .trust-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
-      align-items: center;
-    }
-
-    .trust-stat-item {
-      display: flex;
-      align-items: center;
-      gap: 1.15rem;
-      padding: 0.5rem 1.25rem;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .trust-stat-item:last-child {
-      border-right: none;
-    }
-
-    .trust-stat-num {
-      font-family: var(--font-head);
-      font-size: 2.75rem;
-      font-weight: 900;
-      color: var(--accent);
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-
-    .trust-stat-text strong {
-      display: block;
-      color: #ffffff;
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.25;
-      margin-bottom: 0.2rem;
-    }
-
-    .trust-stat-text span {
-      display: block;
-      color: var(--text-gray);
-      font-size: 0.82rem;
-      line-height: 1.35;
-    }
-
-    /* 2. PRAMOGŲ KORTELIŲ TINKLELIS */
-    .activities-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2.5rem;
-    }
-
-    .act-box-card {
-      background: var(--bg-surface);
-      border: 1.5px solid rgba(229, 142, 38, 0.3);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.55);
-      transition: all 0.25s ease;
-      position: relative;
-    }
-
-    .act-box-card:hover {
-      border-color: var(--accent);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(229, 142, 38, 0.15);
-      transform: translateY(-4px);
-    }
-
-    .act-box-img {
-      height: 290px;
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-
-    .act-box-img-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(20, 17, 14, 0.95) 100%);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding: 1.5rem;
-    }
-
-    .act-box-content {
-      padding: 2.25rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .act-box-title {
-      font-family: var(--font-head);
-      font-size: 2rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #fff;
-      margin-bottom: 0.75rem;
-      letter-spacing: -0.01em;
-    }
-
-    .act-box-desc {
-      color: var(--text-gray);
-      font-size: 0.98rem;
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
-    }
-
-    .act-box-perks {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-      flex: 1;
-      list-style: none;
-      padding: 0;
-    }
-
-    .act-box-perks li {
-      display: flex;
-      align-items: baseline;
-      gap: 0.75rem;
-      font-size: 0.94rem;
-      color: #e2e8f0;
-      line-height: 1.45;
-    }
-
-    .act-box-perk-check {
-      color: var(--accent);
-      font-weight: 900;
-      font-size: 1rem;
-    }
-
-    .act-box-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 1.35rem;
-    }
-
-    /* 3. KAIP TAI VEIKIA */
-    .how-it-works-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-    }
-
-    .how-step-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 2.25rem 1.75rem;
-      position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      transition: all 0.25s ease;
-    }
-
-    .how-step-card:hover {
-      border-color: rgba(229, 142, 38, 0.5);
-      transform: translateY(-3px);
-    }
-
-    .how-step-num {
-      font-family: var(--font-head);
-      font-size: 2.8rem;
-      font-weight: 900;
-      color: var(--accent);
-      line-height: 1;
-      margin-bottom: 0.75rem;
-      letter-spacing: -0.02em;
-    }
-
-    .how-step-card h3 {
-      font-family: var(--font-head);
-      font-size: 1.35rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #fff;
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    .how-step-card p {
-      color: var(--text-gray);
-      font-size: 0.92rem;
-      line-height: 1.6;
-    }
-
-    /* 4. REZERVACIJOS KONSOLĖ */
-    .clean-book-container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--bg-surface);
-      border: 1.5px solid rgba(229, 142, 38, 0.35);
-      border-radius: var(--radius-lg);
-      padding: 2.75rem 2.5rem;
-      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.65);
-    }
   </style>
 </head>
 <body>
@@ -1939,9 +1708,10 @@
     </div>
   </header>
 
-  <!-- HERO SEKCIJA: MODERNI PRAMOGŲ ERDVĖ -->
+  <!-- HERO SEKCIJA SU SKRAIDANČIAIS KIRVIAIS -->
   <section class="hero" id="heroSection">
-    <div class="container">
+    <canvas id="heroAxesCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+    <div class="container" style="position: relative; z-index: 2;">
       <div class="hero-badge">
         <span class="badge-dot"></span> 🎯 Aktyvios pramogos Šiauliuose | Pramonės g. 15
       </div>
@@ -1961,14 +1731,14 @@
       </div>
 
       <div class="features-row">
-        <div class="feat-card" onclick="setBookingActivity('Pykčio kambarys'); location.hash='#rezervacija';" style="cursor: pointer;">
+        <div class="feat-card">
           <span class="feat-icon">🔨</span>
           <div>
             <strong>Pykčio kambarys</strong>
             <span>30 indų įskaičiuota | 1 val.</span>
           </div>
         </div>
-        <div class="feat-card" onclick="setBookingActivity('Kirvių mėtymas'); location.hash='#rezervacija';" style="cursor: pointer;">
+        <div class="feat-card">
           <span class="feat-icon">🪓</span>
           <div>
             <strong>Kirvių mėtymas</strong>
@@ -1993,43 +1763,7 @@
     </div>
   </section>
 
-  <!-- PASITIKĖJIMO IR STATISTIKOS JUOSTA -->
-  <section class="trust-stats-bar">
-    <div class="container">
-      <div class="trust-stats-grid">
-        <div class="trust-stat-item">
-          <div class="trust-stat-num">30</div>
-          <div class="trust-stat-text">
-            <strong>Indų daužymui</strong>
-            <span>Įskaičiuota į pykčio sesiją</span>
-          </div>
-        </div>
-        <div class="trust-stat-item">
-          <div class="trust-stat-num">2</div>
-          <div class="trust-stat-text">
-            <strong>Kirvių takeliai</strong>
-            <span>Atskiri taikiniai turnyrams</span>
-          </div>
-        </div>
-        <div class="trust-stat-item">
-          <div class="trust-stat-num">60'</div>
-          <div class="trust-stat-text">
-            <strong>Privati sesija</strong>
-            <span>Pilna erdvė jūsų kompanijai</span>
-          </div>
-        </div>
-        <div class="trust-stat-item">
-          <div class="trust-stat-num">100%</div>
-          <div class="trust-stat-text">
-            <strong>Streso iškrova</strong>
-            <span>Garantuotas emocijų pliūpsnis</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRAMOGŲ BLOKAS: MODERNIOS KORTELĖS -->
+  <!-- PRAMOGŲ BLOKAS -->
   <section class="section" id="pramogos">
     <div class="container">
       <div class="section-head">
@@ -2038,30 +1772,29 @@
         <p class="subtitle">Dvi unikalios pramogos Šiauliuose. Sesijos trukmė – 1 valanda, vienoje rezervacijoje – iki 4 asmenų.</p>
       </div>
 
-      <div class="activities-grid">
-        <!-- 1. PYKČIO KAMBARYS -->
-        <div class="act-box-card">
-          <div class="act-box-img" style="background-image: url('pykcio-kambarys.jpg?v=2'); background-position: center 20%;">
-            <div class="act-box-img-overlay">
-              <span class="badge" style="background: rgba(12, 10, 9, 0.85); border: 1.5px solid var(--accent); color: #fff; padding: 0.35rem 0.95rem; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase;">🔨 Pykčio kambarys</span>
-              <span style="background: rgba(220, 38, 38, 0.25); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5; padding: 0.35rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700;">Privati erdvė</span>
+      <div class="activities-row">
+        <!-- PYKČIO KAMBARYS -->
+        <div class="act-card">
+          <div class="act-img" style="background-image: url('pykcio-kambarys.jpg?v=2'); background-position: center 15%;">
+            <div class="act-img-overlay">
+              <span class="act-pill">🔨 Pykčio kambarys</span>
             </div>
           </div>
-          <div class="act-box-content">
-            <h3 class="act-box-title">Pykčio kambarys</h3>
-            <p class="act-box-desc">
+          <div class="act-content">
+            <h3 class="act-title">Pykčio kambarys</h3>
+            <p class="act-desc">
               Apsivilkite apsauginį kombinezoną, užsidėkite šalmą su skydeliu, paimkite beisbolo lazdą ar laužtuvą ir sudaužykite viską į šipulius! 100% streso iškrova garantuota.
             </p>
-            <ul class="act-box-perks">
-              <li><span class="act-box-perk-check">✓</span> <span><strong>Suteikiama 30 indų paruoštų daužymui</strong></span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Galimybė užsisakyti daugiau indų (tik 0.60 € / vnt.)</span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Beisbolo lazdos, laužtuvai, plaktukai ir kt.</span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Pilna apsauginė apranga (šalmas, skydelis, pirštinės, kombinezonas)</span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Trukmė: 1 valanda (1 privatus kambarys)</span></li>
+            <ul class="perk-list">
+              <li><span class="perk-check">✓</span> <strong>Suteikiama 30 indų paruoštų daužymui</strong></li>
+              <li><span class="perk-check">✓</span> Galimybė užsisakyti daugiau indų (tik 0.60 € / vnt.)</li>
+              <li><span class="perk-check">✓</span> Beisbolo lazdos, laužtuvai, plaktukai ir kt.</li>
+              <li><span class="perk-check">✓</span> Pilna apsauginė apranga (šalmas, skydelis, pirštinės, kombinezonas)</li>
+              <li><span class="perk-check">✓</span> Trukmė: 1 valanda (1 privatus kambarys)</li>
             </ul>
-            <div class="act-box-footer">
+            <div class="act-footer">
               <div class="price-tag" id="promoActRagePrice">
-                Kaina: <strong style="display: inline-block; color: var(--accent); font-size: 1.75rem; font-family: var(--font-head); line-height: 1;">30 €</strong>
+                Kaina: <strong style="display: inline-block; color: var(--accent); font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">30 €</strong>
                 <span class="capacity-badge">30 indų | Iki 4 asm.</span>
               </div>
               <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActRage" onclick="setBookingActivity('Pykčio kambarys')">Rezervuoti</a>
@@ -2069,65 +1802,33 @@
           </div>
         </div>
 
-        <!-- 2. KIRVIŲ MĖTYMAS -->
-        <div class="act-box-card">
-          <div class="act-box-img" style="background-image: url('kirviu-metymas.jpg?v=2'); background-position: center;">
-            <div class="act-box-img-overlay">
-              <span class="badge" style="background: rgba(12, 10, 9, 0.85); border: 1.5px solid var(--accent); color: #fff; padding: 0.35rem 0.95rem; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase;">🪓 Kirvių mėtymas</span>
-              <span style="background: rgba(229, 142, 38, 0.2); border: 1px solid rgba(229, 142, 38, 0.5); color: #fbbf24; padding: 0.35rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700;">2 Takeliai</span>
+        <!-- KIRVIŲ MĖTYMAS -->
+        <div class="act-card">
+          <div class="act-img" style="background-image: url('kirviu-metymas.jpg?v=2'); background-position: center;">
+            <div class="act-img-overlay">
+              <span class="act-pill">🪓 Kirvių mėtymas</span>
             </div>
           </div>
-          <div class="act-box-content">
-            <h3 class="act-box-title">Kirvių mėtymas</h3>
-            <p class="act-box-desc">
+          <div class="act-content">
+            <h3 class="act-title">Kirvių mėtymas</h3>
+            <p class="act-desc">
               Išbandyk savo jėgą ir taiklumą! Kirvių mėtymas takeliuose – tai azartiškas taiklumo sportas, kuris be abejonės sukurs adrenalino kupiną energiją jūsų komandoje!
             </p>
-            <ul class="act-box-perks">
-              <li><span class="act-box-perk-check">✓</span> <span><strong>2 atskiri takeliai (galimos 2 rezervacijos per valandą)</strong></span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Instruktažas ir taisyklės vos per 5 minutes</span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Komandų susibūrimas, turnyrai, taškų skaičiavimas ir rungtys</span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Profesionalūs turnyrams naudojami kirviai</span></li>
-              <li><span class="act-box-perk-check">✓</span> <span>Trukmė: 1 valanda (iki 4 asmenų prie takelio)</span></li>
+            <ul class="perk-list">
+              <li><span class="perk-check">✓</span> 2 atskiri takeliai (galimos 2 rezervacijos per valandą)</li>
+              <li><span class="perk-check">✓</span> Instruktažas ir taisyklės vos per 5 minutes</li>
+              <li><span class="perk-check">✓</span> Komandų susibūrimas, turnyrai, taškų skaičiavimas ir rungtys</li>
+              <li><span class="perk-check">✓</span> Profesionalūs turnyrams naudojami kirviai</li>
+              <li><span class="perk-check">✓</span> Trukmė: 1 valanda (iki 4 asmenų prie takelio)</li>
             </ul>
-            <div class="act-box-footer">
+            <div class="act-footer">
               <div class="price-tag" id="promoActAxePrice">
-                Kaina: <strong style="display: inline-block; color: var(--accent); font-size: 1.75rem; font-family: var(--font-head); line-height: 1;">30 €</strong>
+                Kaina: <strong style="display: inline-block; color: var(--accent); font-size: 1.65rem; font-family: var(--font-head); line-height: 1;">30 €</strong>
                 <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>
               </div>
               <a href="#rezervacija" class="btn btn-secondary btn-sm" id="btnActAxe" onclick="setBookingActivity('Kirvių mėtymas')">Rezervuoti</a>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- KAIP TAI VEIKIA SEKCIJA -->
-  <section class="section" id="kaip-veikia" style="background: rgba(255, 255, 255, 0.01); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-    <div class="container">
-      <div class="section-head text-center" style="text-align: center;">
-        <span class="tag">Paprasta ir greita</span>
-        <h2 class="title">Kaip tai veikia? 3 paprasti žingsniai</h2>
-        <p class="subtitle" style="max-width: 650px; margin: 0 auto;">Nuo adrenalino dozės jus skiria vos kelios minutės. Štai kaip viskas vyksta:</p>
-      </div>
-
-      <div class="how-it-works-grid" style="margin-top: 2.5rem;">
-        <div class="how-step-card">
-          <div class="how-step-num">01</div>
-          <h3>Pasirinkite laiką</h3>
-          <p>Išsirinkite norimą pramogą (pyktis, kirviai arba kombo), datą bei patogų laiką mūsų internetinėje rezervacijos sistemoje.</p>
-        </div>
-
-        <div class="how-step-card">
-          <div class="how-step-num">02</div>
-          <h3>Atvykite į vietą</h3>
-          <p>Atvykite į Pramonės g. 15, Šiauliai. Suteikiame pilną apsauginę aprangą, įrankius ir pravedame trumpą 5 min. saugumo instruktažą.</p>
-        </div>
-
-        <div class="how-step-card">
-          <div class="how-step-num">03</div>
-          <h3>Išliekite emocijas!</h3>
-          <p>Daužykite 30 paruoštų indų be jokių stabdžių arba varžykitės azartiškame kirvių turnyre kartu su savo draugais ar kolegomis!</p>
         </div>
       </div>
     </div>
@@ -2533,7 +2234,8 @@
         <p class="subtitle">Pasirinkite pramogą, dieną bei patogią valandą. Akimirksniu patvirtinsime Jūsų rezervaciją!</p>
       </div>
 
-      <div class="clean-book-container">
+      <div class="book-box">
+        <div class="form-wrap">
           <!-- INFORMACINĖ AKCIJOS LENTELĖ -->
           <div id="promoNoticeBox" class="promo-notice-box" style="display: none;">
             <div class="promo-notice-badge">
@@ -2841,7 +2543,8 @@
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
   <!-- DUK SEKCIJA -->
   <section class="section" id="duk">
@@ -3055,71 +2758,6 @@
             : `Bazinė kaina (${basePrice} €) už 1 val. sesiją`;
         }
       }
-      if (typeof syncTicket === 'function') syncTicket();
-    }
-
-    // Gyvos bilieto suvestinės atnaujinimas
-    function syncTicket() {
-      const act = document.querySelector('input[name="resActivity"]:checked')?.value || 'Pykčio kambarys';
-      const actEl = document.getElementById('ticketAct');
-      if (actEl) actEl.textContent = act;
-
-      const laneRow = document.getElementById('ticketLaneRow');
-      const laneEl = document.getElementById('ticketLane');
-      const laneSelect = document.getElementById('resLane');
-      if (laneRow && laneEl) {
-        if (act.includes('Kirvių') || act.includes('KOMBO')) {
-          laneRow.style.display = 'flex';
-          laneEl.textContent = laneSelect ? laneSelect.value : '1 takelis';
-        } else {
-          laneRow.style.display = 'none';
-        }
-      }
-
-      const dishesRow = document.getElementById('ticketDishesRow');
-      const dishesEl = document.getElementById('ticketDishes');
-      const extraDishesSelect = document.getElementById('resExtraDishes');
-      if (dishesRow && dishesEl) {
-        if (act.includes('Kirvių mėtymas')) {
-          dishesRow.style.display = 'none';
-        } else {
-          dishesRow.style.display = 'flex';
-          const extraVal = extraDishesSelect ? parseInt(extraDishesSelect.value, 10) || 0 : 0;
-          dishesEl.textContent = extraVal > 0 ? `30 + ${extraVal} papildomų indų` : '30 indų (įskaičiuota)';
-        }
-      }
-
-      const dtEl = document.getElementById('ticketDateTime');
-      const dateTxt = document.getElementById('calSelectedText')?.textContent || '';
-      const timeVal = document.getElementById('resTime')?.value || '';
-      if (dtEl) {
-        if (timeVal && dateTxt && !dateTxt.includes('Kraunama')) {
-          dtEl.textContent = `${dateTxt}, ${timeVal} val.`;
-        } else if (dateTxt && !dateTxt.includes('Kraunama')) {
-          dtEl.textContent = `${dateTxt}`;
-        } else {
-          dtEl.textContent = 'Pasirinkite formoje';
-        }
-      }
-
-      const guestsEl = document.getElementById('ticketGuests');
-      const guestsSelect = document.getElementById('resCount');
-      if (guestsEl && guestsSelect) {
-        guestsEl.textContent = `${guestsSelect.value} asm.`;
-      }
-
-      const payMethodEl = document.getElementById('ticketPayMethod');
-      const payRadio = document.querySelector('input[name="resPay"]:checked');
-      if (payMethodEl && payRadio) {
-        payMethodEl.textContent = payRadio.value === 'cash' ? 'Kortele vietoje' : 'El. bankininkystė';
-      }
-
-      const calcPrice = document.getElementById('calcPrice');
-      const calcBreakdown = document.getElementById('calcBreakdown');
-      const ticketPrc = document.getElementById('ticketPriceDisplay');
-      const ticketBrk = document.getElementById('ticketBreakdownDisplay');
-      if (ticketPrc && calcPrice) ticketPrc.textContent = calcPrice.textContent;
-      if (ticketBrk && calcBreakdown) ticketBrk.textContent = calcBreakdown.textContent;
     }
 
     function setBookingActivity(name) {
@@ -3594,9 +3232,7 @@
       // Kiekvieną kartą pasirinkus dieną, sinchronizuojame naujausius užimtus laikus iš serverio
       fetchBookedSlots().then(() => {
         populateTimeSlots(selectedDate);
-        if (typeof syncTicket === 'function') syncTicket();
       });
-      if (typeof syncTicket === 'function') syncTicket();
     }
 
     let bookedSlotsData = {};
@@ -3865,7 +3501,6 @@
 
     function onTimeChange() {
       updateLaneAvailability();
-      if (typeof syncTicket === 'function') syncTicket();
     }
 
     function onLaneManualChange() {
@@ -3875,7 +3510,6 @@
         alert('Šis takelis pasirinktu laiku jau yra užimtas! Prašome pasirinkti kitą takelį.');
         updateLaneAvailability();
       }
-      if (typeof syncTicket === 'function') syncTicket();
     }
 
     /* -----------------------------------------------------------------
@@ -3946,7 +3580,6 @@
           if (pinBox) pinBox.style.display = 'none';
           if (submitBtn) submitBtn.textContent = 'Apmokėti ir patvirtinti rezervaciją ➔';
         }
-        if (typeof syncTicket === 'function') syncTicket();
       }
 
       payRadios.forEach(r => r.addEventListener('change', updatePayUI));
@@ -4371,6 +4004,295 @@
     });
     window.addEventListener('load', enforceReserveButtons);
     setTimeout(enforceReserveButtons, 500);
+  </script>
+
+  <!-- INTERAKTYVIŲ SKRAIDANČIŲ KIRVIŲ IR ŽIEŽIRBŲ VARIKLIS -->
+  <script>
+  (function initFlyingAxesEngine() {
+    const canvas = document.getElementById('heroAxesCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let mouse = { x: -2000, y: -2000 };
+    const slashes = [];
+
+    function resize() {
+      const parent = canvas.parentElement || document.body;
+      width = canvas.width = parent.offsetWidth;
+      height = canvas.height = parent.offsetHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 1. Skraidančių 3D kirvių generavimas
+    const axeCount = window.innerWidth < 768 ? 6 : 9;
+    const axes = [];
+
+    for (let i = 0; i < axeCount; i++) {
+      axes.push({
+        x: Math.random() * (width || 1200),
+        y: Math.random() * (height || 700),
+        z: 0.55 + Math.random() * 0.75, // gylio mastelis
+        vx: (Math.random() - 0.5) * 0.75,
+        vy: (Math.random() - 0.5) * 0.55,
+        rot: Math.random() * Math.PI * 2,
+        spinSpeed: (Math.random() - 0.5) * 0.03 + (Math.random() > 0.5 ? 0.016 : -0.016),
+        size: 26 + Math.random() * 14,
+        opacity: 0.35 + Math.random() * 0.45
+      });
+    }
+
+    // 2. Skraidančių kalvės žiežirbų ir kinetinių dalelių generavimas
+    const sparkCount = window.innerWidth < 768 ? 16 : 28;
+    const sparks = [];
+    for (let i = 0; i < sparkCount; i++) {
+      sparks.push({
+        x: Math.random() * (width || 1200),
+        y: Math.random() * (height || 700),
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -0.25 - Math.random() * 0.55,
+        size: 1 + Math.random() * 2.2,
+        alpha: 0.2 + Math.random() * 0.65,
+        color: Math.random() > 0.4 ? '#f59e0b' : (Math.random() > 0.5 ? '#e58e26' : '#fbbf24')
+      });
+    }
+
+    // Pelės sekimas interaktyviam paralaksui
+    const heroSection = canvas.parentElement;
+    if (heroSection) {
+      heroSection.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      });
+      heroSection.addEventListener('mouseleave', () => {
+        mouse.x = -2000;
+        mouse.y = -2000;
+      });
+
+      // Kirtimo / smūgio efektas paspaudus
+      heroSection.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        slashes.push({
+          x: clickX,
+          y: clickY,
+          angle: (Math.random() - 0.5) * 1.5,
+          length: 120 + Math.random() * 70,
+          life: 1.0,
+          sparks: Array.from({ length: 8 }, () => ({
+            x: clickX,
+            y: clickY,
+            vx: (Math.random() - 0.5) * 7,
+            vy: (Math.random() - 0.5) * 7,
+            size: 2 + Math.random() * 3,
+            life: 1.0
+          }))
+        });
+      });
+    }
+
+    // Autentiško rankų darbo kirvio piešimas (natūrali mediena, kaltas plienas, odiniai apvijimai ir ugnies atspindžiai)
+    function drawAxe(x, y, rot, size, scale, opacity) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = opacity;
+
+      // 1. Kotas (riešutmedžio / ąžuolo medienos faktūra)
+      ctx.beginPath();
+      ctx.moveTo(-3, -size * 0.72);
+      ctx.lineTo(3, -size * 0.72);
+      ctx.lineTo(4.5, size * 0.95);
+      ctx.quadraticCurveTo(0, size * 1.05, -4.5, size * 0.95);
+      ctx.closePath();
+      const woodGrad = ctx.createLinearGradient(-3, 0, 4.5, 0);
+      woodGrad.addColorStop(0, '#5a381e');
+      woodGrad.addColorStop(0.4, '#8b5a2b');
+      woodGrad.addColorStop(0.8, '#a26b38');
+      woodGrad.addColorStop(1, '#4a2c13');
+      ctx.fillStyle = woodGrad;
+      ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#2b1708';
+      ctx.stroke();
+
+      // 2. Odiniai taktiniai apvijimai (rankena)
+      ctx.strokeStyle = '#29180c';
+      ctx.lineWidth = 2.2;
+      for (let g = 0; g < 4; g++) {
+        ctx.beginPath();
+        ctx.moveTo(-3.5, size * 0.45 + g * 5.2);
+        ctx.lineTo(3.8, size * 0.45 + g * 5.2 + 2);
+        ctx.stroke();
+      }
+
+      // 3. Kalto plieno mova
+      ctx.fillStyle = '#1c1917';
+      ctx.fillRect(-5.5, -size * 0.76, 11, size * 0.2);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#78716c';
+      ctx.strokeRect(-5.5, -size * 0.76, 11, size * 0.2);
+
+      // 4. Kaltos geležtės ašmenys (išlenktas kirtis, anglinis plienas)
+      ctx.beginPath();
+      ctx.moveTo(-4.5, -size * 0.76);
+      ctx.lineTo(-size * 0.88, -size * 1.02);
+      ctx.quadraticCurveTo(-size * 1.25, -size * 0.62, -size * 0.9, -size * 0.2);
+      ctx.lineTo(-4.5, -size * 0.42);
+      ctx.closePath();
+
+      const bladeGrad = ctx.createLinearGradient(-size * 0.95, -size * 0.95, -4.5, -size * 0.35);
+      bladeGrad.addColorStop(0, '#e7e5e4');
+      bladeGrad.addColorStop(0.25, '#a8a29e');
+      bladeGrad.addColorStop(0.65, '#44403c');
+      bladeGrad.addColorStop(1, '#1c1917');
+      ctx.fillStyle = bladeGrad;
+      ctx.fill();
+      ctx.lineWidth = 1.3;
+      ctx.strokeStyle = '#d6d3d1';
+      ctx.stroke();
+
+      // 5. Užpakalinis kūjelis / atsvars
+      ctx.beginPath();
+      ctx.moveTo(5.5, -size * 0.74);
+      ctx.lineTo(size * 0.5, -size * 0.72);
+      ctx.lineTo(size * 0.5, -size * 0.5);
+      ctx.lineTo(5.5, -size * 0.48);
+      ctx.closePath();
+      ctx.fillStyle = '#292524';
+      ctx.fill();
+      ctx.strokeStyle = '#57534e';
+      ctx.stroke();
+
+      // 6. Aštrus ašmenų briaunos rėžis (ugnies ir šviesos atspindys)
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.88, -size * 1.02);
+      ctx.quadraticCurveTo(-size * 1.25, -size * 0.62, -size * 0.9, -size * 0.2);
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    let isVisible = true;
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(([entry]) => {
+        isVisible = entry.isIntersecting;
+      }, { threshold: 0.05 });
+      observer.observe(canvas);
+    }
+
+    function render() {
+      if (!isVisible || document.hidden) {
+        requestAnimationFrame(render);
+        return;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Žiežirbų dalelės
+      for (let s of sparks) {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.y < -15) { s.y = height + 15; s.x = Math.random() * width; }
+        if (s.x < -15) s.x = width + 15;
+        if (s.x > width + 15) s.x = -15;
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = s.alpha * 0.7;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 7;
+        ctx.fill();
+      }
+
+      // 2. Skraidantys kirviai
+      for (let a of axes) {
+        // Pelės gravitacija / atostūmis
+        if (mouse.x > -1000) {
+          const dx = mouse.x - a.x;
+          const dy = mouse.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 260 && dist > 5) {
+            const force = (260 - dist) / 260;
+            a.x -= (dx / dist) * force * 1.4;
+            a.y -= (dy / dist) * force * 1.4;
+          }
+        }
+
+        a.x += a.vx;
+        a.y += a.vy;
+        a.rot += a.spinSpeed;
+
+        const pad = 90;
+        if (a.x < -pad) a.x = width + pad;
+        if (a.x > width + pad) a.x = -pad;
+        if (a.y < -pad) a.y = height + pad;
+        if (a.y > height + pad) a.y = -pad;
+
+        drawAxe(a.x, a.y, a.rot, a.size, a.z, a.opacity);
+      }
+
+      // 3. Kirtimo / smūgio blyksniai
+      for (let i = slashes.length - 1; i >= 0; i--) {
+        const sl = slashes[i];
+        sl.life -= 0.045;
+        if (sl.life <= 0) {
+          slashes.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.translate(sl.x, sl.y);
+        ctx.rotate(sl.angle);
+        ctx.globalAlpha = sl.life;
+
+        ctx.beginPath();
+        ctx.moveTo(-sl.length * 0.5, 0);
+        ctx.quadraticCurveTo(0, -14 * sl.life, sl.length * 0.5, 0);
+        ctx.lineWidth = 4 * sl.life;
+        ctx.strokeStyle = '#e58e26';
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 18;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-sl.length * 0.4, 0);
+        ctx.quadraticCurveTo(0, -6 * sl.life, sl.length * 0.4, 0);
+        ctx.lineWidth = 1.6 * sl.life;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+        ctx.restore();
+
+        // Kirtimo kibirkštys (kalvės žiežirbos)
+        for (let sp of sl.sparks) {
+          sp.x += sp.vx;
+          sp.y += sp.vy;
+          sp.life -= 0.055;
+          if (sp.life > 0) {
+            ctx.beginPath();
+            ctx.arc(sp.x, sp.y, sp.size * sp.life, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.globalAlpha = sp.life;
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+          }
+        }
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+  })();
   </script>
 
 </body>
