@@ -77,7 +77,9 @@ if ($isCoupon) {
 
         $pdfAttachment = [];
         try {
-            $pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt);
+            $pdfBuyer = $coupon['buyer'] ?? '';
+            $pdfRecipient = $coupon['recipient'] ?? '';
+            $pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt, $pdfBuyer, $pdfRecipient);
             if (!empty($pdfContent)) {
                 $pdfAttachment = [
                     [

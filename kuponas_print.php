@@ -1,6 +1,6 @@
 <?php
-// kuponas_print.php - A4 formato ThrowHouse dovanų kuponas (spausdinimui ir PDF atsisiuntimui)
-// Švarus, modernus, profesionalus A4 dizainas be jokių helovyno motyvų.
+// kuponas_print.php - ThrowHouse dovanų kuponas (spausdinimui ir PDF atsisiuntimui)
+// Atvaizduoja ir generuoja oficialų Canva 2-jų pusių dovanų kupono formatą.
 header('Content-Type: text/html; charset=utf-8');
 
 $code = trim($_GET['code'] ?? '');
@@ -33,6 +33,8 @@ if (!$coupon) {
         'amount' => $amount,
         'created_at' => date('Y-m-d'),
         'expires_at' => date('Y-m-d', strtotime('+6 months')),
+        'buyer' => 'ThrowHouse',
+        'recipient' => '-',
         'status' => 'Aktyvus'
     ];
 }
@@ -40,12 +42,19 @@ if (!$coupon) {
 $cCode = htmlspecialchars($coupon['code'] ?? 'TH-KUP-0000');
 $cAmount = htmlspecialchars($coupon['amount'] ?? 50);
 $cExpires = htmlspecialchars($coupon['expires_at'] ?? date('Y-m-d', strtotime('+6 months')));
+$cDate = htmlspecialchars($coupon['created_at'] ?? date('Y-m-d'));
+$cBuyer = htmlspecialchars($coupon['buyer'] ?? '');
+$cBuyerClean = trim(preg_replace('/\s*\(.*?\)/', '', $cBuyer));
+if (empty($cBuyerClean)) $cBuyerClean = '-';
+$cRecipient = htmlspecialchars($coupon['recipient'] ?? '');
+if (empty($cRecipient)) $cRecipient = '-';
+
 $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
 
 // Tiesioginis PDF atsisiuntimas
 if (isset($_GET['download'])) {
     require_once __DIR__ . '/pdf_helper.php';
-    $pdf = generateThrowHouseCouponPdf($cCode, $cAmount, $cExpires);
+    $pdf = generateThrowHouseCouponPdf($cCode, $cAmount, $cExpires, $cBuyerClean, $cRecipient);
     $filename = "ThrowHouse_Kuponas_" . preg_replace('/[^A-Za-z0-9\-]/', '', $cCode) . ".pdf";
     header('Content-Type: application/pdf');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -64,14 +73,14 @@ if (isset($_GET['download'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700;800&family=Space+Grotesk:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       padding: 0;
-      background: #f1f5f9;
+      background: #0f1115;
       color: #0f172a;
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
@@ -81,12 +90,12 @@ if (isset($_GET['download'])) {
       -webkit-font-smoothing: antialiased;
     }
 
-    /* VIRŠUTINĖ VALDYMO JUOSTA (TIK EKRANE) */
+    /* VIRŠUTINĖ VALDYMO JUOSTA */
     .action-bar {
       width: 100%;
-      background: #0c0a09;
+      background: #181b20;
       border-bottom: 2px solid #e58e26;
-      padding: 0.85rem 1.75rem;
+      padding: 0.9rem 1.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -94,7 +103,7 @@ if (isset($_GET['download'])) {
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.45);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
     .action-btn {
@@ -103,20 +112,20 @@ if (isset($_GET['download'])) {
       font-weight: 800;
       font-size: 0.95rem;
       padding: 0.75rem 1.4rem;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid rgba(255, 237, 213, 0.25);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
-      box-shadow: 0 4px 12px rgba(229, 142, 38, 0.35);
+      box-shadow: 0 4px 14px rgba(229, 142, 38, 0.35);
       transition: all 0.2s ease;
     }
     .action-btn:hover {
       background: linear-gradient(135deg, #9a3412 0%, #d97706 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
     }
 
     .action-btn-secondary {
@@ -131,272 +140,209 @@ if (isset($_GET['download'])) {
     }
 
     .voucher-stage {
-      padding: 2.5rem 1rem;
+      padding: 2.5rem 1rem 4rem;
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 2rem;
       width: 100%;
+      max-width: 900px;
     }
 
-    /* ============================================================ */
-    /* ŠVARUS, MODERNAUS STILIAUS A4 KUPONAS (ŠVIESUS IR ELEGANTIŠKAS) */
-    /* ============================================================ */
-    .a4-voucher {
+    .notice-card {
       width: 100%;
-      max-width: 794px; /* Standartinis A4 plotis 96dpi (210mm) */
-      min-height: 1080px; /* Standartinis A4 aukštis (297mm) */
-      background: #ffffff;
-      color: #0f172a;
-      border: 3px solid #1e293b;
-      border-radius: 16px;
-      padding: 3.5rem 3.2rem;
+      background: #1e222b;
+      border: 1px solid rgba(229, 142, 38, 0.3);
+      border-left: 4px solid #e58e26;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      color: #e2e8f0;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* KUPONO TICKET DIZAINAS (Canva 210mm x 99mm) */
+    .ticket-card {
+      width: 100%;
+      max-width: 794px; /* Atitinka 210mm */
+      aspect-ratio: 210 / 99;
+      background: #f1ede2;
+      border-radius: 20px;
       position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+      display: flex;
+      color: #121619;
+      border: 2px solid #23272d;
+    }
+
+    /* Kairysis išlenktas juodas fonas */
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 130px;
+      background: #1b1e22;
+      border-top-right-radius: 120px;
+      border-bottom-right-radius: 120px;
+      z-index: 1;
+    }
+
+    /* Vidinis rėmelis */
+    .ticket-inner-border {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      border: 1.5px solid #243026;
+      border-radius: 16px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .ticket-content {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      padding: 1.4rem 2rem 1.2rem 8.5rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
     }
 
-    /* VIDINIS AKCENTO RĖMELIS */
-    .a4-voucher::before {
-      content: '';
-      position: absolute;
-      top: 14px; left: 14px; right: 14px; bottom: 14px;
-      border: 1.5px solid #e58e26;
-      border-radius: 12px;
-      pointer-events: none;
-    }
-
-    /* KAMPŲ AKCENTAI */
-    .corner-accent {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border-color: #e58e26;
-      border-style: solid;
-      pointer-events: none;
-    }
-    .corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
-    .corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
-    .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
-    .corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
-
-    /* 1. VIRŠŪNĖ: LOGO IR BRAND */
-    .v-top {
+    .t-header {
       text-align: center;
-      position: relative;
-      padding-bottom: 1.25rem;
-      border-bottom: 2px solid #f1f5f9;
     }
-    .v-logo {
+    .t-title {
       font-family: 'Oswald', sans-serif;
       font-size: 2.6rem;
       font-weight: 800;
-      letter-spacing: 2px;
-      margin: 0;
-      color: #0f172a;
-    }
-    .v-logo span { color: #e58e26; }
-    .v-sublogo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      color: #64748b;
-      font-weight: 700;
-      margin-top: 0.35rem;
-    }
-
-    /* 2. CENTRINĖ HERO DALIS: AIŠKIAI IR RYŠKIAI DOVANŲ KUPONAS IR SUMA */
-    .v-center-hero {
-      text-align: center;
-      padding: 2rem 1rem;
-      position: relative;
-    }
-
-    .v-badge {
-      display: inline-block;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 2.5px;
-      font-weight: 800;
-      color: #c2410c;
-      background: rgba(229, 142, 38, 0.12);
-      border: 1px solid rgba(229, 142, 38, 0.45);
-      padding: 0.4rem 1.4rem;
-      border-radius: 30px;
-      margin-bottom: 1rem;
-    }
-
-    /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: DOVANŲ KUPONAS */
-    .v-hero-title {
-      font-family: 'Oswald', sans-serif;
-      font-size: 3.8rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: #0f172a;
-      text-transform: uppercase;
-      margin: 0 0 0.5rem 0;
-      line-height: 1.05;
-    }
-
-    /* AIŠKIAI IR RYŠKIAI PER VIDURĮ: SUMA */
-    .v-hero-amount-wrap {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 1.25rem 0;
-      background: #fffbeb;
-      border: 3px solid #e58e26;
-      border-radius: 20px;
-      padding: 1.25rem 4rem;
-      box-shadow: 0 8px 24px rgba(229, 142, 38, 0.18);
-    }
-    .v-amount-lbl {
-      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #78350f;
-      font-weight: 800;
-    }
-    .v-hero-amount {
-      font-family: 'Oswald', sans-serif;
-      font-size: 5.2rem;
-      font-weight: 800;
-      color: #c2410c;
       line-height: 1;
-      margin: 0.25rem 0;
+      margin: 0;
+      color: #101416;
     }
-
-    /* UNIKALUS KODAS */
-    .v-code-container {
-      margin-top: 1rem;
-    }
-    .v-code-label {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: #64748b;
-      font-weight: 800;
-      margin-bottom: 0.4rem;
-    }
-    .v-code-val {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 3px;
-      color: #0f172a;
-      background: #f8fafc;
-      border: 2px dashed #e58e26;
-      padding: 0.6rem 1.6rem;
-      border-radius: 10px;
-      display: inline-block;
-    }
-
-    /* 3. PRAMOGŲ IR SĄLYGŲ BLOKAS */
-    .v-details-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 1.5rem 1.75rem;
-      margin: 1.5rem 0;
-      position: relative;
-    }
-
-    .v-activities-title {
+    .t-subtitle {
       font-size: 0.95rem;
-      font-weight: 800;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.75rem;
-      text-align: center;
-    }
-    .v-activities-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0.85rem;
-      margin-bottom: 1.25rem;
-    }
-    .act-badge {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 0.75rem 0.6rem;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #475569;
+      letter-spacing: 1.5px;
+      color: #2b3137;
+      margin-top: 2px;
       font-weight: 600;
     }
-    .act-badge strong {
-      color: #c2410c;
-      display: block;
-      font-size: 1rem;
-      margin-bottom: 3px;
-      font-weight: 800;
-    }
 
-    /* REZERVACIJA TIK ASMENIŠKAI */
-    .booking-warning-box {
-      background: #fffbeb;
-      border: 1px solid #fed7aa;
-      border-left: 5px solid #e58e26;
-      border-radius: 0 10px 10px 0;
-      padding: 1rem 1.25rem;
-      text-align: left;
-    }
-    .booking-warning-box strong {
-      color: #c2410c;
-      font-size: 0.95rem;
-      display: block;
-      margin-bottom: 0.35rem;
-    }
-    .booking-warning-box p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: #7c2d12;
-      line-height: 1.5;
-    }
-    .booking-warning-box .contact-highlight {
-      color: #0f172a;
-      font-weight: 800;
-      font-size: 0.95rem;
-    }
-
-    /* 4. APATINIAI REKVIZITAI */
-    .v-footer-grid {
-      border-top: 2px solid #f1f5f9;
-      padding-top: 1.25rem;
+    /* Laukelių tinklelis */
+    .t-fields-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1.3fr 1fr;
-      gap: 1.25rem;
-      font-size: 0.85rem;
-      color: #475569;
-      line-height: 1.5;
-      position: relative;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 2rem;
+      margin-top: 0.5rem;
     }
-    .f-col strong {
-      display: block;
-      color: #0f172a;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
+
+    .t-row {
+      display: flex;
+      align-items: baseline;
+      border-bottom: 1.5px solid #2b3137;
+      padding-bottom: 3px;
+    }
+    .t-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #1a1e22;
+      white-space: nowrap;
+      margin-right: 0.6rem;
+    }
+    .t-value {
       font-weight: 800;
+      color: #101416;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .t-value-amount {
+      font-size: 1.25rem;
+      color: #101416;
+      font-weight: 900;
+    }
+    .t-value-code {
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 1px;
     }
 
-    .v-legal-notes {
-      margin-top: 1.25rem;
+    .t-center-row {
+      grid-column: span 2;
+      display: flex;
+      align-items: baseline;
+      border-bottom: 1.5px solid #2b3137;
+      padding-bottom: 3px;
+      width: 70%;
+      margin: 0 auto;
+    }
+
+    .t-footer {
+      text-align: right;
+      font-size: 0.75rem;
+      color: #4b5563;
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+
+    /* GALINĖ PUSĖ (BACK COVER) */
+    .ticket-card-back {
+      background: linear-gradient(135deg, #ddd8cb 0%, #c8c2b3 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .ticket-card-back::before {
+      display: none;
+    }
+    .back-big-watermark {
+      position: absolute;
+      font-family: 'Oswald', sans-serif;
+      font-size: 11rem;
+      font-weight: 900;
+      color: rgba(18, 22, 25, 0.12);
+      transform: rotate(-15deg);
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .back-center-brand {
+      position: relative;
+      z-index: 3;
+      transform: rotate(-12deg);
       text-align: center;
-      font-size: 0.78rem;
-      color: #64748b;
-      line-height: 1.45;
-      border-top: 1px dashed #cbd5e1;
-      padding-top: 0.85rem;
     }
-    .v-legal-notes strong { color: #059669; }
+    .back-center-brand h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #121619;
+      margin: 0;
+    }
+    .back-center-brand span {
+      display: block;
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      font-weight: 700;
+      color: #3b434a;
+      margin-top: 4px;
+    }
 
-    /* ============================================================ */
-    /* STANDARTINIO A4 SPAUSDINIMO (PRINT / PDF) TAISYKLĖS */
-    /* ============================================================ */
+    /* SPAUSDINIMO TAISYKLĖS */
     @media print {
       body {
         background: #ffffff !important;
@@ -406,157 +352,140 @@ if (isset($_GET['download'])) {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      .no-print, .action-bar {
+      .no-print, .action-bar, .notice-card {
         display: none !important;
       }
       .voucher-stage {
         padding: 0 !important;
         margin: 0 !important;
-        width: 100% !important;
-      }
-      .a4-voucher {
-        width: 100% !important;
         max-width: 100% !important;
-        min-height: 275mm !important;
-        height: 275mm !important;
-        background: #ffffff !important;
-        color: #0f172a !important;
+        gap: 0 !important;
+      }
+      .ticket-card {
+        max-width: 210mm !important;
+        width: 210mm !important;
+        height: 99mm !important;
+        page-break-after: always !important;
         box-shadow: none !important;
-        border: 3px solid #1e293b !important;
-        border-radius: 12px !important;
-        page-break-inside: avoid !important;
-        page-break-after: avoid !important;
-        padding: 2.8rem 2.4rem !important;
+        border: 1px solid #111 !important;
+        margin: 0 auto !important;
       }
       @page {
-        size: A4 portrait;
-        margin: 10mm;
+        size: 210mm 99mm;
+        margin: 0;
       }
     }
 
-    @media (max-width: 700px) {
-      .a4-voucher { padding: 2rem 1.4rem; min-height: auto; }
-      .v-hero-title { font-size: 2.6rem; }
-      .v-hero-amount { font-size: 3.8rem; }
-      .v-hero-amount-wrap { padding: 1rem 2rem; }
-      .v-activities-list { grid-template-columns: 1fr; }
-      .v-footer-grid { grid-template-columns: 1fr; }
+    @media (max-width: 650px) {
+      .ticket-card {
+        aspect-ratio: auto;
+        min-height: 280px;
+      }
+      .ticket-card::before { width: 50px; }
+      .ticket-content { padding: 1.2rem 1.2rem 1.2rem 4.5rem; }
+      .t-title { font-size: 1.8rem; }
+      .t-fields-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+      .t-center-row { grid-column: span 1; width: 100%; }
       .action-bar { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- VIRŠUTINĖ JUOSTA (TIK EKRANE) -->
+  <!-- VIRŠUTINĖ JUOSTA -->
   <div class="action-bar no-print">
     <div>
-      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #e58e26;"><?= $cCode ?></span></div>
-      <div style="font-size: 0.78rem; color: #94a3b8;">Oficialus A4 formato dovanų sertifikatas · ThrowHouse Šiauliai</div>
+      <div style="font-weight: 800; font-size: 1.05rem; color: #fff;">
+        ThrowHouse Dovanų Kuponas: <span style="color: #e58e26;"><?= $cCode ?></span>
+      </div>
+      <div style="font-size: 0.78rem; color: #94a3b8;">
+        Oficialus Canva šablonas su automatiniu duomenų užpildymu
+      </div>
     </div>
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
       <a href="kuponas_print.php?code=<?= urlencode($cCode) ?>&download=1" class="action-btn">
-        📥 Atsisiųsti PDF failą
+        📥 Atsisiųsti PDF (oficialus šablonas)
       </a>
       <button onclick="window.print()" class="action-btn action-btn-secondary">
         🖨️ Spausdinti
       </button>
       <a href="index.html" class="action-btn action-btn-secondary">
-        🌐 Eiti į svetainę
+        🌐 ThrowHouse.lt
       </a>
     </div>
   </div>
 
   <div class="voucher-stage">
 
-    <!-- TIKRASIS A4 FORMATO KUPONAS -->
-    <div class="a4-voucher">
-      <div class="corner-accent corner-tl"></div>
-      <div class="corner-accent corner-tr"></div>
-      <div class="corner-accent corner-bl"></div>
-      <div class="corner-accent corner-br"></div>
-
-      <!-- 1. VIRŠUS: PREKĖS ŽENKLAS -->
-      <div class="v-top">
-        <h1 class="v-logo">THROW<span>HOUSE</span></h1>
-        <div class="v-sublogo">Šiauliai · Adrenalino ir Pramogų Erdvė</div>
-      </div>
-
-      <!-- 2. CENTRINĖ HERO DALIS: AIŠKIAI IR RYŠKIAI PER VIDURĮ DOVANŲ KUPONAS IR SUMA -->
-      <div class="v-center-hero">
-        <div class="v-badge">Oficialus Dovanų Sertifikatas</div>
-        
-        <!-- RYŠKIAI PER VIDURĮ -->
-        <div class="v-hero-title">DOVANŲ KUPONAS</div>
-
-        <!-- RYŠKI SUMA PER VIDURĮ -->
-        <div class="v-hero-amount-wrap">
-          <div class="v-amount-lbl">Kupono Vertė</div>
-          <div class="v-hero-amount"><?= $cAmount ?> €</div>
-        </div>
-
-        <div class="v-code-container">
-          <div class="v-code-label">Unikalus Registracijos Kodas</div>
-          <div class="v-code-val"><?= $cCode ?></div>
-        </div>
-      </div>
-
-      <!-- 3. PRAMOGŲ IR SĄLYGŲ BLOKAS -->
-      <div class="v-details-box">
-        <div class="v-activities-title">🎯 Šis kuponas galioja pasirinktai pramogai:</div>
-        <div class="v-activities-list">
-          <div class="act-badge">
-            <strong>Pykčio kambarys</strong>
-            1 val. streso iškrovos sesija
-          </div>
-          <div class="act-badge">
-            <strong>Kirvių mėtymas</strong>
-            1 val. taiklumo rungtys
-          </div>
-          <div class="act-badge">
-            <strong>KOMBO paketas</strong>
-            Abi pramogos kartu!
-          </div>
-        </div>
-
-        <!-- REZERVACIJA TIK ASMENIŠKAI -->
-        <div class="booking-warning-box">
-          <strong>⚠️ DĖMESIO – REZERVACIJA TIK ASMENIŠKAI SUSISIEKUS:</strong>
-          <p>
-            Su šiuo dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
-            Paskambinkite arba parašykite ir nurodykite kupono kodą <strong><?= $cCode ?></strong>:<br>
-            📞 Tel.: <span class="contact-highlight">+370 619 88009</span> &nbsp;&nbsp;|&nbsp;&nbsp;
-            ✉️ El. paštas: <span class="contact-highlight">info@throwhouse.lt</span>
-          </p>
-        </div>
-      </div>
-
-      <!-- 4. APATINIAI REKVIZITAI IR SAUGUMAS -->
+    <div class="notice-card no-print">
       <div>
-        <div class="v-footer-grid">
-          <div class="f-col">
-            <strong>📍 Kur mus rasti:</strong>
-            Pramonės g. 15, Šiauliai (2-as aukštas)<br>
-            Įėjimas pro duris „Floristika“
+        <strong>🎫 Kuponas paruoštas!</strong>
+        Šis dovanų kuponas yra užpildytas pagal oficialų ThrowHouse Canva 2-jų pusių šabloną. Galite bet kada atsisiųsti PDF failą arba atsispausdinti.
+      </div>
+      <div>
+        <a href="kuponas_print.php?code=<?= urlencode($cCode) ?>&download=1" style="color: #e58e26; font-weight: 700; text-decoration: underline;">
+          Atsisiųsti PDF &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- 1 PUSĖ: PRIEKINĖ KORTELĖ (FRONT) -->
+    <div class="ticket-card">
+      <div class="ticket-inner-border"></div>
+      <div class="ticket-content">
+        <div class="t-header">
+          <h1 class="t-title">DOVANŲ KUPONAS</h1>
+          <div class="t-subtitle">ThrowHouse ŠIAULIAI</div>
+        </div>
+
+        <div class="t-fields-grid">
+          <!-- Vertė -->
+          <div class="t-row">
+            <span class="t-label">Vertė:</span>
+            <span class="t-value t-value-amount"><?= $cAmount ?> €</span>
           </div>
-          <div class="f-col">
-            <strong>🕒 Rezervacijos kontaktai:</strong>
-            Tel. +370 619 88009<br>
-            El. p. info@throwhouse.lt
+
+          <!-- Kupono nr. -->
+          <div class="t-row">
+            <span class="t-label">Kupono nr.:</span>
+            <span class="t-value t-value-code"><?= $cCode ?></span>
           </div>
-          <div class="f-col">
-            <strong>📅 Galiojimo terminas:</strong>
-            Kuponas galioja 6 mėnesius<br>
-            (iki <strong><?= $cExpires ?></strong>)
+
+          <!-- Įsigijimo data -->
+          <div class="t-row">
+            <span class="t-label">Įsigijimo data:</span>
+            <span class="t-value"><?= $cDate ?></span>
+          </div>
+
+          <!-- Dovanoja -->
+          <div class="t-row">
+            <span class="t-label">Dovanoja:</span>
+            <span class="t-value"><?= $cBuyerClean ?></span>
+          </div>
+
+          <!-- Kam skirta -->
+          <div class="t-center-row">
+            <span class="t-label">Kam skirta:</span>
+            <span class="t-value"><?= $cRecipient ?></span>
           </div>
         </div>
 
-        <div class="v-legal-notes">
-          Saugumui užtikrinti visiems dalyviams <strong>būtina patogi, visiškai uždara avalynė</strong> (sportbačiai). Su atvira avalyne dalyvauti griežtai draudžiama.<br>
-          Kuponas į grynuosius pinigus nekeičiamas. „ThrowHouse Šiauliai“ © <?= date('Y') ?>
+        <div class="t-footer">
+          Kuponas galioja 6 mėnesius nuo įsigijimo datos
         </div>
       </div>
-
     </div>
+
+    <!-- 2 PUSĖ: GALINĖ PUSĖ (BACK COVER) -->
+    <div class="ticket-card ticket-card-back">
+      <div class="ticket-inner-border"></div>
+      <div class="back-big-watermark">THROW HOUSE</div>
+      <div class="back-center-brand">
+        <h2>THROW HOUSE</h2>
+        <span>ŠIAULIAI</span>
+      </div>
+    </div>
+
   </div>
 
   <?php if ($autoPrint): ?>

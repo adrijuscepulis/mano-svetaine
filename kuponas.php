@@ -156,7 +156,9 @@ if ($isOpayActive) {
 // =========================================================================
 $pdfAttachment = [];
 try {
-    $pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt);
+    $pdfBuyer = $buyerName ?: '';
+    $pdfRecipient = ($isDirectGift && $recipientName) ? $recipientName : $buyerName;
+    $pdfContent = generateThrowHouseCouponPdf($code, $amount, $expiresAt, $pdfBuyer, $pdfRecipient);
     if (!empty($pdfContent)) {
         $pdfAttachment = [
             [

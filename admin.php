@@ -510,7 +510,7 @@ if (!empty($_SESSION['admin_logged'])) {
 
         $pdfAttachment = [];
         try {
-            $pdfContent = generateThrowHouseCouponPdf($testCode, $amount, $expiresAt);
+            $pdfContent = generateThrowHouseCouponPdf($testCode, $amount, $expiresAt, $couponData['buyer'], $couponData['recipient']);
             if (!empty($pdfContent)) {
                 $pdfAttachment[] = [
                     'filename' => "ThrowHouse_Kuponas_{$testCode}.pdf",
