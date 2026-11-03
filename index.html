@@ -809,38 +809,43 @@
 
     /* REZERVACIJOS FORMA */
     .book-box {
-      display: grid;
-      grid-template-columns: 1fr 1.35fr;
-      gap: 3rem;
-      align-items: flex-start;
+      max-width: 860px;
+      margin: 0 auto;
       background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 3rem;
-    }
-
-    .book-info h3 { font-family: var(--font-head); font-size: 1.8rem; margin-bottom: 0.75rem; }
-    .book-info p { color: var(--text-gray); margin-bottom: 2rem; }
-
-    .info-list { display: flex; flex-direction: column; gap: 1.25rem; }
-    .info-item {
-      display: flex;
-      gap: 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 1rem 1.25rem;
+      border: 1.5px solid rgba(229, 142, 38, 0.35);
       border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
+      padding: 2.75rem 2.5rem;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.55);
+      position: relative;
     }
-
-    .info-icon { font-size: 1.5rem; }
-    .info-item strong { display: block; font-size: 0.95rem; color: #fff; }
-    .info-item span { font-size: 0.85rem; color: var(--text-gray); }
 
     .form-wrap {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 2rem;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .res-trust-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      text-align: center;
+    }
+    .res-trust-bar strong {
+      color: #fff;
     }
 
     .form-row { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
@@ -1357,9 +1362,6 @@
     @media (max-width: 992px) {
       .hero-h1 { font-size: 2.85rem; }
       .prices-row { grid-template-columns: repeat(2, 1fr); }
-      .book-box { grid-template-columns: 1fr; }
-      .book-info { border-right: none; border-bottom: 1px solid var(--border-color); padding: 2.25rem 2rem; }
-      .form-wrap { padding: 2.25rem 2rem; }
       .contact-row { grid-template-columns: 1fr; gap: 2rem; }
     }
 
@@ -1512,19 +1514,15 @@
 
       /* Rezervacijos forma */
       .book-box {
-        grid-template-columns: 1fr;
-        border-radius: 16px;
-        padding: 0;
-        gap: 0;
+        padding: 1.5rem 1.15rem;
+        border-radius: var(--radius-md);
       }
-      .book-info {
-        padding: 1.75rem 1.25rem;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-      }
-      .book-info h3 { font-size: 1.4rem; }
       .form-wrap {
-        padding: 1.75rem 1.25rem;
+        padding: 0;
+      }
+      .form-grid-3 {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
       }
       .act-options {
         grid-template-columns: 1fr;
@@ -2228,33 +2226,13 @@
   <!-- REZERVACIJA -->
   <section class="section" id="rezervacija">
     <div class="container">
+      <div class="section-head">
+        <span class="tag">Internetinė registracija</span>
+        <h2 class="title">Rezervuokite laiką internetu</h2>
+        <p class="subtitle">Pasirinkite pramogą, dieną bei patogią valandą. Akimirksniu patvirtinsime Jūsų rezervaciją!</p>
+      </div>
+
       <div class="book-box">
-        <div class="book-info">
-          <span class="tag">Internetinė registracija</span>
-          <h3>Rezervuokite laiką internetu</h3>
-          <p>Pasirinkite pramogą, dieną kalendoriuje bei valandą. Rezervacijos trukmė – 1 valanda (iki 4 asmenų).</p>
-
-          <div class="info-list">
-            <div class="info-item">
-              <span class="info-icon">🕒</span>
-              <div>
-                <strong>Darbo laikas:</strong>
-                <span style="display: block; font-size: 0.82rem; color: var(--muted); margin-top: 2px;">
-                  <strong style="color:#fff;">I–IV (Darbo dienomis):</strong> 16:00 – 22:00<br>
-                  <strong style="color:#fff;">V–VI:</strong> 09:00 – 24:00 | <strong style="color:#fff;">VII (Sekmadienis):</strong> 09:00 – 20:00
-                </span>
-              </div>
-            </div>
-            <div class="info-item">
-              <span class="info-icon">💳</span>
-              <div>
-                <strong>Apmokėjimas</strong>
-                <span>Apmokėkite internetu arba kortele atvykus vietoje.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="form-wrap">
           <!-- INFORMACINĖ AKCIJOS LENTELĖ -->
           <div id="promoNoticeBox" class="promo-notice-box" style="display: none;">
@@ -2271,7 +2249,7 @@
           <form id="resForm" onsubmit="submitReservation(event)">
             <!-- 1. PRAMOGA -->
             <div class="f-group">
-              <label class="f-label">1. Pasirinkite pramogą (1h trukmė):</label>
+              <label class="f-label">1. Pasirinkite pramogą (1 val. trukmė):</label>
               <div class="act-options">
                 <label class="act-opt">
                   <input type="radio" name="resActivity" value="Pykčio kambarys" checked onchange="onActivityChange()">
@@ -2379,20 +2357,22 @@
             </div>
 
             <!-- 4. KONTAKTAI -->
-            <div class="form-row">
-              <div class="form-col">
-                <label class="f-label" for="resName">Vardas ir Pavardė:</label>
-                <input type="text" id="resName" class="f-input" placeholder="Jūsų vardas" required>
-              </div>
-              <div class="form-col">
-                <label class="f-label" for="resPhone">Telefono numeris:</label>
-                <input type="tel" id="resPhone" class="f-input" placeholder="+370 6XX XXXXX" required>
-              </div>
-            </div>
-
             <div class="f-group">
-              <label class="f-label" for="resEmail">El. paštas patvirtinimui:</label>
-              <input type="email" id="resEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
+              <label class="f-label">4. Kontaktinė informacija patvirtinimui:</label>
+              <div class="form-grid-3">
+                <div>
+                  <label class="f-label" for="resName" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; margin-bottom: 0.35rem;">Vardas ir Pavardė *</label>
+                  <input type="text" id="resName" class="f-input" placeholder="Jūsų vardas" required>
+                </div>
+                <div>
+                  <label class="f-label" for="resPhone" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; margin-bottom: 0.35rem;">Telefono numeris *</label>
+                  <input type="tel" id="resPhone" class="f-input" placeholder="+370 6XX XXXXX" required>
+                </div>
+                <div>
+                  <label class="f-label" for="resEmail" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; margin-bottom: 0.35rem;">El. paštas *</label>
+                  <input type="email" id="resEmail" class="f-input" placeholder="vardas@pavyzdys.lt" required>
+                </div>
+              </div>
             </div>
 
             <!-- Saugumo patikra (Honeypot apsauga nuo botų - nematoma vartotojui) -->
@@ -2542,6 +2522,13 @@
             <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
               Apmokėti ir patvirtinti rezervaciją ➔
             </button>
+
+            <!-- PATIKIMUMO JUOSTA -->
+            <div class="res-trust-bar">
+              <span>⚡ <strong>Momentinis patvirtinimas</strong> el. paštu</span>
+              <span>🔒 <strong>Saugus atsiskaitymas</strong> (OPAY / kortele)</span>
+              <span>👕 <strong>Visa apsauginė apranga</strong> suteikiama vietoje</span>
+            </div>
           </form>
 
           <!-- SĖKMĖS PRANEŠIMAS SU ĮĖJIMO INSTRUKCIJA -->
