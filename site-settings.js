@@ -16,12 +16,17 @@
     const s = settings || window.SITE_SETTINGS || {};
     const sched = s.schedule || null;
 
+    // Pirmadienis–Ketvirtadienis (I–IV, dienos 1, 2, 3, 4) visada uždaryti (nedirbame)
+    if (dayOfWeek === '1' || dayOfWeek === '2' || dayOfWeek === '3' || dayOfWeek === '4') {
+      return { enabled: false, start: 0, end: 0, is_custom: false };
+    }
+
     if (sched && sched.custom_dates && sched.custom_dates[iso]) {
       const cd = sched.custom_dates[iso];
       return {
         enabled: cd.enabled !== false,
-        start: Number(cd.start ?? 16),
-        end: Number(cd.end ?? 22),
+        start: Number(cd.start ?? 9),
+        end: Number(cd.end ?? 24),
         is_custom: true
       };
     }
@@ -30,8 +35,8 @@
       const sd = sched.days[dayOfWeek];
       return {
         enabled: sd.enabled !== false,
-        start: Number(sd.start ?? 16),
-        end: Number(sd.end ?? 22),
+        start: Number(sd.start ?? 9),
+        end: Number(sd.end ?? (dayOfWeek === '0' ? 20 : 24)),
         is_custom: false
       };
     }
@@ -49,6 +54,24 @@
       }
       if (!res || !res.ok) return;
       const data = await res.json();
+
+      // Užtikriname, kad I–IV visada būtų išjungti ir nedirbame
+      if (data && data.schedule && data.schedule.days) {
+        ['1', '2', '3', '4'].forEach(d => {
+          if (data.schedule.days[d]) {
+            data.schedule.days[d].enabled = false;
+            data.schedule.days[d].start = 0;
+            data.schedule.days[d].end = 0;
+          }
+        });
+      }
+      if (data && data.hours) {
+        data.hours.workdays = 'Nedirbame';
+      }
+      if (data && data.promo) {
+        data.promo.enabled = false;
+      }
+
       window.SITE_SETTINGS = data;
       applySettings(data);
     } catch (e) {
@@ -98,6 +121,13 @@
       clearInterval(promoIntervalId);
       promoIntervalId = null;
     }
+
+    // Užtikriname, kad jokie laikmačiai nebūtų rodomi
+    const bTimer = document.getElementById('bannerCountdownTimer');
+    if (bTimer && bTimer.parentElement) bTimer.parentElement.remove();
+    const pTimer = document.getElementById('promoCountdownTimer');
+    if (pTimer && pTimer.parentElement) pTimer.parentElement.remove();
+    document.querySelectorAll('.promo-notice-timer-wrap').forEach(el => el.remove());
 
     const promoNotice = document.getElementById('promoNoticeBox');
     const actSmallRage = document.getElementById('actPriceRage');
@@ -395,20 +425,16 @@
   }
 
   function applyHours(h) {
-    if (!h) return;
-
-    // Bendra darbo laiko eilutė
-    const summaryStr = `I–IV: ${h.workdays || 'Nedirbame'} | V–VI: 09:00–24:00 | VII: ${h.sunday || '09:00–20:00'}`;
-
+    // Užtikriname, kad I–IV visada būtų griežtai Nedirbame
     document.querySelectorAll('[data-cms="hours_summary"]').forEach(el => {
-      el.innerHTML = `🕒 <strong>Darbo laikas:</strong> I–IV: ${h.workdays || 'Nedirbame'} | V–VI: 09:00–24:00 | VII: ${h.sunday || '09:00–20:00'}`;
+      el.innerHTML = `🕒 <strong>Darbo laikas:</strong> I–IV: Nedirbame | V–VI: 09:00–24:00 | VII: 09:00–20:00`;
     });
 
-    document.querySelectorAll('[data-cms="hours_workdays"]').forEach(el => el.textContent = h.workdays || 'Nedirbame');
-    document.querySelectorAll('[data-cms="hours_friday"]').forEach(el => el.textContent = h.friday || '09:00–24:00');
-    document.querySelectorAll('[data-cms="hours_saturday"]').forEach(el => el.textContent = h.saturday || '09:00–24:00');
-    document.querySelectorAll('[data-cms="hours_sunday"]').forEach(el => el.textContent = h.sunday || '09:00–20:00');
-    if (h.note) {
+    document.querySelectorAll('[data-cms="hours_workdays"]').forEach(el => el.textContent = 'Nedirbame');
+    document.querySelectorAll('[data-cms="hours_friday"]').forEach(el => el.textContent = (h && h.friday && !h.friday.includes('16:00')) ? h.friday : '09:00–24:00');
+    document.querySelectorAll('[data-cms="hours_saturday"]').forEach(el => el.textContent = (h && h.saturday) ? h.saturday : '09:00–24:00');
+    document.querySelectorAll('[data-cms="hours_sunday"]').forEach(el => el.textContent = (h && h.sunday) ? h.sunday : '09:00–20:00');
+    if (h && h.note) {
       document.querySelectorAll('[data-cms="hours_note"]').forEach(el => el.textContent = h.note);
     }
   }

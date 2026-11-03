@@ -198,7 +198,7 @@ function getDefaultSettings() {
             ],
             [
                 'q' => 'Koks yra jūsų darbo laikas ir kada galima apsilankyti?',
-                'a' => 'Dirbame darbo dienomis (I-IV: 16:00 - 22:00), penktadieniais ir šeštadieniais (09:00 - 24:00) ir sekmadieniais (09:00 - 20:00). Apsilankymui būtina išankstinė rezervacija internetu.'
+                'a' => 'Darbo dienomis (I–IV) nedirbame. Dirbame savaitgaliais: penktadieniais ir šeštadieniais (09:00 – 24:00) bei sekmadieniais (09:00 – 20:00). Apsilankymui būtina išankstinė rezervacija internetu.'
             ],
             [
                 'q' => 'Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?',
@@ -210,7 +210,7 @@ function getDefaultSettings() {
             ],
             [
                 'q' => 'Kaip veikia dovanų kuponai?',
-                'a' => 'Dovanų kuponą galite įsigyti tiesiogiai internetu, pasirinkę siuntimą sau arba tiesiai draugui su asmeniniu palinkėjimu. Kuponas galioja 6 mėnesius nuo pirkimo dienos.'
+                'a' => 'Dovanų kuponą galite patogiai įsigyti tiesiogiai internetu vos per 1 minutę per saugią OPAY sistemą – kuponas PDF formatu akimirksniu atsiunčiamas el. paštu ir galioja 6 mėnesius. Telefonu ar el. paštu kreipkitės tik jei reikalingas fizinis laminuotas kuponas arba PVM sąskaita-faktūra įmonei.'
             ]
         ]
     ];
@@ -750,8 +750,8 @@ if (!empty($_SESSION['admin_logged'])) {
         $settings['prices']['pricing_subtitle'] = trim($_POST['p_pricing_subtitle'] ?? '');
 
         // Darbo laikas
-        $settings['hours']['workdays'] = trim($_POST['h_workdays'] ?? 'I-IV: 16:00 - 22:00');
-        $settings['hours']['friday'] = trim($_POST['h_friday'] ?? '16:00 - 24:00');
+        $settings['hours']['workdays'] = trim($_POST['h_workdays'] ?? 'I–IV: Nedirbame');
+        $settings['hours']['friday'] = trim($_POST['h_friday'] ?? '09:00 - 24:00');
         $settings['hours']['saturday'] = trim($_POST['h_saturday'] ?? '09:00 - 24:00');
         $settings['hours']['sunday'] = trim($_POST['h_sunday'] ?? '09:00 - 20:00');
         $settings['hours']['note'] = trim($_POST['h_note'] ?? '');
@@ -2090,11 +2090,11 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                   <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Darbo dienomis (I–IV):</label>
-                  <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I-IV: 16:00 - 22:00') ?>" required style="margin-bottom: 0;">
+                  <input type="text" name="h_workdays" class="form-input" value="<?= htmlspecialchars($h['workdays'] ?? 'I–IV: Nedirbame') ?>" required style="margin-bottom: 0;">
                 </div>
                 <div>
                   <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Penktadieniais (V):</label>
-                  <input type="text" name="h_friday" class="form-input" value="<?= htmlspecialchars($h['friday'] ?? '16:00 - 24:00') ?>" required style="margin-bottom: 0;">
+                  <input type="text" name="h_friday" class="form-input" value="<?= htmlspecialchars($h['friday'] ?? '09:00 - 24:00') ?>" required style="margin-bottom: 0;">
                 </div>
                 <div>
                   <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Šeštadieniais (VI):</label>

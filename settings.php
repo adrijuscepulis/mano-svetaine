@@ -15,16 +15,85 @@ if (file_exists($file)) {
     $data = json_decode(@file_get_contents($file), true) ?: [];
 }
 
-// Jei nustatymai dar neužkrauti, naudojame numatytąjį promo
-if (empty($data['promo'])) {
-    $data['promo'] = [
+// 1. Griežtai išjungiame akcijos laikmatį (promo)
+if (!isset($data['promo']) || !is_array($data['promo'])) {
+    $data['promo'] = [];
+}
+$data['promo']['enabled'] = false;
+$data['promo']['apply_to_coupons'] = false;
+
+// 2. Darbo laikas: I–IV griežtai Nedirbame
+if (!isset($data['hours']) || !is_array($data['hours'])) {
+    $data['hours'] = [];
+}
+$data['hours']['workdays'] = 'Nedirbame';
+$data['hours']['friday'] = '09:00 - 24:00';
+$data['hours']['saturday'] = '09:00 - 24:00';
+$data['hours']['sunday'] = '09:00 - 20:00';
+
+// 3. Kalendoriaus grafikas: I–IV (dienos 1, 2, 3, 4) visada uždarytos (nedirbame)
+if (!isset($data['schedule']) || !is_array($data['schedule'])) {
+    $data['schedule'] = ['days' => []];
+}
+if (!isset($data['schedule']['days']) || !is_array($data['schedule']['days'])) {
+    $data['schedule']['days'] = [];
+}
+$dayNames = [
+    '1' => 'Pirmadienis',
+    '2' => 'Antradienis',
+    '3' => 'Trečiadienis',
+    '4' => 'Ketvirtadienis',
+    '5' => 'Penktadienis',
+    '6' => 'Šeštadienis',
+    '0' => 'Sekmadienis'
+];
+foreach (['1', '2', '3', '4'] as $d) {
+    $data['schedule']['days'][$d] = [
+        'name' => $dayNames[$d],
         'enabled' => false,
-        'discount' => 5,
-        'title' => '🔥 ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!',
-        'subtitle' => 'Šiuo metu atliekamoms rezervacijoms ir dovanų kuponams nuolaida pritaikoma automatiškai.',
-        'end_time' => '2026-10-30T22:45:00+02:00',
-        'apply_to_coupons' => false
+        'start' => 0,
+        'end' => 0
     ];
+}
+$data['schedule']['days']['5'] = ['name' => 'Penktadienis', 'enabled' => true, 'start' => 9, 'end' => 24];
+$data['schedule']['days']['6'] = ['name' => 'Šeštadienis', 'enabled' => true, 'start' => 9, 'end' => 24];
+$data['schedule']['days']['0'] = ['name' => 'Sekmadienis', 'enabled' => true, 'start' => 9, 'end' => 20];
+
+// 4. Socialiniai tinklai
+if (!isset($data['contacts']) || !is_array($data['contacts'])) {
+    $data['contacts'] = [];
+}
+$data['contacts']['facebook_url'] = 'https://www.facebook.com/p/ThrowHouse-%C5%A0iauliai-61594304310440/';
+$data['contacts']['instagram_url'] = 'https://www.instagram.com/throwhousesiauliai/';
+$data['contacts']['tiktok_url'] = 'https://www.tiktok.com/@throwhousesiauliai?is_from_webapp=1&sender_device=pc';
+
+// 5. D.U.K. (FAQ) atnaujinimas
+$data['faq'] = [
+    [
+        'q' => 'Kaip vyksta apsilankymas ir ką reikia turėti su savimi?',
+        'a' => 'Atvykite likus 5-10 min. iki savo rezervuoto laiko. Svarbiausia – patogi, visiškai uždara avalynė (sportbačiai). Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame nemokamai vietoje.'
+    ],
+    [
+        'q' => 'Koks yra jūsų darbo laikas ir kada galima apsilankyti?',
+        'a' => 'Darbo dienomis (I–IV) nedirbame. Dirbame savaitgaliais: penktadieniais ir šeštadieniais (09:00 – 24:00) bei sekmadieniais (09:00 – 20:00). Apsilankymui būtina išankstinė rezervacija internetu.'
+    ],
+    [
+        'q' => 'Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?',
+        'a' => 'Taip, saugumas yra mūsų didžiausias prioritetas. Prieš kiekvieną sesiją instruktorius praveda saugumo instruktažą, suteikiame sertifikuotas apsaugos priemones, o kirvių mėtymo takeliai yra atskirti specialiomis apsauginėmis zonomis.'
+    ],
+    [
+        'q' => 'Kiek žmonių gali dalyvauti vienu metu?',
+        'a' => 'Pykčio kambaryje vienu metu gali būti iki 4 asmenų. Prie vieno kirvių mėtymo takelio – iki 4 asmenų (turime 2 atskirus takelius, tad iš viso iki 8 asmenų vienu metu). Didesnėms grupėms ar šventėms kreipkitės individualiai!'
+    ],
+    [
+        'q' => 'Kaip veikia dovanų kuponai?',
+        'a' => 'Dovanų kuponą galite patogiai įsigyti tiesiogiai internetu vos per 1 minutę per saugią OPAY sistemą – kuponas PDF formatu akimirksniu atsiunčiamas el. paštu ir galioja 6 mėnesius. Telefonu ar el. paštu kreipkitės tik jei reikalingas fizinis laminuotas kuponas arba PVM sąskaita-faktūra įmonei.'
+    ]
+];
+
+// Atnaujiname ir išsaugome nustatymai_db.json serveryje, kad duomenų bazė visada būtų švari
+if (file_exists(__DIR__ . '/nustatymai_db.json')) {
+    @file_put_contents(__DIR__ . '/nustatymai_db.json', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 }
 
 echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
