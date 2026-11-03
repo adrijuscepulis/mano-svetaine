@@ -305,9 +305,9 @@
       actAxePrice.innerHTML = `Kaina: <strong>${p.axe_price} €</strong> <span class="capacity-badge">2 takeliai | Iki 4 asm.</span>`;
     }
     const actRageBtn = document.getElementById('btnActRage');
-    if (actRageBtn) actRageBtn.textContent = `Rezervuoti pyktį`;
+    if (actRageBtn) actRageBtn.textContent = `Rezervuoti`;
     const actAxeBtn = document.getElementById('btnActAxe');
-    if (actAxeBtn) actAxeBtn.textContent = `Rezervuoti taikinį`;
+    if (actAxeBtn) actAxeBtn.textContent = `Rezervuoti`;
 
     // Kuponų sumos
     const g30 = document.getElementById('giftCard30Price');
