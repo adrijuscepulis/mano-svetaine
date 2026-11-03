@@ -149,7 +149,7 @@ function getDefaultSettings() {
         'contacts' => [
             'phone' => '+370 619 88009',
             'phone_raw' => '+37061988009',
-            'email' => 'throwhousee@gmail.com',
+            'email' => 'info@throwhouse.lt',
             'address' => 'Pramonės g. 15, Šiauliai (2-as aukštas)',
             'coordinates' => '55.910730, 23.315700',
             'google_maps_url' => 'https://www.google.com/maps?q=55.910730,23.315700',
@@ -357,8 +357,10 @@ if (!empty($_SESSION['admin_logged'])) {
             $cancelSub = "Rezervacija atšaukta [{$updatedRes['id']}] – ThrowHouse Šiauliai";
             $sent = sendThrowHouseMail($updatedRes['email'], $cancelSub, $cancelHtml);
 
+            $emailCfg = loadEmailConfig();
+            $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
             $cancelAdminHtml = renderCancelledReservationAdminHtml($updatedRes);
-            sendThrowHouseMail('throwhousee@gmail.com', "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
+            sendThrowHouseMail($adminTarget, "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
 
             $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui į {$updatedRes['email']}." : " (El. pašto siuntimas klientui nepavyko – sukonfigūruokite SMTP skiltyje El. paštas).";
         }
@@ -708,8 +710,10 @@ if (!empty($_SESSION['admin_logged'])) {
                 $cancelSub = "Rezervacija atšaukta [{$updatedRes['id']}] – ThrowHouse Šiauliai";
                 $sent = sendThrowHouseMail($updatedRes['email'], $cancelSub, $cancelHtml);
 
+                $emailCfg = loadEmailConfig();
+                $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
                 $cancelAdminHtml = renderCancelledReservationAdminHtml($updatedRes);
-                sendThrowHouseMail('throwhousee@gmail.com', "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
+                sendThrowHouseMail($adminTarget, "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
 
                 $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui ({$updatedRes['email']})." : "";
             } elseif ($newDate !== $oldDate || $newTime !== $oldTime) {
@@ -718,8 +722,10 @@ if (!empty($_SESSION['admin_logged'])) {
                 $rescheduleSub = "Atnaujintas rezervacijos laikas [{$updatedRes['id']}] – ThrowHouse Šiauliai";
                 $sent = sendThrowHouseMail($updatedRes['email'], $rescheduleSub, $rescheduleHtml);
 
+                $emailCfg = loadEmailConfig();
+                $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
                 $rescheduleAdminHtml = renderRescheduledReservationAdminHtml($updatedRes, $oldDate, $oldTime);
-                sendThrowHouseMail('throwhousee@gmail.com', "🕒 Pakeistas rezervacijos laikas [{$updatedRes['id']}]: {$updatedRes['name']} ($newDate $newTime)", $rescheduleAdminHtml);
+                sendThrowHouseMail($adminTarget, "🕒 Pakeistas rezervacijos laikas [{$updatedRes['id']}]: {$updatedRes['name']} ($newDate $newTime)", $rescheduleAdminHtml);
 
                 $mailNotice = $sent ? " Pranešimas apie naują laiką išsiųstas klientui ({$updatedRes['email']})." : "";
             }
@@ -840,7 +846,7 @@ if (!empty($_SESSION['admin_logged'])) {
         if (isset($_POST['smtp_pass']) && trim($_POST['smtp_pass']) !== '') {
             $cfg['smtp_pass'] = trim($_POST['smtp_pass']);
         }
-        $cfg['admin_email'] = trim($_POST['admin_email'] ?? 'throwhousee@gmail.com');
+        $cfg['admin_email'] = trim($_POST['admin_email'] ?? 'info@throwhouse.lt');
         saveEmailConfig($cfg);
         $_SESSION['admin_flash'] = "El. pašto (SMTP) nustatymai sėkmingai išsaugoti!";
         header('Location: admin.php?tab=email');
@@ -867,7 +873,7 @@ if (!empty($_SESSION['admin_logged'])) {
     if (isset($_POST['action']) && $_POST['action'] === 'send_test_email') {
         require_once __DIR__ . '/email_helper.php';
         $cfg = loadEmailConfig();
-        $targetEmail = trim($_POST['test_email'] ?? $cfg['admin_email'] ?? 'throwhousee@gmail.com');
+        $targetEmail = trim($_POST['test_email'] ?? $cfg['admin_email'] ?? 'info@throwhouse.lt');
 
         $testHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif; background:#0b0f19; padding:20px; color:#fff;">
           <div style="max-width:550px; margin:0 auto; background:#18102a; border:2px solid #ff6a00; border-radius:12px; padding:25px; text-align:center;">
@@ -2136,7 +2142,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               </div>
               <div>
                 <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">El. pašto adresas:</label>
-                <input type="email" name="c_email" class="form-input" value="<?= htmlspecialchars($c['email'] ?? 'throwhousee@gmail.com') ?>" required style="margin-bottom: 0;">
+                <input type="email" name="c_email" class="form-input" value="<?= htmlspecialchars($c['email'] ?? 'info@throwhouse.lt') ?>" required style="margin-bottom: 0;">
               </div>
             </div>
 
@@ -2303,7 +2309,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
 
               <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem;">Administratoriaus el. paštas (gaus pranešimus):</label>
-                <input type="email" name="admin_email" class="form-input" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'throwhousee@gmail.com') ?>" required style="margin-bottom: 0;">
+                <input type="email" name="admin_email" class="form-input" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'info@throwhouse.lt') ?>" required style="margin-bottom: 0;">
               </div>
 
               <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
@@ -2336,7 +2342,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
 
             <form method="POST" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
               <input type="hidden" name="action" value="send_test_email">
-              <input type="email" name="test_email" class="form-input" style="flex: 1; min-width: 250px; margin-bottom: 0;" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'throwhousee@gmail.com') ?>" placeholder="Gavėjo el. paštas" required>
+              <input type="email" name="test_email" class="form-input" style="flex: 1; min-width: 250px; margin-bottom: 0;" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'info@throwhouse.lt') ?>" placeholder="Gavėjo el. paštas" required>
               <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem;">
                 🚀 Siųsti bandomąjį laišką
               </button>

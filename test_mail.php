@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (isset($_POST['smtp_pass']) && trim($_POST['smtp_pass']) !== '') {
             $cfg['smtp_pass'] = trim($_POST['smtp_pass']);
         }
-        $cfg['admin_email'] = trim($_POST['admin_email'] ?? 'throwhousee@gmail.com');
+        $cfg['admin_email'] = trim($_POST['admin_email'] ?? 'info@throwhouse.lt');
         saveEmailConfig($cfg);
         $resultMsg = "Nustatymai sėkmingai išsaugoti!";
         $resultType = 'success';
     } elseif ($_POST['action'] === 'send_test') {
-        $testTo = trim($_POST['test_to'] ?? $cfg['admin_email'] ?? 'throwhousee@gmail.com');
+        $testTo = trim($_POST['test_to'] ?? $cfg['admin_email'] ?? 'info@throwhouse.lt');
         $subject = "Bandomasis laiškas iš ThrowHouse Šiauliai (" . date('H:i:s') . ")";
         
         $testHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif; background:#0b0f19; padding:20px; color:#fff;">

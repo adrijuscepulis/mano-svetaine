@@ -174,19 +174,21 @@ try {
 $targetEmail = ($isDirectGift && $recipientEmail) ? $recipientEmail : $buyerEmail;
 $subVoucher = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$code] ($amount €)";
 $voucherHtml = renderVoucherHtml($coupon);
-sendThrowHouseMail($targetEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
+sendThrowHouseMail($targetEmail, $subVoucher, $voucherHtml, 'info@throwhouse.lt', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
 
 // 2. Jei siuntė draugui, pirkėjas gauna pirkimo kvitą
 if ($isDirectGift && $recipientEmail && strcasecmp($buyerEmail, $recipientEmail) !== 0) {
     $subReceipt = "Dovanų kupono pirkimo patvirtinimas [$code] - ThrowHouse Šiauliai";
     $receiptHtml = renderVoucherBuyerReceiptHtml($coupon);
-    sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'throwhousee@gmail.com', 'ThrowHouse Kuponai');
+    sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'info@throwhouse.lt', 'ThrowHouse Kuponai');
 }
 
 // 3. Pranešimas administratoriui
+$emailCfg = loadEmailConfig();
+$adminEmail = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
 $subAdmin = "🎁 Naujas dovanų kuponas [$code] ($amount €) - $buyerName";
 $adminHtml = renderVoucherAdminHtml($coupon);
-sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail, 'ThrowHouse Kuponai', $pdfAttachment);
+sendThrowHouseMail($adminEmail, $subAdmin, $adminHtml, $buyerEmail, 'ThrowHouse Kuponai', $pdfAttachment);
 
 echo json_encode([
     'success' => true,

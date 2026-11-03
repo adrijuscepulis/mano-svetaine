@@ -525,7 +525,7 @@ if (isset($_GET['download'])) {
             Su šiuo dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
             Paskambinkite arba parašykite ir nurodykite kupono kodą <strong><?= $cCode ?></strong>:<br>
             📞 Tel.: <span class="contact-highlight">+370 619 88009</span> &nbsp;&nbsp;|&nbsp;&nbsp;
-            ✉️ El. paštas: <span class="contact-highlight">throwhousee@gmail.com</span>
+            ✉️ El. paštas: <span class="contact-highlight">info@throwhouse.lt</span>
           </p>
         </div>
       </div>
@@ -541,7 +541,7 @@ if (isset($_GET['download'])) {
           <div class="f-col">
             <strong>🕒 Rezervacijos kontaktai:</strong>
             Tel. +370 619 88009<br>
-            El. p. throwhousee@gmail.com
+            El. p. info@throwhouse.lt
           </div>
           <div class="f-col">
             <strong>📅 Galiojimo terminas:</strong>

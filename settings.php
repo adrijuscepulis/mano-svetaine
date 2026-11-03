@@ -63,6 +63,7 @@ $data['schedule']['days']['0'] = ['name' => 'Sekmadienis', 'enabled' => true, 's
 if (!isset($data['contacts']) || !is_array($data['contacts'])) {
     $data['contacts'] = [];
 }
+$data['contacts']['email'] = 'info@throwhouse.lt';
 $data['contacts']['facebook_url'] = 'https://www.facebook.com/p/ThrowHouse-%C5%A0iauliai-61594304310440/';
 $data['contacts']['instagram_url'] = 'https://www.instagram.com/throwhousesiauliai/';
 $data['contacts']['tiktok_url'] = 'https://www.tiktok.com/@throwhousesiauliai?is_from_webapp=1&sender_device=pc';

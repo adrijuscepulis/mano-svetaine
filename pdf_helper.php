@@ -106,7 +106,7 @@ function generateThrowHouseCouponPdf($code, $amount, $expiresAt) {
     $stream .= $put('F2', 10.5, 0.02, 0.588, 0.412, 72, 276, 'DEMESIO - REZERVACIJA TIK ASMENISKAI SUSISIEKUS:');
     $stream .= $put('F1', 9.2, 0.2, 0.25, 0.3, 72, 258, 'Su dovanu kuponu apsilankymo laikas derinamas TIK is anksto asmeniskai.');
     $stream .= $put('F1', 9.2, 0.2, 0.25, 0.3, 72, 242, 'Paskambinkite arba parasykite ir nurodykite kupono koda ' . $safeCode . ':');
-    $stream .= $put('F2', 10.5, 0.08, 0.12, 0.2, 72, 224, 'Tel.: +370 619 88009     |     El. pastas: throwhousee@gmail.com');
+    $stream .= $put('F2', 10.5, 0.08, 0.12, 0.2, 72, 224, 'Tel.: +370 619 88009     |     El. pastas: info@throwhouse.lt');
 
     // 9. Apatiniai rekvizitai
     $stream .= "0.88 0.90 0.94 RG 1.0 w 55 192 m 540 192 l S\n";
@@ -119,7 +119,7 @@ function generateThrowHouseCouponPdf($code, $amount, $expiresAt) {
     // Stulpelis 2: Kontaktai
     $stream .= $put('F2', 9, 0.12, 0.16, 0.23, 240, 175, 'KONTAKTAI:');
     $stream .= $put('F1', 8.5, 0.35, 0.4, 0.48, 240, 160, '+370 619 88009');
-    $stream .= $put('F1', 8.5, 0.35, 0.4, 0.48, 240, 147, 'throwhousee@gmail.com');
+    $stream .= $put('F1', 8.5, 0.35, 0.4, 0.48, 240, 147, 'info@throwhouse.lt');
 
     // Stulpelis 3: Galiojimas
     $stream .= $put('F2', 9, 0.12, 0.16, 0.23, 415, 175, 'GALIOJIMAS:');

@@ -108,7 +108,9 @@ $adminHtmlBody = '<!DOCTYPE html>
 require_once __DIR__ . '/email_helper.php';
 
 // 1. Siunčiame administratoriui per PHP mail()
-$adminSent = sendThrowHouseMail('throwhousee@gmail.com', $emailSubject, $adminHtmlBody, $email, 'ThrowHouse Kontaktai');
+$emailCfg = loadEmailConfig();
+$adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
+$adminSent = sendThrowHouseMail($adminTarget, $emailSubject, $adminHtmlBody, $email, 'ThrowHouse Kontaktai');
 
 // 2. Patvirtinimo laiškas klientui
 $clientSub = "Gavome Jūsų užklausą – ThrowHouse Šiauliai";
@@ -142,7 +144,7 @@ $clientHtml = '<!DOCTYPE html>
 </body>
 </html>';
 
-$clientSent = sendThrowHouseMail($email, $clientSub, $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+$clientSent = sendThrowHouseMail($email, $clientSub, $clientHtml, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
 
 // Žurnalas diagnostikai
 $logEntry = date('Y-m-d H:i:s') . " | Kontaktai: $subject | $name ($email, $phone) | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";

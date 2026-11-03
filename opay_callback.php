@@ -121,19 +121,21 @@ if (strpos($orderNr, 'TH-KUP-') === 0) {
         // 1. Kupono laiškas gavėjui su prisegtu PDF
         $subVoucher = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$code] ($amount €)";
         $voucherHtml = renderVoucherHtml($coupon);
-        sendThrowHouseMail($recipientEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
+        sendThrowHouseMail($recipientEmail, $subVoucher, $voucherHtml, 'info@throwhouse.lt', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
 
         // 2. Jei pirkėjas pirko draugui (skirtingas el. paštas), siunčiame pirkimo patvirtinimo kvitą pirkėjui
         if (!empty($buyerEmail) && strcasecmp($buyerEmail, $recipientEmail) !== 0) {
             $subReceipt = "Dovanų kupono pirkimo patvirtinimas [$code] - ThrowHouse Šiauliai";
             $receiptHtml = renderVoucherBuyerReceiptHtml($coupon);
-            sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'throwhousee@gmail.com', 'ThrowHouse Kuponai');
+            sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'info@throwhouse.lt', 'ThrowHouse Kuponai');
         }
 
         // 3. Pranešimas administratoriui su prisegtu PDF
+        $emailCfg = loadEmailConfig();
+        $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
         $subAdmin = "🎁 Naujas APMOKĖTAS dovanų kuponas per OPAY [$code] ($amount €)";
         $adminHtml = renderVoucherAdminHtml($coupon);
-        sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Kuponai', $pdfAttachment);
+        sendThrowHouseMail($adminTarget, $subAdmin, $adminHtml, $buyerEmail ?: 'info@throwhouse.lt', 'ThrowHouse Kuponai', $pdfAttachment);
 
         @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | SĖKMĖ: Kuponas $orderNr apmokėtas per OPAY (TransID: $transId)\n", FILE_APPEND);
         echo "OK";
@@ -200,13 +202,15 @@ if ($status === '1') {
     if ($clientEmail) {
         $clientHtml = renderNewReservationClientHtml($reservation);
         $clientSubject = "Jūsų rezervacija ThrowHouse Šiauliai [$orderNr] - Apmokėta";
-        sendThrowHouseMail($clientEmail, $clientSubject, $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+        sendThrowHouseMail($clientEmail, $clientSubject, $clientHtml, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
     }
 
     // 2. Siunčiame informacinį HTML laišką administratoriui
+    $emailCfg = loadEmailConfig();
+    $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
     $adminHtml = renderNewReservationAdminHtml($reservation);
     $adminSubject = "💳 Naujas APMOKĖTAS užsakymas per OPAY [$orderNr]: " . ($reservation['name'] ?? '') . " (" . ($reservation['date'] ?? '') . " " . ($reservation['time'] ?? '') . ")";
-    sendThrowHouseMail('throwhousee@gmail.com', $adminSubject, $adminHtml, $clientEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Rezervacijos');
+    sendThrowHouseMail($adminTarget, $adminSubject, $adminHtml, $clientEmail ?: 'info@throwhouse.lt', 'ThrowHouse Rezervacijos');
 
     @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | SĖKMĖ: Užsakymas $orderNr patvirtintas ir apmokėtas per OPAY (TransID: $transId)\n", FILE_APPEND);
 

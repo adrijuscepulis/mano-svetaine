@@ -91,17 +91,19 @@ if ($isCoupon) {
 
         $subVoucher = "Jūsų ThrowHouse Šiauliai dovanų kuponas [$code] ($amount €)";
         $voucherHtml = renderVoucherHtml($coupon);
-        sendThrowHouseMail($recipientEmail, $subVoucher, $voucherHtml, 'throwhousee@gmail.com', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
+        sendThrowHouseMail($recipientEmail, $subVoucher, $voucherHtml, 'info@throwhouse.lt', 'ThrowHouse Dovanų Kuponai', $pdfAttachment);
 
         if (!empty($buyerEmail) && strcasecmp($buyerEmail, $recipientEmail) !== 0) {
             $subReceipt = "Dovanų kupono pirkimo patvirtinimas [$code] - ThrowHouse Šiauliai";
             $receiptHtml = renderVoucherBuyerReceiptHtml($coupon);
-            sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'throwhousee@gmail.com', 'ThrowHouse Kuponai');
+            sendThrowHouseMail($buyerEmail, $subReceipt, $receiptHtml, 'info@throwhouse.lt', 'ThrowHouse Kuponai');
         }
 
+        $emailCfg = loadEmailConfig();
+        $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
         $subAdmin = "🎁 Naujas APMOKĖTAS dovanų kuponas per OPAY [$code] ($amount €)";
         $adminHtml = renderVoucherAdminHtml($coupon);
-        sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtml, $buyerEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Kuponai', $pdfAttachment);
+        sendThrowHouseMail($adminTarget, $subAdmin, $adminHtml, $buyerEmail ?: 'info@throwhouse.lt', 'ThrowHouse Kuponai', $pdfAttachment);
     }
 
     if ($coupon && strpos($coupon['status'] ?? '', 'Aktyvus') !== false) {
@@ -144,10 +146,12 @@ if ($isCoupon) {
         $clientEmail = $reservation['email'] ?? '';
         if ($clientEmail) {
             $clientHtml = renderNewReservationClientHtml($reservation);
-            sendThrowHouseMail($clientEmail, "Jūsų rezervacija ThrowHouse Šiauliai [$orderNr] - Apmokėta", $clientHtml, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+            sendThrowHouseMail($clientEmail, "Jūsų rezervacija ThrowHouse Šiauliai [$orderNr] - Apmokėta", $clientHtml, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
         }
+        $emailCfg = loadEmailConfig();
+        $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
         $adminHtml = renderNewReservationAdminHtml($reservation);
-        sendThrowHouseMail('throwhousee@gmail.com', "💳 Naujas APMOKĖTAS užsakymas per OPAY [$orderNr]: " . ($reservation['name'] ?? ''), $adminHtml, $clientEmail ?: 'throwhousee@gmail.com', 'ThrowHouse Rezervacijos');
+        sendThrowHouseMail($adminTarget, "💳 Naujas APMOKĖTAS užsakymas per OPAY [$orderNr]: " . ($reservation['name'] ?? ''), $adminHtml, $clientEmail ?: 'info@throwhouse.lt', 'ThrowHouse Rezervacijos');
     }
 
     // Jei rezervacija jau anksčiau buvo patvirtinta
@@ -373,7 +377,7 @@ if ($isCoupon) {
         </div>
 
         <div class="notice">
-          Su šiuo dovanų kuponu apsilankymo laikas derinamas asmeniškai tel. +370 619 88009 arba el. paštu throwhousee@gmail.com nurodant kupono kodą.
+          Su šiuo dovanų kuponu apsilankymo laikas derinamas asmeniškai tel. +370 619 88009 arba el. paštu info@throwhouse.lt nurodant kupono kodą.
         </div>
 
       <?php else: ?>
@@ -434,7 +438,7 @@ if ($isCoupon) {
       </div>
 
       <div class="notice">
-        Jeigu iš Jūsų sąskaitos pinigai buvo nuskaičiuoti, maloniai prašome nedelsiant susisiekti tel. +370 619 88009 arba el. paštu throwhousee@gmail.com ir mes rankiniu būdu patvirtinsime Jūsų užsakymą.
+        Jeigu iš Jūsų sąskaitos pinigai buvo nuskaičiuoti, maloniai prašome nedelsiant susisiekti tel. +370 619 88009 arba el. paštu info@throwhouse.lt ir mes rankiniu būdu patvirtinsime Jūsų užsakymą.
       </div>
     <?php endif; ?>
   </div>

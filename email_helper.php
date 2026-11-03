@@ -20,7 +20,7 @@ function loadEmailConfig() {
         'smtp_port' => 465,
         'smtp_user' => 'throwhousee@gmail.com',
         'smtp_pass' => '',
-        'admin_email' => 'throwhousee@gmail.com'
+        'admin_email' => 'info@throwhouse.lt'
     ];
 
     $gitData = file_exists($configFile) ? (json_decode(@file_get_contents($configFile), true) ?: []) : [];
@@ -223,7 +223,7 @@ function sendSmtpMail($host, $port, $user, $pass, $to, $subject, $htmlBody, $fro
 /**
  * Pagrindinė funkcija: siunčia el. laišką per SMTP (arba per PHP mail)
  */
-function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'throwhousee@gmail.com', $fromName = 'ThrowHouse Šiauliai', $attachments = []) {
+function sendThrowHouseMail($to, $subject, $htmlBody, $replyTo = 'info@throwhouse.lt', $fromName = 'ThrowHouse Šiauliai', $attachments = []) {
     if (empty($to) || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
@@ -486,7 +486,7 @@ function renderNewReservationClientHtml($res) {
       <div style="margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
         <strong>Kilus bet kokiems klausimams:</strong><br>
         📞 Tel.: <a href="tel:+37061988009" style="color: #059669; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
-        ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #059669; text-decoration:none;">throwhousee@gmail.com</a>
+        ✉️ El. paštas: <a href="mailto:info@throwhouse.lt" style="color: #059669; text-decoration:none;">info@throwhouse.lt</a>
       </div>
     </div>
 
@@ -659,7 +659,7 @@ function renderCancelledReservationClientHtml($res) {
       <div style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
         <strong>Turite klausimų ar norite pasikonsultuoti?</strong><br>
         📞 Tel.: <a href="tel:+37061988009" style="color: #059669; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
-        ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #059669; text-decoration:none;">throwhousee@gmail.com</a>
+        ✉️ El. paštas: <a href="mailto:info@throwhouse.lt" style="color: #059669; text-decoration:none;">info@throwhouse.lt</a>
       </div>
     </div>
 
@@ -786,7 +786,7 @@ function renderRescheduledReservationClientHtml($res, $oldDate = '', $oldTime = 
       <div style="margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 14px;">
         <strong>Kilus klausimams dėl laiko ar pakeitimų:</strong><br>
         📞 Tel.: <a href="tel:+37061988009" style="color: #059669; font-weight: 700; text-decoration:none;">+370 619 88009</a><br>
-        ✉️ El. paštas: <a href="mailto:throwhousee@gmail.com" style="color: #059669; text-decoration:none;">throwhousee@gmail.com</a>
+        ✉️ El. paštas: <a href="mailto:info@throwhouse.lt" style="color: #059669; text-decoration:none;">info@throwhouse.lt</a>
       </div>
     </div>
 
@@ -878,7 +878,7 @@ function renderVoucherHtml($coupon) {
           Su šiuo dovanų kuponu apsilankymo laikas derinamas <strong>TIK asmeniškai susisiekus</strong> iš anksto.<br>
           Paskambinkite arba parašykite ir nurodykite kupono kodą <strong>' . $code . '</strong>:<br>
           📞 Tel.: <a href="tel:+37061988009" style="color: #059669; font-weight: bold; text-decoration: none;">+370 619 88009</a><br>
-          ✉️ El. paštu: <a href="mailto:throwhousee@gmail.com" style="color: #059669; font-weight: bold; text-decoration: none;">throwhousee@gmail.com</a>
+          ✉️ El. paštu: <a href="mailto:info@throwhouse.lt" style="color: #059669; font-weight: bold; text-decoration: none;">info@throwhouse.lt</a>
         </p>
       </div>
 
@@ -931,7 +931,7 @@ function renderVoucherBuyerReceiptHtml($coupon) {
       </div>
 
       <p style="font-size: 14px; color: #64748b;">
-        Kilus bet kokiems klausimams, susisiekite su mumis: tel. +370 619 88009 arba el. p. throwhousee@gmail.com.
+        Kilus bet kokiems klausimams, susisiekite su mumis: tel. +370 619 88009 arba el. p. info@throwhouse.lt.
       </p>
     </div>
     <div style="background-color: #f1f5f9; padding: 14px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">

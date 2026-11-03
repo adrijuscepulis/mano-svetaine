@@ -513,7 +513,7 @@ if (isset($input['action']) && $input['action'] === 'request_pin') {
     require_once __DIR__ . '/email_helper.php';
     $htmlBody = renderPinCodeEmailHtml($name, $pin);
     $sub = "ThrowHouse patvirtinimo PIN kodas: $pin";
-    $sent = sendThrowHouseMail($email, $sub, $htmlBody, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+    $sent = sendThrowHouseMail($email, $sub, $htmlBody, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
 
     if ($sent) {
         echo json_encode([
@@ -863,15 +863,18 @@ saveAllReservations($dataFile, $dataDbFile, $all);
 
 // 1. Jei pasirinktas apmokėjimas grynaisiais vietoje:
 if ($isCash) {
+    $emailCfg = loadEmailConfig();
+    $adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
+
     // 1. Laiškas klientui
     $clientHtmlBody = renderNewReservationClientHtml($reservation);
     $subClient = "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]";
-    $clientSent = sendThrowHouseMail($email, $subClient, $clientHtmlBody, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+    $clientSent = sendThrowHouseMail($email, $subClient, $clientHtmlBody, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
 
     // 2. Laiškas administratoriui su tiesioginio skambučio mygtukais ir perspėjimu
     $adminHtmlBody = renderNewReservationAdminHtml($reservation);
     $subAdmin = "🎯 Nauja ThrowHouse rezervacija (MOKĖS VIETOJE) [$reservationId]: $name ($date $time)";
-    $adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtmlBody, $email, 'ThrowHouse Rezervacijos');
+    $adminSent = sendThrowHouseMail($adminTarget, $subAdmin, $adminHtmlBody, $email, 'ThrowHouse Rezervacijos');
 
     // Žurnalas diagnostikai
     $logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | CASH | Vardas: $name | Tel: $phone | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
@@ -932,15 +935,18 @@ if ($isOpayActive) {
 // -------------------------------------------------------------
 // 4. Standartinis tiesioginis patvirtinimas (kai OPAY išjungtas)
 // -------------------------------------------------------------
+$emailCfg = loadEmailConfig();
+$adminTarget = !empty($emailCfg['admin_email']) ? $emailCfg['admin_email'] : 'info@throwhouse.lt';
+
 // 1. Reprezentatyvus HTML laiškas klientui
 $clientHtmlBody = renderNewReservationClientHtml($reservation);
 $subClient = "Jūsų rezervacija ThrowHouse Šiauliai [$reservationId]";
-$clientSent = sendThrowHouseMail($email, $subClient, $clientHtmlBody, 'throwhousee@gmail.com', 'ThrowHouse Šiauliai');
+$clientSent = sendThrowHouseMail($email, $subClient, $clientHtmlBody, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
 
 // 2. Reprezentatyvus HTML laiškas administratoriui su tiesioginio skambučio mygtukais
 $adminHtmlBody = renderNewReservationAdminHtml($reservation);
 $subAdmin = "🎯 Nauja ThrowHouse rezervacija [$reservationId]: $name ($date $time)";
-$adminSent = sendThrowHouseMail('throwhousee@gmail.com', $subAdmin, $adminHtmlBody, $email, 'ThrowHouse Rezervacijos');
+$adminSent = sendThrowHouseMail($adminTarget, $subAdmin, $adminHtmlBody, $email, 'ThrowHouse Rezervacijos');
 
 // Žurnalas diagnostikai
 $logEntry = date('Y-m-d H:i:s') . " | ID: $reservationId | Vardas: $name | Data: $isoDate $time | AdminMail: " . ($adminSent ? 'OK' : 'FAIL') . " | ClientMail: " . ($clientSent ? 'OK' : 'FAIL') . "\n";
