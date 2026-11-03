@@ -84,8 +84,8 @@ if (isset($_GET['download'])) {
     /* VIRŠUTINĖ VALDYMO JUOSTA (TIK EKRANE) */
     .action-bar {
       width: 100%;
-      background: #07090e;
-      border-bottom: 2px solid #00f59b;
+      background: #0c0a09;
+      border-bottom: 2px solid #e58e26;
       padding: 0.85rem 1.75rem;
       display: flex;
       align-items: center;
@@ -94,29 +94,29 @@ if (isset($_GET['download'])) {
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.45);
     }
 
     .action-btn {
-      background: #00f59b;
-      color: #06090e;
+      background: linear-gradient(135deg, #c2410c 0%, #e58e26 50%, #f59e0b 100%);
+      color: #0c0a08;
       font-weight: 800;
       font-size: 0.95rem;
       padding: 0.75rem 1.4rem;
-      border-radius: 8px;
-      border: none;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 237, 213, 0.25);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0, 245, 155, 0.35);
+      box-shadow: 0 4px 12px rgba(229, 142, 38, 0.35);
       transition: all 0.2s ease;
     }
     .action-btn:hover {
-      background: #00d684;
+      background: linear-gradient(135deg, #9a3412 0%, #d97706 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 245, 155, 0.45);
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
     }
 
     .action-btn-secondary {
@@ -162,7 +162,7 @@ if (isset($_GET['download'])) {
       content: '';
       position: absolute;
       top: 14px; left: 14px; right: 14px; bottom: 14px;
-      border: 1.5px solid #00f59b;
+      border: 1.5px solid #e58e26;
       border-radius: 12px;
       pointer-events: none;
     }
@@ -172,7 +172,7 @@ if (isset($_GET['download'])) {
       position: absolute;
       width: 28px;
       height: 28px;
-      border-color: #00f59b;
+      border-color: #e58e26;
       border-style: solid;
       pointer-events: none;
     }
@@ -196,7 +196,7 @@ if (isset($_GET['download'])) {
       margin: 0;
       color: #0f172a;
     }
-    .v-logo span { color: #00f59b; }
+    .v-logo span { color: #e58e26; }
     .v-sublogo {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.9rem;
@@ -220,9 +220,9 @@ if (isset($_GET['download'])) {
       text-transform: uppercase;
       letter-spacing: 2.5px;
       font-weight: 800;
-      color: #059669;
-      background: rgba(0, 245, 155, 0.08);
-      border: 1px solid rgba(0, 245, 155, 0.3);
+      color: #c2410c;
+      background: rgba(229, 142, 38, 0.12);
+      border: 1px solid rgba(229, 142, 38, 0.45);
       padding: 0.4rem 1.4rem;
       border-radius: 30px;
       margin-bottom: 1rem;
@@ -246,24 +246,24 @@ if (isset($_GET['download'])) {
       flex-direction: column;
       align-items: center;
       margin: 1.25rem 0;
-      background: #f0fdf4;
-      border: 3px solid #00f59b;
+      background: #fffbeb;
+      border: 3px solid #e58e26;
       border-radius: 20px;
       padding: 1.25rem 4rem;
-      box-shadow: 0 8px 24px rgba(0, 245, 155, 0.12);
+      box-shadow: 0 8px 24px rgba(229, 142, 38, 0.18);
     }
     .v-amount-lbl {
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #64748b;
+      color: #78350f;
       font-weight: 800;
     }
     .v-hero-amount {
       font-family: 'Oswald', sans-serif;
       font-size: 5.2rem;
       font-weight: 800;
-      color: #059669;
+      color: #c2410c;
       line-height: 1;
       margin: 0.25rem 0;
     }
@@ -287,7 +287,7 @@ if (isset($_GET['download'])) {
       letter-spacing: 3px;
       color: #0f172a;
       background: #f8fafc;
-      border: 2px dashed #00f59b;
+      border: 2px dashed #e58e26;
       padding: 0.6rem 1.6rem;
       border-radius: 10px;
       display: inline-block;
@@ -329,7 +329,7 @@ if (isset($_GET['download'])) {
       font-weight: 600;
     }
     .act-badge strong {
-      color: #059669;
+      color: #c2410c;
       display: block;
       font-size: 1rem;
       margin-bottom: 3px;
@@ -338,15 +338,15 @@ if (isset($_GET['download'])) {
 
     /* REZERVACIJA TIK ASMENIŠKAI */
     .booking-warning-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-left: 5px solid #00f59b;
+      background: #fffbeb;
+      border: 1px solid #fed7aa;
+      border-left: 5px solid #e58e26;
       border-radius: 0 10px 10px 0;
       padding: 1rem 1.25rem;
       text-align: left;
     }
     .booking-warning-box strong {
-      color: #059669;
+      color: #c2410c;
       font-size: 0.95rem;
       display: block;
       margin-bottom: 0.35rem;
@@ -354,7 +354,7 @@ if (isset($_GET['download'])) {
     .booking-warning-box p {
       margin: 0;
       font-size: 0.9rem;
-      color: #064e3b;
+      color: #7c2d12;
       line-height: 1.5;
     }
     .booking-warning-box .contact-highlight {
@@ -450,7 +450,7 @@ if (isset($_GET['download'])) {
   <!-- VIRŠUTINĖ JUOSTA (TIK EKRANE) -->
   <div class="action-bar no-print">
     <div>
-      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #00f59b;"><?= $cCode ?></span></div>
+      <div style="font-weight: 800; font-size: 1rem; color: #fff;">Dovanų kuponas: <span style="color: #e58e26;"><?= $cCode ?></span></div>
       <div style="font-size: 0.78rem; color: #94a3b8;">Oficialus A4 formato dovanų sertifikatas · ThrowHouse Šiauliai</div>
     </div>
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">

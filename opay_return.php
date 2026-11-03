@@ -174,14 +174,14 @@ if ($isCoupon) {
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07090e;
-      --card-bg: #0e121a;
-      --card-border: rgba(0, 245, 155, 0.22);
-      --accent: #00f59b;
-      --accent-hover: #00d684;
-      --text: #f8fafc;
+      --bg: #0c0a09;
+      --card-bg: #14110e;
+      --card-border: rgba(229, 142, 38, 0.28);
+      --accent: #e58e26;
+      --accent-hover: #f59e0b;
+      --text: #fdfaf6;
       --muted: #94a3b8;
-      --success: #00f59b;
+      --success: #e58e26;
       --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -196,8 +196,8 @@ if ($isCoupon) {
       justify-content: center;
       padding: 1.5rem;
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 245, 155, 0.15), transparent),
-        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(229, 142, 38, 0.18), transparent),
+        radial-gradient(circle at 80% 80%, rgba(194, 65, 12, 0.08), transparent);
     }
     .container {
       max-width: 620px;
@@ -222,7 +222,7 @@ if ($isCoupon) {
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
     .icon-success {
-      background: rgba(0, 245, 155, 0.15);
+      background: rgba(229, 142, 38, 0.15);
       border: 2px solid var(--success);
       color: var(--success);
     }
@@ -295,15 +295,17 @@ if ($isCoupon) {
       border: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg, #00d684 0%, var(--accent) 50%, #5eead4 100%);
-      color: #06090e;
-      box-shadow: 0 4px 15px rgba(0, 245, 155, 0.35);
+      background: linear-gradient(135deg, #c2410c 0%, #e58e26 50%, #f59e0b 100%);
+      color: #0c0a08;
+      font-weight: 800;
+      box-shadow: 0 4px 15px rgba(229, 142, 38, 0.35);
+      border: 1px solid rgba(255, 237, 213, 0.25);
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #059669 0%, #00d684 50%, var(--accent) 100%);
+      background: linear-gradient(135deg, #9a3412 0%, #d97706 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 245, 155, 0.45);
-      color: #06090e;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+      color: #0c0a08;
     }
     .btn-secondary {
       background: rgba(255, 255, 255, 0.06);
@@ -340,7 +342,7 @@ if ($isCoupon) {
             </div>
             <div class="info-row">
               <span class="info-label">Kupono vertė:</span>
-              <span class="info-val" style="color:#00f59b; font-size:1.25rem; font-weight:800;"><?= htmlspecialchars($coupon['amount'] ?? 30) ?> €</span>
+              <span class="info-val" style="color:var(--accent); font-size:1.25rem; font-weight:800;"><?= htmlspecialchars($coupon['amount'] ?? 30) ?> €</span>
             </div>
             <div class="info-row">
               <span class="info-label">Pramoga:</span>
@@ -401,7 +403,7 @@ if ($isCoupon) {
             </div>
             <div class="info-row">
               <span class="info-label">Apmokėta suma:</span>
-              <span class="info-val" style="color:#00f59b; font-size:1.1rem;"><?= htmlspecialchars($reservation['price']) ?></span>
+              <span class="info-val" style="color:var(--accent); font-size:1.1rem;"><?= htmlspecialchars($reservation['price']) ?></span>
             </div>
           </div>
         <?php endif; ?>
