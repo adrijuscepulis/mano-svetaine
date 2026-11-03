@@ -62,24 +62,32 @@
   },
   "faq": [
     {
-      "q": "Kaip vyksta apsilankymas ir ką reikia turėti su savimi?",
-      "a": "Atvykite likus 5-10 min. iki savo rezervuoto laiko. Svarbiausia – patogi, visiškai uždara avalynė (sportbačiai). Visą apsauginę aprangą (kombinezonus, apsauginius šalmus su skydeliais, pirštines) suteikiame nemokamai vietoje."
+      "q": "Kiek indų suteikiama pykčio kambaryje ir ar galima užsisakyti daugiau?",
+      "a": "Į standartinę 1 val. sesiją įskaičiuota 30 paruoštų indų (lėkštės, buteliai, keramika). Papildomus indus galima užsisakyti registruojantis arba vietoje po 0,60 € / vnt."
+    },
+    {
+      "q": "Kiek žmonių gali dalyvauti vienoje rezervacijoje?",
+      "a": "Vienoje rezervacijoje gali dalyvauti 1–4 asmenys (trukmė – 1 val.). Didesnėms grupėms (nuo 5 asm.) suderiname individualų pasiūlymą – susisiekite skiltyje „Kontaktai“."
+    },
+    {
+      "q": "Kiek turite kirvių takelių ir pykčio kambarių?",
+      "a": "Turime 2 atskirus kirvių mėtymo takelius ir 1 privatų pykčio kambarį. Vienos sesijos metu pykčio kambaryje būna tik jūsų kompanija."
+    },
+    {
+      "q": "Kaip veikia dovanų kuponas ir kiek laiko galioja?",
+      "a": "Kuponą su pasirinkta suma galite įsigyti tiesiogiai internetu per kelias minutes (PDF atsiunčiamas į el. paštą) arba atvykę pas mus vietoje. Kuponas galioja 6 mėnesius."
     },
     {
       "q": "Koks yra jūsų darbo laikas ir kada galima apsilankyti?",
-      "a": "Darbo dienomis (I–IV) nedirbame. Dirbame savaitgaliais: penktadieniais ir šeštadieniais (09:00 – 24:00) bei sekmadieniais (09:00 – 20:00). Apsilankymui būtina išankstinė rezervacija internetu."
+      "a": "V–VI: 09:00 – 24:00\nVII: 09:00 – 20:00\nApsilankymui būtina išankstinė registracija internetu."
     },
     {
-      "q": "Ar saugu dalyvauti kirvių mėtymo ir pykčio kambario pramogose?",
-      "a": "Taip, saugumas yra mūsų didžiausias prioritetas. Prieš kiekvieną sesiją instruktorius praveda saugumo instruktažą, suteikiame sertifikuotas apsaugos priemones, o kirvių mėtymo takeliai yra atskirti specialiomis apsauginėmis zonomis."
+      "q": "Ką reikia apsirengti atvykstant?",
+      "a": "Būtina uždara avalynė (sportbačiai ar batai) – su šlepetėmis ar basutėmis dalyvauti draudžiama. Visą apsauginę aprangą (kombinezonus, pirštines, šalmus su skydeliu) suteikiame vietoje."
     },
     {
-      "q": "Kiek žmonių gali dalyvauti vienu metu?",
-      "a": "Pykčio kambaryje vienu metu gali būti iki 4 asmenų. Prie vieno kirvių mėtymo takelio – iki 4 asmenų (turime 2 atskirus takelius, tad iš viso iki 8 asmenų vienu metu). Didesnėms grupėms ar šventėms kreipkitės individualiai!"
-    },
-    {
-      "q": "Kaip veikia dovanų kuponai?",
-      "a": "Dovanų kuponą galite patogiai įsigyti tiesiogiai internetu vos per 1 minutę per saugią OPAY sistemą – kuponas PDF formatu akimirksniu atsiunčiamas el. paštu ir galioja 6 mėnesius. Telefonu ar el. paštu kreipkitės tik jei reikalingas fizinis laminuotas kuponas arba PVM sąskaita-faktūra įmonei."
+      "q": "Ar ThrowHouse tinka bernvakariams, mergvakariams ar gimtadieniams?",
+      "a": "Taip, organizuojame turnyrus ir šventes kompanijoms. Didesnėms grupėms suteikiame poilsio zoną užkandžiams ir gėrimams – susisiekite tiesiogiai dėl individualaus plano."
     }
   ]
 }
