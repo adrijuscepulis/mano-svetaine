@@ -318,22 +318,22 @@
     .footer a:hover { color: var(--accent); }
 
     @media (max-width: 768px) {
-      .container { padding: 0 1.15rem; }
-      .header { padding: 0.75rem 0; }
-      .brand-title { font-size: 1.35rem; }
-      .brand-city { font-size: 0.6rem; }
+      .container { padding: 0 1rem; }
+      .header { padding: 0.55rem 0; }
+      .brand-title { font-size: 1.15rem; }
+      .brand-city { font-size: 0.55rem; }
 
       .nav-toggle {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
         background: rgba(229, 142, 38, 0.12);
         border: 1.5px solid rgba(229, 142, 38, 0.4);
         color: #e58e26;
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         cursor: pointer;
         transition: all 0.2s;
       }
@@ -352,19 +352,19 @@
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
         flex-direction: column;
-        padding: 1.25rem 1.25rem 1.75rem 1.25rem;
+        padding: 1rem 1rem 1.25rem 1rem;
         border-bottom: 2px solid var(--accent);
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
-        max-height: calc(100vh - 75px);
+        max-height: calc(100vh - 65px);
         overflow-y: auto;
-        gap: 0.4rem;
+        gap: 0.3rem;
       }
       .nav-links.show { display: flex; }
       .nav-links .nav-item {
         width: 100%;
         text-align: center;
-        padding: 0.75rem 1rem;
-        font-size: 1.05rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.92rem;
         border-radius: 6px;
         color: #e2e8f0;
       }
@@ -375,39 +375,48 @@
       }
       .nav-links .nav-btn, .nav-links .btn {
         width: 100%;
-        margin-top: 0.5rem;
-        padding: 0.85rem 1.25rem;
-        font-size: 1rem;
+        margin-top: 0.4rem;
+        padding: 0.7rem 1rem;
+        font-size: 0.88rem;
         justify-content: center;
         text-align: center;
       }
 
-      .legal-hero { padding: 6.5rem 0 2.5rem 0; }
-      .legal-title { font-size: 1.85rem; line-height: 1.2; }
-      .legal-box { padding: 1.5rem 1.15rem; border-radius: 16px; }
+      .legal-hero { padding: 4.8rem 0 2rem 0; }
+      .legal-title { font-size: 1.35rem; line-height: 1.2; }
+      .legal-box { padding: 1.15rem 0.95rem; border-radius: 10px; font-size: 0.84rem; line-height: 1.5; }
+      .legal-box h2 { font-size: 1.15rem; }
+      .legal-box h3 { font-size: 1rem; }
 
-      .provider-card { padding: 1.15rem 1rem; }
+      .provider-card { padding: 0.85rem; border-radius: 8px; }
       .provider-card tr {
         display: flex;
         flex-direction: column;
-        margin-bottom: 0.65rem;
+        margin-bottom: 0.5rem;
       }
-      .provider-card td { padding: 0.1rem 0; }
+      .provider-card td { padding: 0.1rem 0; font-size: 0.82rem; }
       .provider-card td:first-child {
         width: auto;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: var(--accent);
         font-weight: 700;
       }
 
       .footer {
-        padding: 2.5rem 1rem 2rem 1rem;
-        font-size: 0.85rem;
+        padding: 1.75rem 1rem 1.35rem 1rem;
+        font-size: 0.76rem;
       }
       .footer a {
-        margin: 0.35rem 0.6rem;
-        display: inline-block;
+        margin: 0.2rem 0.35rem;
+        font-size: 0.76rem;
       }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0 0.85rem; }
+      .legal-hero { padding: 4.2rem 0 1.85rem 0; }
+      .legal-title { font-size: 1.25rem; }
+      .legal-box { padding: 1rem 0.8rem; font-size: 0.8rem; }
     }
   </style>
 </head>

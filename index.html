@@ -1368,24 +1368,41 @@
     }
 
     @media (max-width: 768px) {
-      .container { padding: 0 1.15rem; }
-      
+      .container { padding: 0 1rem; }
+
+      /* Viršutinė pranešimų juosta */
+      #topAnnouncementBanner {
+        padding: 6px 10px !important;
+        font-size: 0.76rem !important;
+        gap: 6px !important;
+      }
+      #topAnnouncementBanner span strong {
+        font-size: 0.76rem !important;
+      }
+      #topAnnouncementBanner a {
+        padding: 3px 8px !important;
+        font-size: 0.74rem !important;
+      }
+      #bannerCountdownTimer {
+        font-size: 0.78rem !important;
+      }
+
       /* Header ir Mobilus išskleidžiamas meniu */
-      .header { padding: 0.75rem 0; }
-      .brand-title { font-size: 1.35rem; }
-      .brand-city { font-size: 0.6rem; letter-spacing: 0.18em; }
+      .header { padding: 0.55rem 0; }
+      .brand-title { font-size: 1.15rem; letter-spacing: 0.03em; }
+      .brand-city { font-size: 0.55rem; letter-spacing: 0.16em; }
 
       .nav-toggle {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
         background: rgba(229, 142, 38, 0.12);
         border: 1.5px solid rgba(229, 142, 38, 0.4);
         color: #e58e26;
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         cursor: pointer;
         transition: all 0.2s;
       }
@@ -1404,19 +1421,19 @@
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
         flex-direction: column;
-        padding: 1.25rem 1.25rem 1.75rem 1.25rem;
+        padding: 1rem 1rem 1.25rem 1rem;
         border-bottom: 2px solid var(--accent);
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
-        max-height: calc(100vh - 75px);
+        max-height: calc(100vh - 65px);
         overflow-y: auto;
-        gap: 0.4rem;
+        gap: 0.3rem;
       }
       .nav-links.show { display: flex; }
       .nav-links .nav-item {
         width: 100%;
         text-align: center;
-        padding: 0.75rem 1rem;
-        font-size: 1.05rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.92rem;
         border-radius: 6px;
         color: #e2e8f0;
       }
@@ -1427,159 +1444,458 @@
       }
       .nav-links .nav-btn {
         width: 100%;
-        margin-top: 0.5rem;
-        padding: 0.85rem 1.25rem;
-        font-size: 1rem;
+        margin-top: 0.4rem;
+        padding: 0.7rem 1rem;
+        font-size: 0.88rem;
         justify-content: center;
         text-align: center;
       }
 
-      /* Hero sekcija */
-      .hero { padding: 6.5rem 0 3.5rem 0; }
+      /* Hero sekcija - proporcingesnė telefonams */
+      .hero { padding: 4.8rem 0 2.25rem 0; }
       .hero-badge {
-        font-size: 0.75rem;
-        padding: 0.35rem 0.85rem;
+        font-size: 0.68rem;
+        padding: 0.25rem 0.65rem;
         white-space: normal;
         text-align: center;
-        line-height: 1.35;
-        margin-bottom: 1.25rem;
+        line-height: 1.3;
+        margin-bottom: 0.75rem;
       }
       .hero-h1 {
-        font-size: 1.95rem;
-        line-height: 1.15;
-        margin-bottom: 1rem;
+        font-size: 1.45rem;
+        line-height: 1.18;
+        margin-bottom: 0.65rem;
+        letter-spacing: 0.02em;
       }
       .hero-lead {
-        font-size: 0.95rem;
-        line-height: 1.55;
-        margin-bottom: 1.75rem;
-        padding: 0 0.5rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        margin-bottom: 1.15rem;
+        padding: 0 0.25rem;
       }
       .hero-actions {
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.5rem;
         width: 100%;
-        margin-bottom: 2.5rem;
+        margin-bottom: 1.35rem;
       }
       .hero-actions .btn {
         width: 100%;
-        padding: 0.95rem 1.5rem;
+        padding: 0.7rem 1rem;
+        font-size: 0.86rem;
       }
       .features-row {
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 0.45rem;
       }
       .feat-card {
-        padding: 1rem 1.15rem;
+        padding: 0.6rem 0.8rem;
+        gap: 0.65rem;
+        border-radius: 6px;
       }
+      .feat-icon { font-size: 1.25rem; }
+      .feat-card strong { font-size: 0.82rem; }
+      .feat-card span { font-size: 0.72rem; }
 
       /* Bendros sekcijos */
-      .section { padding: 3.5rem 0; }
-      .section-head { margin-bottom: 2.25rem; }
-      .title { font-size: 1.85rem; line-height: 1.2; }
-      .subtitle { font-size: 0.95rem; }
+      .section { padding: 2rem 0; }
+      .section-head { margin-bottom: 1.25rem; }
+      .tag {
+        font-size: 0.68rem;
+        padding: 0.2rem 0.55rem;
+        letter-spacing: 0.12em;
+        margin-bottom: 0.35rem;
+      }
+      .title {
+        font-size: 1.32rem;
+        line-height: 1.22;
+        margin-bottom: 0.35rem;
+      }
+      .subtitle {
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
 
       /* Pramogų kortelės */
       .activities-row {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.15rem;
       }
-      .act-card { border-radius: 16px; }
-      .act-img { height: 200px; }
-      .act-content { padding: 1.35rem 1.15rem; }
-      .act-title { font-size: 1.45rem; }
-      .act-desc { font-size: 0.9rem; margin-bottom: 1.25rem; }
+      .act-card { border-radius: 12px; }
+      .act-img { height: 155px; }
+      .act-pill { font-size: 0.72rem; padding: 0.25rem 0.65rem; }
+      .act-content { padding: 1rem 0.9rem; }
+      .act-title { font-size: 1.18rem; margin-bottom: 0.35rem; }
+      .act-desc { font-size: 0.82rem; line-height: 1.45; margin-bottom: 0.75rem; }
+      .perk-list {
+        gap: 0.35rem;
+        margin-bottom: 0.85rem;
+      }
+      .perk-list li {
+        font-size: 0.78rem;
+        line-height: 1.35;
+        gap: 0.45rem;
+      }
+      .perk-check { font-size: 0.82rem; }
       .act-footer {
         flex-direction: column;
         align-items: stretch;
-        gap: 1rem;
+        gap: 0.65rem;
+        padding-top: 0.75rem;
       }
-      .act-footer .btn { width: 100%; }
+      .price-tag { font-size: 0.8rem; }
+      .price-tag strong { font-size: 1.35rem !important; }
+      .capacity-badge { font-size: 0.68rem; padding: 2px 7px; }
+      .act-footer .btn { width: 100%; padding: 0.65rem 1rem; font-size: 0.86rem; }
 
-      /* Kainos ir Kuponai */
+      /* SEO & Pramogos Šiauliuose blokas */
+      #ka-veikti-siauliuose div[style*="display: grid"] {
+        gap: 0.65rem !important;
+        margin-top: 1rem !important;
+      }
+      #ka-veikti-siauliuose div[style*="background: var(--bg-surface)"] {
+        padding: 0.95rem 0.85rem !important;
+        gap: 0.45rem !important;
+        border-radius: 8px !important;
+      }
+      #ka-veikti-siauliuose div[style*="font-size: 2.2rem"] {
+        font-size: 1.45rem !important;
+      }
+      #ka-veikti-siauliuose h3 {
+        font-size: 1.05rem !important;
+        margin-bottom: 0.2rem !important;
+      }
+      #ka-veikti-siauliuose p {
+        font-size: 0.8rem !important;
+        line-height: 1.45 !important;
+      }
+      #ka-veikti-siauliuose a.btn {
+        padding: 0.65rem 1.15rem !important;
+        font-size: 0.85rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Kainos */
       .prices-row {
         grid-template-columns: 1fr;
-        gap: 1.25rem;
+        gap: 0.85rem;
       }
-      .p-card { padding: 1.75rem 1.25rem; }
-      .p-cost { font-size: 2.75rem; }
-      .gift-cards-row {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-        margin-bottom: 2rem;
+      .p-card {
+        padding: 1.1rem 0.9rem;
+        border-radius: 8px;
       }
-      .gift-card-box { padding: 1.75rem 1.25rem; }
-      .gift-amount { font-size: 2.75rem; }
-      .gift-target-grid { grid-template-columns: 1fr; }
-      .gift-modal-actions { flex-direction: column; gap: 0.65rem; }
-      .gift-modal-actions .btn { width: 100%; flex: none !important; }
+      .p-head h3 { font-size: 1.15rem; margin-bottom: 0.2rem; }
+      .p-head p { font-size: 0.76rem; margin-bottom: 0.35rem; }
+      .p-cost { font-size: 1.75rem !important; margin: 0.35rem 0 0.55rem 0; }
+      .p-cost span { font-size: 0.95rem !important; }
+      .p-list {
+        font-size: 0.78rem;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .p-list li { padding: 0.2rem 0; font-size: 0.78rem; }
+      .p-card .btn { padding: 0.65rem 0.95rem; font-size: 0.84rem; }
+      .pop-badge { font-size: 0.65rem; padding: 2px 7px; top: -9px; }
+
+      /* Dovanų kuponai */
+      #kuponai div[style*="max-width: 680px"] {
+        padding: 1.25rem 0.95rem !important;
+        border-radius: 8px !important;
+        margin-top: 1.25rem !important;
+      }
+      #kuponai div[style*="font-size: 2.8rem"] {
+        font-size: 1.65rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+      #kuponai h3 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.35rem !important;
+      }
+      #kuponai p {
+        font-size: 0.8rem !important;
+        line-height: 1.45 !important;
+        margin-bottom: 0.75rem !important;
+      }
+      #kuponai label[for="giftCardQuickAmount"] {
+        font-size: 0.82rem !important;
+      }
+      #giftCardQuickAmount {
+        width: 100px !important;
+        font-size: 1.15rem !important;
+        height: 38px !important;
+        padding-right: 28px !important;
+      }
+      #giftCardQuickAmount + span {
+        font-size: 1rem !important;
+        right: 9px !important;
+      }
+      #kuponai button[onclick*="openGiftModal"] {
+        padding: 0.65rem 1rem !important;
+        font-size: 0.84rem !important;
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      #kuponai div[style*="border-top: 1px solid rgba(255,255,255,0.08)"] {
+        font-size: 0.74rem !important;
+        gap: 0.65rem !important;
+        padding-top: 0.75rem !important;
+      }
+      #giftModal {
+        padding: 1.15rem 0.9rem !important;
+        margin-top: 1.5rem !important;
+      }
+      #giftModalTitle {
+        font-size: 1.18rem !important;
+      }
+      #giftCustomAmount {
+        font-size: 1.2rem !important;
+      }
+      #giftPriceDisplay {
+        font-size: 1.4rem !important;
+      }
+      #giftSubmitBtn {
+        font-size: 0.86rem !important;
+        padding: 0.7rem 0.95rem !important;
+      }
+      .gift-modal-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .gift-modal-actions .btn {
+        width: 100%;
+        flex: none !important;
+        padding: 0.7rem 1rem;
+      }
+      #kuponai div[style*="Fizinis kuponas"],
+      #kuponai div[style*="linear-gradient"] {
+        padding: 1.1rem 0.85rem !important;
+        margin-top: 1.25rem !important;
+      }
+      #kuponai div[style*="font-size: 2rem"] {
+        font-size: 1.45rem !important;
+      }
 
       /* Rezervacijos forma */
       .book-box {
-        padding: 1.5rem 1.15rem;
-        border-radius: var(--radius-md);
+        padding: 1rem 0.85rem;
+        border-radius: 8px;
       }
       .form-wrap {
         padding: 0;
       }
+      .promo-notice-box {
+        padding: 0.75rem 0.85rem;
+        margin-bottom: 0.85rem;
+        border-radius: 6px;
+      }
+      .promo-notice-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.55rem;
+        margin-bottom: 0.35rem;
+      }
+      .promo-notice-title {
+        font-size: 0.92rem;
+        line-height: 1.25;
+      }
+      .promo-notice-desc {
+        font-size: 0.76rem;
+        line-height: 1.35;
+      }
+      .promo-notice-timer-wrap {
+        font-size: 0.74rem;
+        margin-top: 0.35rem;
+      }
+      .promo-timer-val {
+        font-size: 0.82rem;
+      }
+      .f-group {
+        margin-bottom: 1rem;
+      }
+      .f-label {
+        font-size: 0.78rem;
+        margin-bottom: 0.3rem;
+      }
+      .f-input {
+        font-size: 0.84rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 6px;
+      }
       .form-grid-3 {
         grid-template-columns: 1fr;
-        gap: 0.85rem;
+        gap: 0.65rem;
       }
       .act-options {
         grid-template-columns: 1fr;
-        gap: 0.65rem;
+        gap: 0.45rem;
       }
       .act-box {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.85rem 1rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 6px;
         text-align: left;
       }
-      .act-box strong { margin-top: 0; font-size: 0.9rem; }
-      .act-box small { margin-top: 0; font-size: 0.8rem; }
+      .act-box span { font-size: 1.2rem; }
+      .act-box strong { margin-top: 0; font-size: 0.82rem; }
+      .act-box small { margin-top: 0; font-size: 0.72rem; }
       .form-row {
         flex-direction: column;
-        gap: 1.15rem;
-        margin-bottom: 1.15rem;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
       }
       .cal-popup {
-        padding: 1rem 0.65rem;
+        padding: 0.75rem 0.5rem;
       }
       .cal-day {
+        font-size: 0.76rem;
+        height: 32px;
+      }
+      .cal-day-num {
         font-size: 0.8rem;
+      }
+      .cal-price-sub {
+        font-size: 0.6rem;
+      }
+      .opay-banks-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.35rem !important;
+      }
+      .opay-bank-btn {
+        height: 36px !important;
+        padding: 2px 4px !important;
+      }
+      .opay-bank-btn img {
+        max-height: 20px !important;
+        max-width: 60px !important;
+      }
+      .opay-bank-btn span {
+        font-size: 0.7rem !important;
+      }
+      #payBankCardWrapper {
+        padding: 0.75rem !important;
+        border-radius: 6px !important;
+      }
+      #payLblCash {
+        padding: 0.65rem 0.75rem !important;
+        border-radius: 6px !important;
+      }
+      #payLblCash strong {
+        font-size: 0.84rem !important;
       }
       .calc-box {
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.5rem;
-        padding: 1rem 1.15rem;
+        gap: 0.25rem;
+        padding: 0.75rem 0.85rem;
+        border-radius: 6px;
       }
+      .calc-box strong {
+        font-size: 0.82rem;
+      }
+      .calc-note {
+        font-size: 0.72rem;
+      }
+      .calc-price {
+        font-size: 1.45rem !important;
+      }
+      #resAgeAgree + span,
+      #resTermsAgree + span {
+        font-size: 0.76rem !important;
+        line-height: 1.4 !important;
+      }
+      #submitBtn {
+        padding: 0.75rem 1rem;
+        font-size: 0.88rem;
+        font-weight: 800;
+        border-radius: 6px;
+      }
+      .res-trust-bar {
+        font-size: 0.72rem;
+        gap: 0.35rem;
+        padding-top: 0.65rem;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      #pinBoxWrapper {
+        padding: 0.85rem 0.75rem !important;
+      }
+      #pinBoxWrapper strong {
+        font-size: 0.92rem !important;
+      }
+      #pinBoxWrapper p {
+        font-size: 0.78rem !important;
+      }
+      #resPinInput {
+        width: 140px !important;
+        height: 42px !important;
+        font-size: 1.45rem !important;
+        letter-spacing: 6px !important;
+      }
+
+      /* DUK Akordeonas */
+      .faq-container { gap: 0.45rem; }
+      .faq-row { border-radius: 6px; }
+      .faq-btn {
+        font-size: 0.82rem;
+        padding: 0.75rem 0.85rem;
+        line-height: 1.35;
+      }
+      .faq-content {
+        font-size: 0.78rem;
+        line-height: 1.45;
+        padding: 0.65rem 0.85rem;
+      }
+      .faq-symbol { font-size: 1rem; }
 
       /* Kontaktai ir Žemėlapis */
       .contact-row {
         grid-template-columns: 1fr;
-        gap: 1.75rem;
+        gap: 1.25rem;
       }
-      .c-box { padding: 1rem 1.15rem; }
-      .map-container-card { padding: 1rem; }
-      .map-frame-inner { height: 280px; }
+      .c-box {
+        padding: 0.85rem 0.95rem;
+        border-radius: 8px;
+      }
+      .c-box h3 { font-size: 1.05rem; }
+      .c-box p { font-size: 0.8rem; }
+      .c-detail { font-size: 0.8rem; }
+      .map-container-card { padding: 0.85rem; border-radius: 8px; }
+      .map-frame-inner { height: 220px; }
       .map-actions {
         flex-direction: column;
-        gap: 0.65rem;
+        gap: 0.5rem;
       }
-      .map-actions .btn { width: 100%; }
+      .map-actions .btn { width: 100%; padding: 0.65rem 1rem; font-size: 0.84rem; }
 
       /* Footer */
       .footer {
-        padding: 2.5rem 1rem 2rem 1rem;
-        font-size: 0.85rem;
+        padding: 1.75rem 1rem 1.35rem 1rem;
+        font-size: 0.76rem;
+      }
+      .footer p {
+        font-size: 0.76rem;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
       }
       .footer a {
-        margin: 0.35rem 0.6rem;
-        display: inline-block;
+        margin: 0.2rem 0.35rem;
+        font-size: 0.76rem;
       }
+    }
+
+    /* Mažesniems išmaniesiems telefonams (<= 480px) */
+    @media (max-width: 480px) {
+      .container { padding: 0 0.85rem; }
+      .hero { padding: 4.2rem 0 1.85rem 0; }
+      .hero-h1 { font-size: 1.32rem; }
+      .title { font-size: 1.2rem; }
+      .p-cost { font-size: 1.6rem !important; }
+      .calc-price { font-size: 1.35rem !important; }
+      .act-img { height: 140px; }
+      .p-card { padding: 0.95rem 0.8rem; }
     }
 
     /* INFORMACINĖ AKCIJOS LENTELĖ */
