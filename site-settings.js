@@ -38,7 +38,7 @@
 
     if (dayOfWeek === '0') return { enabled: true, start: 9, end: 20, is_custom: false };
     if (dayOfWeek === '5' || dayOfWeek === '6') return { enabled: true, start: 9, end: 24, is_custom: false };
-    return { enabled: true, start: 16, end: 22, is_custom: false };
+    return { enabled: false, start: 0, end: 0, is_custom: false };
   };
 
   async function loadSettings() {
@@ -232,30 +232,20 @@
         return;
       }
 
-      const totalHours = Math.floor(remaining / (3600 * 1000));
-      const mins = Math.floor((remaining % (3600 * 1000)) / (60 * 1000));
-      const secs = Math.floor((remaining % (60 * 1000)) / 1000);
-
-      const timerFormatted = `${totalHours} val. ${String(mins).padStart(2, '0')} min. ${String(secs).padStart(2, '0')} s.`;
-      const timerShort = `${String(totalHours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-      // Banerio turinys
+      // Banerio turinys (be atgalinio laikmačio)
       bannerEl.innerHTML = `
         <span style="display:inline-flex; align-items:center; gap:6px;">
           <span>🔥</span> <strong>ŽAIBIŠKA AKCIJA: -${discount} € VISOMS REZERVACIJOMS IR KUPONAMS!</strong>
-        </span>
-        <span style="background:#08050e; color:#ffaa00; padding:3px 10px; border-radius:6px; font-family:monospace; font-size:0.95rem; font-weight:800; border:1px solid rgba(255,255,255,0.2);">
-          ⏳ Liko: ${timerShort}
         </span>
         <a href="#rezervacija" style="background:#08050e; color:#ffffff; padding:4px 14px; border-radius:6px; font-size:0.84rem; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:4px; border:1px solid rgba(255,255,255,0.25);">
           Rezervuoti su nuolaida ➔
         </a>
       `;
 
-      // Informacinės lentelės laikmatis
+      // Pašaliname laikmatį iš formos pranešimo, jei toks yra
       const formTimerEl = document.getElementById('promoCountdownTimer');
-      if (formTimerEl) {
-        formTimerEl.textContent = timerFormatted;
+      if (formTimerEl && formTimerEl.parentElement) {
+        formTimerEl.parentElement.style.display = 'none';
       }
     }
 
@@ -411,16 +401,16 @@
     if (!h) return;
 
     // Bendra darbo laiko eilutė
-    const summaryStr = `I-IV: ${h.workdays || '16:00-22:00'} | V-VI: 09:00-24:00 | VII: ${h.sunday || '09:00-20:00'}`;
+    const summaryStr = `I–IV: ${h.workdays || 'Nedirbame'} | V–VI: 09:00–24:00 | VII: ${h.sunday || '09:00–20:00'}`;
 
     document.querySelectorAll('[data-cms="hours_summary"]').forEach(el => {
-      el.innerHTML = `⏱️ <strong>Darbo laikas:</strong> ${h.workdays || 'I-IV: 16:00-22:00'} | V-VI: 09:00-24:00 | VII: ${h.sunday || '09:00-20:00'}`;
+      el.innerHTML = `🕒 <strong>Darbo laikas:</strong> I–IV: ${h.workdays || 'Nedirbame'} | V–VI: 09:00–24:00 | VII: ${h.sunday || '09:00–20:00'}`;
     });
 
-    document.querySelectorAll('[data-cms="hours_workdays"]').forEach(el => el.textContent = h.workdays);
-    document.querySelectorAll('[data-cms="hours_friday"]').forEach(el => el.textContent = h.friday);
-    document.querySelectorAll('[data-cms="hours_saturday"]').forEach(el => el.textContent = h.saturday);
-    document.querySelectorAll('[data-cms="hours_sunday"]').forEach(el => el.textContent = h.sunday);
+    document.querySelectorAll('[data-cms="hours_workdays"]').forEach(el => el.textContent = h.workdays || 'Nedirbame');
+    document.querySelectorAll('[data-cms="hours_friday"]').forEach(el => el.textContent = h.friday || '09:00–24:00');
+    document.querySelectorAll('[data-cms="hours_saturday"]').forEach(el => el.textContent = h.saturday || '09:00–24:00');
+    document.querySelectorAll('[data-cms="hours_sunday"]').forEach(el => el.textContent = h.sunday || '09:00–20:00');
     if (h.note) {
       document.querySelectorAll('[data-cms="hours_note"]').forEach(el => el.textContent = h.note);
     }

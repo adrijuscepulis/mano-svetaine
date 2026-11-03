@@ -110,12 +110,6 @@
     "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"],
-        "opens": "16:00",
-        "closes": "22:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
         "dayOfWeek": ["Friday", "Saturday"],
         "opens": "09:00",
         "closes": "23:59"
@@ -154,7 +148,15 @@
         "name": "Koks yra ThrowHouse darbo laikas ir kada galima apsilankyti?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Dirbame darbo dienomis (I-IV: 16:00 - 22:00), penktadieniais ir šeštadieniais (09:00 - 24:00) bei sekmadieniais (09:00 - 20:00). Apsilankymui būtina išankstinė rezervacija internetu."
+          "text": "Darbo dienomis (I–IV) nedirbame. Dirbame savaitgaliais: penktadieniais ir šeštadieniais (09:00 – 24:00) bei sekmadieniais (09:00 – 20:00). Apsilankymui būtina išankstinė rezervacija internetu."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kaip veikia dovanų kuponas ir kaip jį įsigyti?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Dovanų kuponą galite patogiai įsigyti tiesiogiai internetu vos per 1 minutę – apmokėjimas vykdomas per saugią OPAY sistemą, o paruoštas dovanų kuponas su unikaliu kodu akimirksniu atsiunčiamas į Jūsų el. paštą. Kuponas galioja 6 mėnesius. Telefonu ar el. paštu kreipkitės tik tuo atveju, jei pageidaujate fizinio popierinio kupono arba reikalinga PVM sąskaita-faktūra įmonei."
         }
       },
       {
@@ -237,10 +239,10 @@
       },
       schedule: {
         days: {
-          "1": { name: "Pirmadienis", enabled: true, start: 16, end: 22 },
-          "2": { name: "Antradienis", enabled: true, start: 16, end: 22 },
-          "3": { name: "Trečiadienis", enabled: true, start: 16, end: 22 },
-          "4": { name: "Ketvirtadienis", enabled: true, start: 16, end: 22 },
+          "1": { name: "Pirmadienis", enabled: false, start: 0, end: 0 },
+          "2": { name: "Antradienis", enabled: false, start: 0, end: 0 },
+          "3": { name: "Trečiadienis", enabled: false, start: 0, end: 0 },
+          "4": { name: "Ketvirtadienis", enabled: false, start: 0, end: 0 },
           "5": { name: "Penktadienis", enabled: true, start: 9, end: 24 },
           "6": { name: "Šeštadienis", enabled: true, start: 9, end: 24 },
           "0": { name: "Sekmadienis", enabled: true, start: 9, end: 20 }
@@ -1383,9 +1385,6 @@
         padding: 3px 8px !important;
         font-size: 0.74rem !important;
       }
-      #bannerCountdownTimer {
-        font-size: 0.78rem !important;
-      }
 
       /* Header ir Mobilus išskleidžiamas meniu */
       .header { padding: 0.55rem 0; }
@@ -1994,9 +1993,6 @@
     <span style="display:inline-flex; align-items:center; gap:6px;">
       <span>⚡</span> <strong>ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!</strong>
     </span>
-    <span style="background:#0c0a08; color:#f59e0b; padding:3px 10px; border-radius:6px; font-family:monospace; font-size:0.95rem; font-weight:800; border:1px solid rgba(229, 142, 38, 0.4);">
-      ⏳ Liko: <span id="bannerCountdownTimer">47:59:59</span>
-    </span>
     <a href="#rezervacija" style="background:#0c0a08; color:#ffffff; padding:4px 14px; border-radius:6px; font-size:0.84rem; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:4px; border:1px solid rgba(229, 142, 38, 0.4);">
       Rezervuoti su nuolaida ➔
     </a>
@@ -2559,9 +2555,6 @@
             </div>
             <div class="promo-notice-title">Visoms sesijoms ir dovanų kuponams taikoma 5 € nuolaida!</div>
             <div class="promo-notice-desc">Nuolaida jau automatiškai pritaikyta žemiau esančioms kainoms.</div>
-            <div class="promo-notice-timer-wrap">
-              ⏳ Pasiūlymas baigiasi po: <span id="promoCountdownTimer" class="promo-timer-val">47 val. 59 min.</span>
-            </div>
           </div>
 
           <form id="resForm" onsubmit="submitReservation(event)">
@@ -2909,7 +2902,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Dovanų kuponą galite patogiai įsigyti susisiekę su mumis asmeniškai telefonu <strong>+370 619 88009</strong> arba el. paštu <strong>throwhousee@gmail.com</strong> (šiuo metu su akcija tik 25 €, 45 € ar kita pasirinkta suma). Taip pat kuponą galima įsigyti atvykus tiesiogiai pas mus į vietą (Pramonės g. 15, Šiauliai). Kuponas su unikaliu kodu galioja <strong>6 mėnesius</strong> nuo išdavimo dienos, o apsilankymo laikas derinamas asmeniškai susisiekus iš anksto.
+            Dovanų kuponą galite patogiai įsigyti tiesiogiai internetu vos per <strong>1 minutę</strong> – apmokėjimas vykdomas per saugią OPAY sistemą, o paruoštas kuponas su unikaliu kodu akimirksniu atsiunčiamas į Jūsų el. paštą PDF formatu! Kuponas galioja <strong>6 mėnesius</strong> nuo įsigijimo dienos. Susisiekti telefonu <strong>+370 619 88009</strong> arba el. paštu <strong>throwhousee@gmail.com</strong> rekomenduojame tik tuo atveju, jei reikalingas fizinis laminuotas kuponas atsiėmimui vietoje arba PVM sąskaita-faktūra įmonei.
           </div>
         </div>
 
@@ -2919,7 +2912,7 @@
             <span class="faq-symbol">+</span>
           </button>
           <div class="faq-content">
-            Dirbame <strong>Darbo dienomis (I–IV): 16:00 – 22:00</strong>, <strong>Penktadieniais ir Šeštadieniais (V–VI): 09:00 – 24:00</strong> bei <strong>Sekmadieniais (VII): 09:00 – 20:00</strong>. Apsilankymui būtina išankstinė rezervacija internetu!
+            Darbo dienomis (I–IV) <strong>nedirbame</strong>. Dirbame savaitgaliais: <strong>Penktadieniais ir Šeštadieniais (V–VI): 09:00 – 24:00</strong> bei <strong>Sekmadieniais (VII): 09:00 – 20:00</strong>. Apsilankymui būtina išankstinė rezervacija internetu!
           </div>
         </div>
 
@@ -2971,7 +2964,7 @@
         <a href="privatumas.html" style="color: var(--accent); font-weight: 700;">🔒 Privatumo politika</a>
       </div>
       <p style="margin-bottom: 0.6rem; font-size: 0.85rem; color: #94a3b8;" data-cms="hours_summary">
-        🕒 <strong>Darbo laikas:</strong> I–IV: 16:00–22:00 | V–VI: 09:00–24:00 | VII: 09:00–20:00
+        🕒 <strong>Darbo laikas:</strong> I–IV: Nedirbame | V–VI: 09:00–24:00 | VII: 09:00–20:00
       </p>
       <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | <span data-cms="address">Pramonės g. 15 (2 a.), Šiauliai</span> | Tel. <a href="tel:+37061988009" data-cms="phone">+370 619 88009</a> | El. p. <a href="mailto:throwhousee@gmail.com" data-cms="email">throwhousee@gmail.com</a></p>
     </div>
@@ -3358,7 +3351,7 @@
 
       const wh = (typeof window.getWorkingHoursForDate === 'function')
         ? window.getWorkingHoursForDate(checkDate, window.SITE_SETTINGS)
-        : { enabled: true, start: (checkDate.getDay() === 0 || checkDate.getDay() >= 5 ? 9 : 16), end: (checkDate.getDay() === 0 ? 20 : (checkDate.getDay() >= 5 ? 24 : 22)) };
+        : (checkDate.getDay() === 0 ? { enabled: true, start: 9, end: 20 } : (checkDate.getDay() >= 5 ? { enabled: true, start: 9, end: 24 } : { enabled: false, start: 0, end: 0 }));
 
       if (!wh.enabled) {
         return { total: 0, available: 0, closed: 0, booked: 0, past: 0, isFullOrPast: true };
@@ -3602,7 +3595,7 @@
 
       const wh = (typeof window.getWorkingHoursForDate === 'function')
         ? window.getWorkingHoursForDate(targetDate, window.SITE_SETTINGS)
-        : { enabled: true, start: (targetDate.getDay() === 0 || targetDate.getDay() >= 5 ? 9 : 16), end: (targetDate.getDay() === 0 ? 20 : (targetDate.getDay() >= 5 ? 24 : 22)) };
+        : (targetDate.getDay() === 0 ? { enabled: true, start: 9, end: 20 } : (targetDate.getDay() >= 5 ? { enabled: true, start: 9, end: 24 } : { enabled: false, start: 0, end: 0 }));
 
       timeSelect.innerHTML = '';
 
