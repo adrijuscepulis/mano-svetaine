@@ -36,8 +36,11 @@ $transId = trim($parsedData['transaction_id'] ?? '');
 
 $isSuccess = ($status === '1');
 $isCoupon = (strpos($orderNr, 'TH-KUP-') === 0);
+$isBar = (strpos($orderNr, 'TH-BAR-') === 0);
 $coupon = null;
 $coupIndex = -1;
+$barOrder = null;
+$barIndex = -1;
 
 if ($isCoupon) {
     require_once __DIR__ . '/pdf_helper.php';
@@ -118,6 +121,35 @@ if ($isCoupon) {
         @file_put_contents($kupFile, $jsonStr, LOCK_EX);
         @file_put_contents($kupDbFile, $jsonStr, LOCK_EX);
         $coupon = $coupons[$coupIndex];
+    }
+
+} elseif ($isBar) {
+    require_once __DIR__ . '/baras_helper.php';
+    $barOrders = loadBarOrders();
+    foreach ($barOrders as $bIdx => $bo) {
+        if (($bo['order_nr'] ?? '') === $orderNr) {
+            $barOrder = $bo;
+            $barIndex = $bIdx;
+            break;
+        }
+    }
+
+    if ($isSuccess && $barOrder && strpos($barOrder['status'] ?? '', 'Apmokėta') === false && strpos($barOrder['status'] ?? '', 'Atiduota') === false) {
+        $barOrders[$barIndex]['status'] = 'Apmokėta';
+        $barOrders[$barIndex]['paid_at'] = date('Y-m-d H:i:s');
+        $barOrders[$barIndex]['opay_trans_id'] = $transId;
+        saveBarOrders($barOrders);
+        $barOrder = $barOrders[$barIndex];
+    }
+
+    if ($barOrder && ($barOrder['status'] === 'Apmokėta' || $barOrder['status'] === 'Atiduota')) {
+        $isSuccess = true;
+    }
+
+    if (!$isSuccess && $barOrder && ($barOrder['status'] ?? '') === 'Laukiama apmokėjimo') {
+        $barOrders[$barIndex]['status'] = 'Atšaukta (Neapmokėta)';
+        saveBarOrders($barOrders);
+        $barOrder = $barOrders[$barIndex];
     }
 
 } else {
@@ -382,6 +414,50 @@ if ($isCoupon) {
           Su šiuo dovanų kuponu apsilankymo laikas derinamas asmeniškai tel. +370 619 88009 arba el. paštu info@throwhouse.lt nurodant kupono kodą.
         </div>
 
+      <?php elseif ($isBar): ?>
+        <div class="icon-badge icon-success">🥤</div>
+        <h1>Užsakymas apmokėtas!</h1>
+        <p class="subtitle">
+          Nuoširdžiai ačiū, <strong><?= htmlspecialchars($barOrder['client_name'] ?? 'Kliente') ?></strong>! Jūsų užsakymas sėkmingai priimtas ir apmokėtas. Mūsų instruktoriai tuoj pat atneš gėrimus ir užkandžius į Jūsų nurodytą vietą!
+        </p>
+
+        <?php if ($barOrder): ?>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="info-label">Užsakymo numeris:</span>
+              <span class="info-val" style="color:var(--accent); font-family:monospace; font-size:1.15rem; font-weight:800;"><?= htmlspecialchars($barOrder['order_nr']) ?></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Pristatymo vieta:</span>
+              <span class="info-val" style="color:#fff; font-weight:800;"><?= htmlspecialchars($barOrder['client_location']) ?></span>
+            </div>
+            <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 0.35rem;">
+              <span class="info-label">Užsakytos prekės:</span>
+              <div style="width: 100%; font-size: 0.95rem; color: #fff; margin-top: 0.25rem;">
+                <?php foreach (($barOrder['items'] ?? []) as $it): ?>
+                  <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px dashed rgba(255,255,255,0.08);">
+                    <span><?= htmlspecialchars($it['name']) ?> × <?= (int)$it['qty'] ?></span>
+                    <span style="font-weight: 700; color: var(--accent);"><?= number_format($it['total'], 2) ?> €</span>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Bendra suma:</span>
+              <span class="info-val" style="color:var(--accent); font-size:1.25rem; font-weight:800;"><?= htmlspecialchars($barOrder['total_amount']) ?></span>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <div class="btn-wrap">
+          <a href="baras.php" class="btn btn-primary">Grįžti į Baro Meniu ➔</a>
+          <a href="index.html" class="btn btn-secondary">🌐 Pagrindinis puslapis</a>
+        </div>
+
+        <div class="notice">
+          Mėgaukitės pramoga! Jei turite papildomų klausimų ar pageidavimų, kreipkitės tiesiogiai į instruktorių.
+        </div>
+
       <?php else: ?>
         <div class="icon-badge icon-success">✓</div>
         <h1>Apmokėjimas sėkmingas!</h1>
@@ -429,12 +505,18 @@ if ($isCoupon) {
       <div class="icon-badge icon-cancel">✕</div>
       <h1>Apmokėjimas nebaigtas</h1>
       <p class="subtitle">
-        <?= $isCoupon ? 'Apmokėjimas už dovanų kuponą buvo nutrauktas arba bankas nepatvirtino operacijos.' : 'Apmokėjimas buvo atšauktas arba bankas nepatvirtino operacijos. Jūsų rezervuotas laikas nebuvo patvirtintas.' ?>
+        <?php if ($isBar): ?>
+          Apmokėjimas už baro užsakymą buvo atšauktas arba bankas nepatvirtino operacijos.
+        <?php elseif ($isCoupon): ?>
+          Apmokėjimas už dovanų kuponą buvo nutrauktas arba bankas nepatvirtino operacijos.
+        <?php else: ?>
+          Apmokėjimas buvo atšauktas arba bankas nepatvirtino operacijos. Jūsų rezervuotas laikas nebuvo patvirtintas.
+        <?php endif; ?>
       </p>
 
       <div class="btn-wrap">
-        <a href="<?= $isCoupon ? 'index.html#kuponai' : 'index.html#rezervacija' ?>" class="btn btn-primary">
-          <?= $isCoupon ? 'Bandyti pirkti kuponą iš naujo ➔' : 'Bandyti rezervuoti iš naujo ➔' ?>
+        <a href="<?= $isBar ? 'baras.php' : ($isCoupon ? 'index.html#kuponai' : 'index.html#rezervacija') ?>" class="btn btn-primary">
+          <?= $isBar ? 'Bandyti užsakyti iš naujo ➔' : ($isCoupon ? 'Bandyti pirkti kuponą iš naujo ➔' : 'Bandyti rezervuoti iš naujo ➔') ?>
         </a>
         <a href="tel:+37061988009" class="btn btn-secondary">📞 Susisiekti telefonu (+370 619 88009)</a>
       </div>

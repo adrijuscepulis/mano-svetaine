@@ -51,6 +51,56 @@ if (!$orderNr) {
 }
 
 // =========================================================================
+// 0. Jei tai baro / užkandžių užsakymas (TH-BAR-...)
+// =========================================================================
+if (strpos($orderNr, 'TH-BAR-') === 0) {
+    require_once __DIR__ . '/baras_helper.php';
+    $orders = loadBarOrders();
+    $foundBarIdx = -1;
+    foreach ($orders as $bIdx => $bo) {
+        if (($bo['order_nr'] ?? '') === $orderNr) {
+            $foundBarIdx = $bIdx;
+            break;
+        }
+    }
+
+    if ($foundBarIdx === -1) {
+        @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | Baro užsakymas $orderNr nerastas.\n", FILE_APPEND);
+        echo "OK";
+        exit;
+    }
+
+    $barOrder = &$orders[$foundBarIdx];
+    $bStatus = $barOrder['status'] ?? '';
+
+    if ($status === '1') {
+        if ($bStatus === 'Apmokėta' || $bStatus === 'Atiduota') {
+            echo "OK";
+            exit;
+        }
+        $barOrder['status'] = 'Apmokėta';
+        $barOrder['paid_at'] = date('Y-m-d H:i:s');
+        $barOrder['opay_trans_id'] = $transId;
+        saveBarOrders($orders);
+
+        @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | SĖKMĖ: Baro užsakymas $orderNr apmokėtas (TransID: $transId)\n", FILE_APPEND);
+        echo "OK";
+        exit;
+    } elseif ($status === '3' || $status === '0') {
+        if ($bStatus === 'Laukiama apmokėjimo') {
+            $barOrder['status'] = 'Atšaukta (Neapmokėta per OPAY)';
+            saveBarOrders($orders);
+            @file_put_contents(__DIR__ . '/opay_log.txt', date('Y-m-d H:i:s') . " | Baro užsakymas $orderNr pažymėtas kaip atšauktas.\n", FILE_APPEND);
+        }
+        echo "OK";
+        exit;
+    }
+
+    echo "OK";
+    exit;
+}
+
+// =========================================================================
 // 1. Jei tai dovanų kupono užsakymas (TH-KUP-...)
 // =========================================================================
 if (strpos($orderNr, 'TH-KUP-') === 0) {

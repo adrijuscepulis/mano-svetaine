@@ -36,6 +36,7 @@ $kupFile        = __DIR__ . '/kuponai.json';
 $kupDbFile      = __DIR__ . '/kuponai_db.json';
 $settingsFile   = __DIR__ . '/nustatymai.json';
 $settingsDbFile = __DIR__ . '/nustatymai_db.json';
+require_once __DIR__ . '/baras_helper.php';
 
 // Saugus duomenų įrašymas su teisių užtikrinimu ir LOCK_EX
 function saveData($file, $data) {
@@ -327,6 +328,15 @@ function getWorkingHoursForDate($isoDate, $settings = null) {
 
 // Jei prisijungęs - apdoroti veiksmus
 if (!empty($_SESSION['admin_logged'])) {
+    // API užklausa greitam baro užsakymų atnaujinimui (polling kas 10s)
+    if (isset($_GET['api']) && $_GET['api'] === 'bar_orders_poll') {
+        header('Content-Type: application/json; charset=utf-8');
+        $bOrders = loadBarOrders();
+        $paidCount = count(array_filter($bOrders, fn($o) => ($o['status'] ?? '') === 'Apmokėta'));
+        echo json_encode(['paid_count' => $paidCount]);
+        exit;
+    }
+
     $reservations = loadReservationsData($resFile, $resDbFile);
     $coupons = loadCouponsData($kupFile, $kupDbFile);
 
@@ -972,6 +982,122 @@ if (!empty($_SESSION['admin_logged'])) {
         header('Location: admin.php?tab=email');
         exit;
     }
+
+    // =====================================================================
+    // BARO IR UŽKANDŽIŲ VEIKSMAI (POST)
+    // =====================================================================
+
+    // 1. Keisti baro užsakymo statusą (pvz., Atiduota, Atšaukta)
+    if (isset($_POST['action']) && $_POST['action'] === 'update_bar_order_status') {
+        $orderNr = trim($_POST['order_nr'] ?? '');
+        $newStatus = trim($_POST['new_status'] ?? 'Atiduota');
+        $bOrders = loadBarOrders();
+        foreach ($bOrders as &$bo) {
+            if (($bo['order_nr'] ?? '') === $orderNr) {
+                $bo['status'] = $newStatus;
+                if ($newStatus === 'Atiduota') {
+                    $bo['delivered_at'] = date('Y-m-d H:i:s');
+                }
+                break;
+            }
+        }
+        unset($bo);
+        saveBarOrders($bOrders);
+        $_SESSION['admin_flash'] = "Baro užsakymo ($orderNr) statusas pakeistas į: $newStatus.";
+        header('Location: admin.php?tab=baras');
+        exit;
+    }
+
+    // 2. Ištrinti baro užsakymą
+    if (isset($_POST['action']) && $_POST['action'] === 'delete_bar_order') {
+        $orderNr = trim($_POST['order_nr'] ?? '');
+        $bOrders = loadBarOrders();
+        $bOrders = array_values(array_filter($bOrders, fn($bo) => ($bo['order_nr'] ?? '') !== $orderNr));
+        saveBarOrders($bOrders);
+        $_SESSION['admin_flash'] = "Baro užsakymas $orderNr sėkmingai ištrintas.";
+        header('Location: admin.php?tab=baras');
+        exit;
+    }
+
+    // 3. Pridėti naują baro prekę
+    if (isset($_POST['action']) && $_POST['action'] === 'add_bar_product') {
+        $name = trim($_POST['prod_name'] ?? '');
+        $cat = trim($_POST['prod_category'] ?? 'Gėrimai');
+        $price = (float)str_replace(',', '.', trim($_POST['prod_price'] ?? '0'));
+        $icon = trim($_POST['prod_icon'] ?? '🥤');
+
+        if ($name !== '' && $price > 0) {
+            $bProds = loadBarProducts();
+            $newId = 'p_' . time() . '_' . rand(100, 999);
+            $bProds[] = [
+                'id'       => $newId,
+                'name'     => $name,
+                'category' => $cat,
+                'price'    => round($price, 2),
+                'icon'     => $icon ?: '🥤',
+                'active'   => true
+            ];
+            saveBarProducts($bProds);
+            $_SESSION['admin_flash'] = "Nauja prekė „{$name}“ sėkmingai pridėta į baro meniu!";
+        } else {
+            $_SESSION['admin_flash_error'] = "Prašome nurodyti teisingą prekės pavadinimą ir kainą.";
+        }
+        header('Location: admin.php?tab=baras_prekes');
+        exit;
+    }
+
+    // 4. Perjungti prekės būseną (yra / išparduota)
+    if (isset($_POST['action']) && $_POST['action'] === 'toggle_bar_product') {
+        $prodId = trim($_POST['prod_id'] ?? '');
+        $bProds = loadBarProducts();
+        foreach ($bProds as &$bp) {
+            if (($bp['id'] ?? '') === $prodId) {
+                $bp['active'] = empty($bp['active']);
+                break;
+            }
+        }
+        unset($bp);
+        saveBarProducts($bProds);
+        $_SESSION['admin_flash'] = "Prekės būsena atnaujinta.";
+        header('Location: admin.php?tab=baras_prekes');
+        exit;
+    }
+
+    // 5. Redaguoti prekės duomenis (pvz., kainą)
+    if (isset($_POST['action']) && $_POST['action'] === 'edit_bar_product') {
+        $prodId = trim($_POST['prod_id'] ?? '');
+        $name = trim($_POST['prod_name'] ?? '');
+        $cat = trim($_POST['prod_category'] ?? 'Gėrimai');
+        $price = (float)str_replace(',', '.', trim($_POST['prod_price'] ?? '0'));
+        $icon = trim($_POST['prod_icon'] ?? '🥤');
+
+        $bProds = loadBarProducts();
+        foreach ($bProds as &$bp) {
+            if (($bp['id'] ?? '') === $prodId) {
+                if ($name !== '') $bp['name'] = $name;
+                if ($cat !== '') $bp['category'] = $cat;
+                if ($price > 0) $bp['price'] = round($price, 2);
+                if ($icon !== '') $bp['icon'] = $icon;
+                break;
+            }
+        }
+        unset($bp);
+        saveBarProducts($bProds);
+        $_SESSION['admin_flash'] = "Prekės informacija atnaujinta.";
+        header('Location: admin.php?tab=baras_prekes');
+        exit;
+    }
+
+    // 6. Ištrinti prekę iš baro meniu
+    if (isset($_POST['action']) && $_POST['action'] === 'delete_bar_product') {
+        $prodId = trim($_POST['prod_id'] ?? '');
+        $bProds = loadBarProducts();
+        $bProds = array_values(array_filter($bProds, fn($bp) => ($bp['id'] ?? '') !== $prodId));
+        saveBarProducts($bProds);
+        $_SESSION['admin_flash'] = "Prekė pašalinta iš baro meniu.";
+        header('Location: admin.php?tab=baras_prekes');
+        exit;
+    }
 }
 
 $adminSiteSettings = loadSettingsData($settingsFile, $settingsDbFile);
@@ -1094,6 +1220,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     /* TABS */
     .nav-tabs {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.75rem;
       margin-bottom: 1.5rem;
       border-bottom: 1px solid var(--border);
@@ -1144,6 +1271,11 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     .badge-pending { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
     .badge-canceled { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
     .badge-opay { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.05); }
+    }
 
     /* ============================================================ */
     /* REALUS INTERAKTYVUS KALENDORIUS */
@@ -1393,6 +1525,19 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
 
   $currentTab = $_GET['tab'] ?? 'kalendorius';
   $initialSelectedDate = $_GET['date'] ?? date('Y-m-d');
+
+  // Baro & Užkandžių duomenys
+  $barOrders = loadBarOrders();
+  $barProducts = loadBarProducts();
+  $activeBarOrdersCount = count(array_filter($barOrders, fn($o) => ($o['status'] ?? '') === 'Apmokėta'));
+  $totalBarOrdersCount = count($barOrders);
+  $totalBarIncome = 0;
+  foreach ($barOrders as $bo) {
+    if (in_array($bo['status'] ?? '', ['Apmokėta', 'Atiduota'])) {
+      $totalBarIncome += ($bo['total_cents'] ?? 0) / 100;
+    }
+  }
+
   require_once __DIR__ . '/email_helper.php';
   $emailCfg = loadEmailConfig();
   require_once __DIR__ . '/opay_helper.php';
@@ -1450,8 +1595,9 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
         <div class="stat-value" style="color: #4ade80;"><?= $activeCoupons ?></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Iš viso parduota kuponų</div>
-        <div class="stat-value"><?= $totalCoupons ?></div>
+        <div class="stat-label">Baras (Apmokėta ruošti)</div>
+        <div class="stat-value" style="color: <?= $activeBarOrdersCount > 0 ? '#4ade80' : '#fff' ?>;"><?= $activeBarOrdersCount ?></div>
+        <div style="font-size: 0.75rem; color: var(--accent); margin-top: 4px;">Baro apyvarta: <?= number_format($totalBarIncome, 2) ?> €</div>
       </div>
     </div>
 
@@ -1460,6 +1606,8 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       <a href="admin.php?tab=kalendorius" class="tab-btn <?= $currentTab === 'kalendorius' ? 'active' : '' ?>">📅 Rezervacijų kalendorius</a>
       <a href="admin.php?tab=rezervacijos" class="tab-btn <?= $currentTab === 'rezervacijos' ? 'active' : '' ?>">📋 Rezervacijų sąrašas (<?= $totalRes ?>)</a>
       <a href="admin.php?tab=kuponai" class="tab-btn <?= $currentTab === 'kuponai' ? 'active' : '' ?>">🎁 Dovanų kuponai (<?= $totalCoupons ?>)</a>
+      <a href="admin.php?tab=baras" class="tab-btn <?= $currentTab === 'baras' ? 'active' : '' ?>">🍿 Baro užsakymai <?= $activeBarOrdersCount > 0 ? "<span class=\"badge badge-success\" style=\"margin-left:4px; animation: pulse 1.5s infinite;\">$activeBarOrdersCount</span>" : "" ?></a>
+      <a href="admin.php?tab=baras_prekes" class="tab-btn <?= $currentTab === 'baras_prekes' ? 'active' : '' ?>">🥤 Prekių valdymas</a>
       <a href="admin.php?tab=nustatymai" class="tab-btn <?= $currentTab === 'nustatymai' ? 'active' : '' ?>">⚙️ Svetainės nustatymai (TVS)</a>
       <a href="admin.php?tab=email" class="tab-btn <?= $currentTab === 'email' ? 'active' : '' ?>">📧 El. paštas (SMTP)</a>
       <a href="admin.php?tab=opay" class="tab-btn <?= $currentTab === 'opay' ? 'active' : '' ?>">💳 OPAY Mokėjimai</a>
@@ -2604,6 +2752,342 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       </div>
     <?php endif; ?>
 
+    <!-- ======================================================= -->
+    <!-- 7 TAB: BARO UŽSAKYMAI (GYVAS STALAS)                    -->
+    <!-- ======================================================= -->
+    <?php if ($currentTab === 'baras'): ?>
+      <div class="table-card" style="margin-bottom: 2rem;">
+        <div class="table-head" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="display: flex; align-items: center; gap: 0.6rem;">
+              <span>🍿</span> Baro ir užkandžių užsakymai (Gyvas stalas)
+              <?php if ($activeBarOrdersCount > 0): ?>
+                <span class="badge badge-success" style="animation: pulse 1.5s infinite; font-size: 0.85rem; padding: 0.35rem 0.75rem;">
+                  <?= $activeBarOrdersCount ?> nauji apmokėti
+                </span>
+              <?php endif; ?>
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem;">
+              Klientai salėje užsisako per QR kodą telefonu ir apmoka internetu be kasos aparato.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <a href="baras_qr.php" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #e58e26, #f59e0b); font-weight: 800;">
+              🖨️ Spausdinti QR stovelius salone ➔
+            </a>
+            <a href="baras.php" target="_blank" class="btn btn-secondary">
+              📱 Kliento meniu (baras.php) ➔
+            </a>
+          </div>
+        </div>
+
+        <!-- Mini informacinė juosta su auto-refresh ir garso nustatymais -->
+        <div style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); padding: 0.85rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; color: #cbd5e1;">
+            <span>Bendrai užsakymų: <strong><?= $totalBarOrdersCount ?></strong></span>
+            <span>•</span>
+            <span>Apyvarta iš baro: <strong style="color: var(--accent);"><?= number_format($totalBarIncome, 2) ?> €</strong></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #cbd5e1;">
+              <input type="checkbox" id="barSoundToggle" checked onchange="toggleBarSound(this.checked)">
+              <span>🔔 Garso signalas atėjus užsakymui</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 0.4rem; color: var(--muted);">
+              <span id="barLiveIndicator" style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; box-shadow: 0 0 6px #22c55e;"></span>
+              <span>Atnaujinama kas 10s</span>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="window.location.reload()" style="padding: 0.3rem 0.7rem; font-size: 0.8rem;">
+              🔄 Atnaujinti dabar
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Užsakymo Nr.</th>
+                <th>Data / Laikas</th>
+                <th>Klientas</th>
+                <th>Vieta erdvėje</th>
+                <th>Užsakytos prekės</th>
+                <th>Suma</th>
+                <th>Statusas</th>
+                <th>Veiksmai</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if (empty($barOrders)): ?>
+                <tr>
+                  <td colspan="8" style="text-align: center; padding: 3rem; color: var(--muted);">
+                    Kol kas baro užsakymų nėra. Atsispausdinkite QR stovelius ir pastatykite poilsio erdvėje bei prie takelių!
+                  </td>
+                </tr>
+              <?php else: ?>
+                <?php foreach ($barOrders as $ord): 
+                  $st = $ord['status'] ?? '';
+                  $isPaid = ($st === 'Apmokėta');
+                  $isDelivered = ($st === 'Atiduota');
+                  $isPending = ($st === 'Laukiama apmokėjimo');
+                  $isCancelled = (strpos($st, 'Atšaukta') !== false);
+                ?>
+                  <tr style="<?= $isPaid ? 'background: rgba(34, 197, 94, 0.08); font-weight: 600;' : '' ?>">
+                    <td>
+                      <span style="font-family: monospace; font-size: 0.95rem; font-weight: 800; color: <?= $isPaid ? '#4ade80' : 'var(--accent)' ?>;">
+                        <?= htmlspecialchars($ord['order_nr']) ?>
+                      </span>
+                    </td>
+                    <td>
+                      <div style="font-size: 0.88rem; color: #fff;"><?= htmlspecialchars(date('Y-m-d', strtotime($ord['created_at'] ?? 'now'))) ?></div>
+                      <div style="font-size: 0.78rem; color: var(--muted);"><?= htmlspecialchars(date('H:i:s', strtotime($ord['created_at'] ?? 'now'))) ?></div>
+                    </td>
+                    <td>
+                      <div style="font-weight: 700; color: #fff; font-size: 0.95rem;"><?= htmlspecialchars($ord['client_name'] ?? '—') ?></div>
+                      <?php if (!empty($ord['client_phone'])): ?>
+                        <div style="font-size: 0.8rem; color: var(--muted);"><?= htmlspecialchars($ord['client_phone']) ?></div>
+                      <?php endif; ?>
+                    </td>
+                    <td>
+                      <span style="display: inline-block; background: rgba(229,142,38,0.15); border: 1px solid rgba(229,142,38,0.4); color: var(--accent); padding: 0.35rem 0.65rem; border-radius: 8px; font-weight: 800; font-size: 0.9rem;">
+                        <?= htmlspecialchars($ord['client_location'] ?? '—') ?>
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.88rem;">
+                        <?php foreach (($ord['items'] ?? []) as $it): ?>
+                          <div style="display: flex; align-items: center; gap: 0.35rem;">
+                            <span><?= htmlspecialchars($it['icon'] ?? '🥤') ?></span>
+                            <span style="color: #fff;"><?= htmlspecialchars($it['name']) ?></span>
+                            <span style="background: rgba(255,255,255,0.08); border-radius: 4px; padding: 0.1rem 0.35rem; font-size: 0.75rem; font-weight: 700;">× <?= (int)$it['qty'] ?></span>
+                          </div>
+                        <?php endforeach; ?>
+                        <?php if (!empty($ord['client_notes'])): ?>
+                          <div style="margin-top: 0.35rem; font-size: 0.8rem; color: #fbbf24; background: rgba(245,158,11,0.1); border-left: 2px solid #fbbf24; padding: 0.2rem 0.45rem; border-radius: 4px;">
+                            💬 Pastaba: <?= htmlspecialchars($ord['client_notes']) ?>
+                          </div>
+                        <?php endif; ?>
+                      </div>
+                    </td>
+                    <td>
+                      <span style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--accent);">
+                        <?= htmlspecialchars($ord['total_amount'] ?? '0.00 €') ?>
+                      </span>
+                    </td>
+                    <td>
+                      <?php if ($isPaid): ?>
+                        <span class="badge badge-success" style="box-shadow: 0 0 10px rgba(34,197,94,0.4); font-size: 0.82rem; padding: 0.35rem 0.65rem;">
+                          ✅ Apmokėta (Ruošti)
+                        </span>
+                      <?php elseif ($isDelivered): ?>
+                        <span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3);">
+                          ✔️ Atiduota
+                        </span>
+                      <?php elseif ($isPending): ?>
+                        <span class="badge badge-pending">
+                          ⏳ Laukiama apmokėjimo
+                        </span>
+                      <?php elseif ($isCancelled): ?>
+                        <span class="badge badge-canceled">
+                          ✕ Atšaukta
+                        </span>
+                      <?php else: ?>
+                        <span class="badge badge-pending"><?= htmlspecialchars($st) ?></span>
+                      <?php endif; ?>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                        <?php if ($isPaid): ?>
+                          <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="update_bar_order_status">
+                            <input type="hidden" name="order_nr" value="<?= htmlspecialchars($ord['order_nr']) ?>">
+                            <input type="hidden" name="new_status" value="Atiduota">
+                            <button type="submit" class="btn btn-success" style="padding: 0.35rem 0.75rem; font-size: 0.82rem; font-weight: 800;">
+                              ✔️ Atiduota
+                            </button>
+                          </form>
+                        <?php endif; ?>
+
+                        <?php if (!$isCancelled && !$isDelivered): ?>
+                          <form method="POST" style="display:inline;" onsubmit="return confirm('Ar tikrai norite atšaukti šį užsakymą?');">
+                            <input type="hidden" name="action" value="update_bar_order_status">
+                            <input type="hidden" name="order_nr" value="<?= htmlspecialchars($ord['order_nr']) ?>">
+                            <input type="hidden" name="new_status" value="Atšaukta">
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;">
+                              ✕
+                            </button>
+                          </form>
+                        <?php endif; ?>
+
+                        <form method="POST" style="display:inline;" onsubmit="return confirm('Ar tikrai ištrinti užsakymą <?= htmlspecialchars($ord['order_nr']) ?> visiškai?');">
+                          <input type="hidden" name="action" value="delete_bar_order">
+                          <input type="hidden" name="order_nr" value="<?= htmlspecialchars($ord['order_nr']) ?>">
+                          <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.55rem; font-size: 0.78rem;" title="Ištrinti užsakymą">
+                            🗑️
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <!-- ======================================================= -->
+    <!-- 8 TAB: BARO PREKIŲ VALDYMAS                             -->
+    <!-- ======================================================= -->
+    <?php if ($currentTab === 'baras_prekes'): ?>
+      <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; align-items: flex-start;">
+        
+        <!-- KAIRĖJE: NAUJOS PREKĖS PRIDĖJIMAS -->
+        <div class="table-card" style="padding: 1.5rem;">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>➕</span> Pridėti naują prekę
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1.25rem;">
+            Įveskite prekę, kuri bus rodoma klientams nuskenavus QR kodą.
+          </p>
+
+          <form method="POST">
+            <input type="hidden" name="action" value="add_bar_product">
+
+            <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                Pavadinimas (su tūriu / svoriu):
+              </label>
+              <input type="text" name="prod_name" class="form-input" placeholder="pvz. Pepsi 0.5L arba Nachos 150g" required style="margin-bottom: 0;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                  Kategorija:
+                </label>
+                <select name="prod_category" class="form-input" style="margin-bottom: 0;">
+                  <option value="Gėrimai">🥤 Gėrimai</option>
+                  <option value="Užkandžiai">🍿 Užkandžiai</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                  Kaina (€):
+                </label>
+                <input type="number" step="0.10" min="0.50" max="100.00" name="prod_price" class="form-input" placeholder="2.50" required style="margin-bottom: 0;">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                Ikona (emodži):
+              </label>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <input type="text" name="prod_icon" id="newProdIcon" class="form-input" value="🥤" style="width: 70px; text-align: center; font-size: 1.3rem; margin-bottom: 0;">
+                <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='🥤'" style="padding: 0.3rem 0.5rem;">🥤</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='⚡'" style="padding: 0.3rem 0.5rem;">⚡</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='💧'" style="padding: 0.3rem 0.5rem;">💧</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='🧃'" style="padding: 0.3rem 0.5rem;">🧃</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='🍿'" style="padding: 0.3rem 0.5rem;">🍿</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='🥔'" style="padding: 0.3rem 0.5rem;">🥔</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='🍫'" style="padding: 0.3rem 0.5rem;">🍫</button>
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('newProdIcon').value='🥜'" style="padding: 0.3rem 0.5rem;">🥜</button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
+              + Pridėti prekę į meniu
+            </button>
+          </form>
+        </div>
+
+        <!-- DEŠINĖJE: ESAMŲ PREKIŲ SĄRAŠAS IR REDAGAVIMAS -->
+        <div class="table-card">
+          <div class="table-head">
+            <h3>🥤 Baro asortimentas (<?= count($barProducts) ?> prekių)</h3>
+            <span style="font-size: 0.85rem; color: var(--muted);">Pakeitimai iškart matomi klientų meniu</span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 50px;">Ikona</th>
+                  <th>Pavadinimas</th>
+                  <th>Kategorija</th>
+                  <th>Kaina (€)</th>
+                  <th>Būsena</th>
+                  <th style="text-align: right;">Veiksmai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($barProducts as $bp): 
+                  $isActive = !empty($bp['active']);
+                ?>
+                  <tr style="<?= !$isActive ? 'opacity: 0.55; background: rgba(0,0,0,0.2);' : '' ?>">
+                    <td style="font-size: 1.4rem; text-align: center;">
+                      <?= htmlspecialchars($bp['icon'] ?? '🥤') ?>
+                    </td>
+                    <td>
+                      <strong style="color: #fff; font-size: 0.95rem;"><?= htmlspecialchars($bp['name']) ?></strong>
+                    </td>
+                    <td>
+                      <span class="badge" style="background: rgba(255,255,255,0.06); color: #cbd5e1;">
+                        <?= htmlspecialchars($bp['category'] ?? 'Gėrimai') ?>
+                      </span>
+                    </td>
+                    <td>
+                      <form method="POST" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                        <input type="hidden" name="action" value="edit_bar_product">
+                        <input type="hidden" name="prod_id" value="<?= htmlspecialchars($bp['id']) ?>">
+                        <input type="hidden" name="prod_name" value="<?= htmlspecialchars($bp['name']) ?>">
+                        <input type="hidden" name="prod_category" value="<?= htmlspecialchars($bp['category']) ?>">
+                        <input type="hidden" name="prod_icon" value="<?= htmlspecialchars($bp['icon'] ?? '🥤') ?>">
+                        <input type="number" step="0.10" min="0.10" max="100.00" name="prod_price" value="<?= number_format($bp['price'], 2, '.', '') ?>" class="form-input" style="width: 80px; margin-bottom: 0; padding: 0.3rem 0.5rem; font-family: monospace; font-size: 0.9rem; font-weight: 700;">
+                        <button type="submit" class="btn btn-secondary" title="Išsaugoti kainą" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">💾</button>
+                      </form>
+                    </td>
+                    <td>
+                      <?php if ($isActive): ?>
+                        <span class="badge badge-success">✓ Yra sandėlyje</span>
+                      <?php else: ?>
+                        <span class="badge badge-canceled">✕ Išparduota</span>
+                      <?php endif; ?>
+                    </td>
+                    <td style="text-align: right;">
+                      <div style="display: inline-flex; gap: 0.35rem;">
+                        <form method="POST" style="display: inline;">
+                          <input type="hidden" name="action" value="toggle_bar_product">
+                          <input type="hidden" name="prod_id" value="<?= htmlspecialchars($bp['id']) ?>">
+                          <button type="submit" class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.8rem;">
+                            <?= $isActive ? 'Išjungti' : 'Įjungti' ?>
+                          </button>
+                        </form>
+
+                        <form method="POST" style="display: inline;" onsubmit="return confirm('Ar tikrai norite pašalinti prekę „<?= htmlspecialchars($bp['name']) ?>“ iš meniu?');">
+                          <input type="hidden" name="action" value="delete_bar_product">
+                          <input type="hidden" name="prod_id" value="<?= htmlspecialchars($bp['id']) ?>">
+                          <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.8rem;" title="Ištrinti prekę">
+                            🗑️
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    <?php endif; ?>
+
     <!-- MODALINIS LANGAS: REZERVACIJOS REDAGAVIMAS -->
     <div id="editModal" class="modal-overlay">
       <div class="modal-box">
@@ -3349,6 +3833,64 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       renderAdminCalendar();
       renderDaySchedule(selectedIsoDate);
     }
+
+    // Baro naujų užsakymų atnaujinimas ir garsinis signalas
+    (function initBarLiveNotifier() {
+      let lastPaidCount = <?= (int)($activeBarOrdersCount ?? 0) ?>;
+      let soundEnabled = true;
+
+      window.toggleBarSound = function(enabled) {
+        soundEnabled = enabled;
+        try {
+          localStorage.setItem('th_bar_sound', enabled ? '1' : '0');
+        } catch(e) {}
+      };
+
+      try {
+        const saved = localStorage.getItem('th_bar_sound');
+        if (saved !== null) {
+          soundEnabled = (saved === '1');
+          const cb = document.getElementById('barSoundToggle');
+          if (cb) cb.checked = soundEnabled;
+        }
+      } catch(e) {}
+
+      function playChime() {
+        if (!soundEnabled) return;
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+          osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.6);
+        } catch(e) {}
+      }
+
+      // Tikriname kas 10 sekundžių
+      setInterval(async () => {
+        try {
+          const res = await fetch('admin.php?api=bar_orders_poll');
+          if (!res.ok) return;
+          const data = await res.json();
+          if (typeof data.paid_count === 'number') {
+            if (data.paid_count > lastPaidCount) {
+              playChime();
+              if (window.location.search.includes('tab=baras')) {
+                window.location.reload();
+              }
+            }
+            lastPaidCount = data.paid_count;
+          }
+        } catch(e) {}
+      }, 10000);
+    })();
   </script>
 <?php endif; ?>
 
