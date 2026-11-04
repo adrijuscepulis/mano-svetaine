@@ -1,9 +1,17 @@
 <?php
 // kuponas_print.php - ThrowHouse dovanų kuponas (spausdinimui ir PDF atsisiuntimui)
 // Atvaizduoja ir generuoja oficialų Canva 2-jų pusių dovanų kupono formatą.
+// Apsauga: jei kupono kodas nenurodytas arba neegzistuoja, vartotojas nukreipiamas arba mato aiškią klaidą (nėra jokių atsitiktinių kuponų!).
 header('Content-Type: text/html; charset=utf-8');
 
 $code = trim($_GET['code'] ?? '');
+
+// 1. Jei kodas nenurodytas visai – nukreipiame į pagrindinio puslapio dovanų kuponų sekciją
+if (empty($code)) {
+    header('Location: index.html#kuponai');
+    exit;
+}
+
 $dataFile = __DIR__ . '/kuponai.json';
 $dataDbFile = __DIR__ . '/kuponai_db.json';
 
@@ -16,29 +24,135 @@ if (empty($coupons) && file_exists($dataFile)) {
 }
 
 $coupon = null;
-if (!empty($code)) {
-    foreach ($coupons as $c) {
-        if (!empty($c['code']) && strcasecmp($c['code'], $code) === 0) {
-            $coupon = $c;
-            break;
-        }
+foreach ($coupons as $c) {
+    if (!empty($c['code']) && strcasecmp($c['code'], $code) === 0) {
+        $coupon = $c;
+        break;
     }
 }
 
-// Jei kupono pagal kodą nerado (arba tiesioginė peržiūra)
+// 2. Jei kuponas nerastas – rodome 404 klaidos puslapį
 if (!$coupon) {
-    $amount = intval($_GET['amount'] ?? 50);
-    $coupon = [
-        'code' => !empty($code) ? htmlspecialchars($code) : 'TH-KUP-' . rand(1000, 9999),
-        'amount' => $amount,
-        'created_at' => date('Y-m-d'),
-        'expires_at' => date('Y-m-d', strtotime('+6 months')),
-        'buyer' => 'ThrowHouse',
-        'recipient' => '-',
-        'status' => 'Aktyvus'
-    ];
+    http_response_code(404);
+?>
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8">
+  <title>Kuponas nerastas – ThrowHouse Šiauliai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 2rem 1rem;
+      background: #0f1115; color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+    }
+    .card {
+      background: #181b20; border: 1px solid rgba(229, 142, 38, 0.3);
+      border-radius: 16px; padding: 2.5rem 2rem; max-width: 520px; width: 100%;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; color: #e58e26; margin: 0 0 1rem; }
+    p { color: #94a3b8; font-size: 1rem; line-height: 1.6; margin: 0 0 1.5rem; }
+    .code-badge { font-family: monospace; background: #23272f; color: #f87171; padding: 0.3rem 0.75rem; border-radius: 6px; }
+    .btn {
+      display: inline-block; background: linear-gradient(135deg, #c2410c 0%, #e58e26 100%);
+      color: #0c0a08; font-weight: 800; padding: 0.85rem 1.6rem; border-radius: 8px;
+      text-decoration: none; transition: transform 0.2s; margin: 0.35rem;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-secondary { background: #23272f; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚠️</div>
+    <h1>Kuponas nerastas</h1>
+    <p>
+      Dovanų kuponas su kodu <span class="code-badge"><?= htmlspecialchars($code) ?></span> sistemoje neegzistuoja arba nuoroda yra neteisinga.
+    </p>
+    <p style="font-size: 0.88rem; color: #64748b;">
+      Jei neseniai įsigijote kuponą, pasitikrinkite savo el. paštą arba susisiekite su mumis: <strong style="color: #cbd5e1;">info@throwhouse.lt</strong> / <strong style="color: #cbd5e1;">+370 619 88009</strong>.
+    </p>
+    <div style="margin-top: 1.5rem;">
+      <a href="index.html#kuponai" class="btn">🎁 Įsigyti kuponą</a>
+      <a href="index.html" class="btn btn-secondary">🌐 Pagrindinis puslapis</a>
+    </div>
+  </div>
+</body>
+</html>
+<?php
+    exit;
 }
 
+// 3. Jei kuponas neapmokėtas arba atšauktas
+$cStatus = $coupon['status'] ?? 'Aktyvus';
+if (stripos($cStatus, 'Laukiama') !== false || stripos($cStatus, 'Atsaukta') !== false || stripos($cStatus, 'Neapmoketa') !== false) {
+    http_response_code(403);
+?>
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8">
+  <title>Kuponas neaktyvus – ThrowHouse Šiauliai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 2rem 1rem;
+      background: #0f1115; color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+    }
+    .card {
+      background: #181b20; border: 1px solid rgba(229, 142, 38, 0.3);
+      border-radius: 16px; padding: 2.5rem 2rem; max-width: 520px; width: 100%;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; color: #f59e0b; margin: 0 0 1rem; }
+    p { color: #94a3b8; font-size: 1rem; line-height: 1.6; margin: 0 0 1.5rem; }
+    .btn {
+      display: inline-block; background: linear-gradient(135deg, #c2410c 0%, #e58e26 100%);
+      color: #0c0a08; font-weight: 800; padding: 0.85rem 1.6rem; border-radius: 8px;
+      text-decoration: none; transition: transform 0.2s; margin: 0.35rem;
+    }
+    .btn-secondary { background: #23272f; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">⏳</div>
+    <h1>Kuponas neaktyvus</h1>
+    <p>
+      Dovanų kuponas <strong><?= htmlspecialchars($coupon['code'] ?? '') ?></strong> nėra aktyvus (būsena: <span style="color: #f87171;"><?= htmlspecialchars($cStatus) ?></span>).
+    </p>
+    <p style="font-size: 0.88rem; color: #64748b;">
+      Kuponas aktyvuojamas tik po sėkmingo apmokėjimo. Jei manote, kad įvyko klaida, susisiekite su mumis: <strong style="color: #cbd5e1;">info@throwhouse.lt</strong> / <strong style="color: #cbd5e1;">+370 619 88009</strong>.
+    </p>
+    <div style="margin-top: 1.5rem;">
+      <a href="index.html#kuponai" class="btn">🎁 Įsigyti kuponą</a>
+      <a href="index.html" class="btn btn-secondary">🌐 Pagrindinis puslapis</a>
+    </div>
+  </div>
+</body>
+</html>
+<?php
+    exit;
+}
+
+// 4. Kuponas rastas ir aktyvus – paruošiame duomenis
 $cCode = htmlspecialchars($coupon['code'] ?? 'TH-KUP-0000');
 $cAmount = htmlspecialchars($coupon['amount'] ?? 50);
 $cExpires = htmlspecialchars($coupon['expires_at'] ?? date('Y-m-d', strtotime('+6 months')));
@@ -49,6 +163,7 @@ if (empty($cBuyerClean)) $cBuyerClean = '-';
 $cRecipient = htmlspecialchars($coupon['recipient'] ?? '');
 if (empty($cRecipient)) $cRecipient = '-';
 
+$isUsed = (stripos($cStatus, 'Panaudotas') !== false);
 $autoPrint = isset($_GET['print']) && $_GET['print'] === '1';
 
 // Tiesioginis PDF atsisiuntimas
@@ -163,6 +278,18 @@ if (isset($_GET['download'])) {
       justify-content: space-between;
       gap: 1rem;
       flex-wrap: wrap;
+    }
+
+    .used-banner {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.15);
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      padding: 0.85rem 1.25rem;
+      color: #fca5a5;
+      font-weight: 700;
+      text-align: center;
+      font-size: 0.95rem;
     }
 
     /* KUPONO TICKET DIZAINAS (Canva 210mm x 99mm) */
@@ -353,7 +480,7 @@ if (isset($_GET['download'])) {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      .no-print, .action-bar, .notice-card {
+      .no-print, .action-bar, .notice-card, .used-banner {
         display: none !important;
       }
       .voucher-stage {
@@ -417,6 +544,12 @@ if (isset($_GET['download'])) {
   </div>
 
   <div class="voucher-stage">
+
+    <?php if ($isUsed): ?>
+      <div class="used-banner no-print">
+        ⚠️ DĖMESIO: Šis dovanų kuponas jau yra pažymėtas kaip PANAUDOTAS.
+      </div>
+    <?php endif; ?>
 
     <div class="notice-card no-print">
       <div>
