@@ -2429,7 +2429,7 @@
         <div class="gallery-card" onclick="openGalleryItem(2)">
           <div class="gallery-card-bg" style="background-image: url('hero-bg.jpg');"></div>
           <div class="gallery-card-overlay"></div>
-          <div class="gallery-card-badge">🎉 Šventės</div>
+          <div class="gallery-card-badge">📸 Instagram Reels</div>
           <div class="gallery-play-btn">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
           </div>
@@ -2440,11 +2440,11 @@
           </div>
         </div>
 
-        <!-- 4 kortelė: Ekstremali patirtis -->
+        <!-- 4 kortelė: Ekstremali patirtis (Adrenalinas) -->
         <div class="gallery-card" onclick="openGalleryItem(3)">
-          <div class="gallery-card-bg" style="background-image: url('pykcio-kambarys.jpg'); filter: hue-rotate(25deg) contrast(1.1);"></div>
+          <div class="gallery-card-bg" style="background-image: url('pykcio-kambarys.jpg'); filter: contrast(1.05);"></div>
           <div class="gallery-card-overlay"></div>
-          <div class="gallery-card-badge">🔥 Smash Room</div>
+          <div class="gallery-card-badge">🔥 Pykčio kambarys</div>
           <div class="gallery-play-btn">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
           </div>
@@ -4762,17 +4762,19 @@
         subtitle: "Gimtadieniai, bernvakariai, mergvakariai ir įmonių komandos renginiai.",
         tag: "#Bernvakariai #Gimtadienis",
         bg: "hero-bg.jpg",
-        socialUrl: "https://www.tiktok.com/@throwhousesiauliai?is_from_webapp=1&sender_device=pc",
-        socialPlatform: "TikTok",
+        socialUrl: "https://www.instagram.com/reel/DfG2V-1IHtU/",
+        embedUrl: "https://www.instagram.com/reel/DfG2V-1IHtU/embed/",
+        socialPlatform: "Instagram Reels",
         videoUrl: ""
       },
       {
         title: "Dūžtantis stiklas ir adrenalino bomba ⚡",
         subtitle: "Vienintelė tokia streso iškrovos ir emocijų erdvė jau Šiauliuose!",
-        tag: "#Šiauliai #ThrowHouse",
+        tag: "#PykčioKambarys #Adrenalinas",
         bg: "pykcio-kambarys.jpg",
-        socialUrl: "https://www.instagram.com/throwhousesiauliai/",
-        socialPlatform: "Instagram",
+        socialUrl: "https://www.instagram.com/reel/DfDRztuR7ZS/",
+        embedUrl: "https://www.instagram.com/reel/DfDRztuR7ZS/embed/",
+        socialPlatform: "Instagram Reels",
         videoUrl: ""
       }
     ];
@@ -4796,6 +4798,10 @@
 
       if (item.videoUrl) {
         media.innerHTML = `<video src="${item.videoUrl}" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+      } else if (item.embedUrl) {
+        media.innerHTML = `
+          <iframe src="${item.embedUrl}" style="width:100%;height:100%;min-height:460px;border:none;background:#000;" allowfullscreen scrolling="no" allowtransparency="true"></iframe>
+        `;
       } else {
         media.innerHTML = `
           <div style="width:100%;height:100%;background-image:url('${item.bg}');background-size:cover;background-position:center;position:relative;display:flex;align-items:center;justify-content:center;">
