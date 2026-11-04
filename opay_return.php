@@ -436,7 +436,14 @@ if ($isCoupon) {
               <div style="width: 100%; font-size: 0.95rem; color: #fff; margin-top: 0.25rem;">
                 <?php foreach (($barOrder['items'] ?? []) as $it): ?>
                   <div style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px dashed rgba(255,255,255,0.08);">
-                    <span><?= htmlspecialchars($it['name']) ?> × <?= (int)$it['qty'] ?></span>
+                    <span style="display: flex; align-items: center; gap: 0.35rem;">
+                      <?php if (!empty($it['image']) && file_exists(__DIR__ . '/' . $it['image'])): ?>
+                        <img src="<?= htmlspecialchars($it['image']) ?>" alt="" style="width: 22px; height: 22px; object-fit: contain; border-radius: 4px; vertical-align: middle;">
+                      <?php else: ?>
+                        <span><?= htmlspecialchars($it['icon'] ?? '🥤') ?></span>
+                      <?php endif; ?>
+                      <span><?= htmlspecialchars($it['name']) ?> × <?= (int)$it['qty'] ?></span>
+                    </span>
                     <span style="font-weight: 700; color: var(--accent);"><?= number_format($it['total'], 2) ?> €</span>
                   </div>
                 <?php endforeach; ?>

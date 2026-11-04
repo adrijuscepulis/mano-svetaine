@@ -1025,6 +1025,7 @@ if (!empty($_SESSION['admin_logged'])) {
         $cat = trim($_POST['prod_category'] ?? 'Gėrimai');
         $price = (float)str_replace(',', '.', trim($_POST['prod_price'] ?? '0'));
         $icon = trim($_POST['prod_icon'] ?? '🥤');
+        $uploadedImg = handleBarProductImageUpload($_FILES['prod_image'] ?? null);
 
         if ($name !== '' && $price > 0) {
             $bProds = loadBarProducts();
@@ -1035,6 +1036,7 @@ if (!empty($_SESSION['admin_logged'])) {
                 'category' => $cat,
                 'price'    => round($price, 2),
                 'icon'     => $icon ?: '🥤',
+                'image'    => $uploadedImg ?: '',
                 'active'   => true
             ];
             saveBarProducts($bProds);
@@ -1070,6 +1072,7 @@ if (!empty($_SESSION['admin_logged'])) {
         $cat = trim($_POST['prod_category'] ?? 'Gėrimai');
         $price = (float)str_replace(',', '.', trim($_POST['prod_price'] ?? '0'));
         $icon = trim($_POST['prod_icon'] ?? '🥤');
+        $uploadedImg = handleBarProductImageUpload($_FILES['prod_image'] ?? null);
 
         $bProds = loadBarProducts();
         foreach ($bProds as &$bp) {
@@ -1078,12 +1081,46 @@ if (!empty($_SESSION['admin_logged'])) {
                 if ($cat !== '') $bp['category'] = $cat;
                 if ($price > 0) $bp['price'] = round($price, 2);
                 if ($icon !== '') $bp['icon'] = $icon;
+                if ($uploadedImg) $bp['image'] = $uploadedImg;
                 break;
             }
         }
         unset($bp);
         saveBarProducts($bProds);
         $_SESSION['admin_flash'] = "Prekės informacija atnaujinta.";
+        header('Location: admin.php?tab=baras_prekes');
+        exit;
+    }
+
+    // 5b. Greitas prekės nuotraukos įkėlimas arba pašalinimas
+    if (isset($_POST['action']) && $_POST['action'] === 'upload_bar_product_image') {
+        $prodId = trim($_POST['prod_id'] ?? '');
+        $remove = !empty($_POST['remove_image']);
+        $uploadedImg = handleBarProductImageUpload($_FILES['prod_image'] ?? null);
+
+        $bProds = loadBarProducts();
+        $found = false;
+        foreach ($bProds as &$bp) {
+            if (($bp['id'] ?? '') === $prodId) {
+                if ($remove) {
+                    $bp['image'] = '';
+                    $found = true;
+                    $_SESSION['admin_flash'] = "Prekės nuotrauka pašalinta.";
+                } elseif ($uploadedImg) {
+                    $bp['image'] = $uploadedImg;
+                    $found = true;
+                    $_SESSION['admin_flash'] = "Prekės nuotrauka sėkmingai atnaujinta!";
+                }
+                break;
+            }
+        }
+        unset($bp);
+
+        if ($found) {
+            saveBarProducts($bProds);
+        } else {
+            $_SESSION['admin_flash_error'] = "Nepavyko įkelti nuotraukos (leistini JPG, PNG, WEBP formatai iki 8MB).";
+        }
         header('Location: admin.php?tab=baras_prekes');
         exit;
     }
@@ -2857,7 +2894,11 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                       <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.88rem;">
                         <?php foreach (($ord['items'] ?? []) as $it): ?>
                           <div style="display: flex; align-items: center; gap: 0.35rem;">
-                            <span><?= htmlspecialchars($it['icon'] ?? '🥤') ?></span>
+                            <?php if (!empty($it['image']) && file_exists(__DIR__ . '/' . $it['image'])): ?>
+                              <img src="<?= htmlspecialchars($it['image']) ?>" alt="" style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; background: rgba(255,255,255,0.05);">
+                            <?php else: ?>
+                              <span><?= htmlspecialchars($it['icon'] ?? '🥤') ?></span>
+                            <?php endif; ?>
                             <span style="color: #fff;"><?= htmlspecialchars($it['name']) ?></span>
                             <span style="background: rgba(255,255,255,0.08); border-radius: 4px; padding: 0.1rem 0.35rem; font-size: 0.75rem; font-weight: 700;">× <?= (int)$it['qty'] ?></span>
                           </div>
@@ -2952,7 +2993,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             Įveskite prekę, kuri bus rodoma klientams nuskenavus QR kodą.
           </p>
 
-          <form method="POST">
+          <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="action" value="add_bar_product">
 
             <div style="margin-bottom: 0.85rem;">
@@ -2981,9 +3022,19 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               </div>
             </div>
 
+            <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
+                📸 Prekės nuotrauka (rekomenduojama):
+              </label>
+              <input type="file" name="prod_image" accept="image/jpeg,image/png,image/webp,image/gif" class="form-input" style="padding: 0.45rem; font-size: 0.82rem; margin-bottom: 0; background: rgba(255,255,255,0.03);">
+              <span style="font-size: 0.72rem; color: var(--muted); display: block; margin-top: 0.25rem;">
+                JPG, PNG arba WEBP iki 8MB. Jei neįkelsite, bus rodoma pasirinkta ikona.
+              </span>
+            </div>
+
             <div style="margin-bottom: 1.25rem;">
               <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.3rem;">
-                Ikona (emodži):
+                Atsarginė ikona (emodži):
               </label>
               <div style="display: flex; gap: 0.4rem; align-items: center;">
                 <input type="text" name="prod_icon" id="newProdIcon" class="form-input" value="🥤" style="width: 70px; text-align: center; font-size: 1.3rem; margin-bottom: 0;">
@@ -3010,14 +3061,14 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
         <div class="table-card">
           <div class="table-head">
             <h3>🥤 Baro asortimentas (<?= count($barProducts) ?> prekių)</h3>
-            <span style="font-size: 0.85rem; color: var(--muted);">Pakeitimai iškart matomi klientų meniu</span>
+            <span style="font-size: 0.85rem; color: var(--muted);">Nuotraukos iškart matomos klientų telefone</span>
           </div>
 
           <div style="overflow-x: auto;">
             <table>
               <thead>
                 <tr>
-                  <th style="width: 50px;">Ikona</th>
+                  <th style="width: 80px; text-align: center;">Nuotrauka</th>
                   <th>Pavadinimas</th>
                   <th>Kategorija</th>
                   <th>Kaina (€)</th>
@@ -3030,8 +3081,33 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                   $isActive = !empty($bp['active']);
                 ?>
                   <tr style="<?= !$isActive ? 'opacity: 0.55; background: rgba(0,0,0,0.2);' : '' ?>">
-                    <td style="font-size: 1.4rem; text-align: center;">
-                      <?= htmlspecialchars($bp['icon'] ?? '🥤') ?>
+                    <td style="text-align: center; vertical-align: middle;">
+                      <?php if (!empty($bp['image']) && file_exists(__DIR__ . '/' . $bp['image'])): ?>
+                        <div style="display: flex; justify-content: center;">
+                          <img src="<?= htmlspecialchars($bp['image']) ?>" alt="<?= htmlspecialchars($bp['name']) ?>" style="width: 48px; height: 48px; object-fit: contain; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; display: block;">
+                        </div>
+                      <?php else: ?>
+                        <div style="font-size: 1.6rem; line-height: 1;"><?= htmlspecialchars($bp['icon'] ?? '🥤') ?></div>
+                      <?php endif; ?>
+                      
+                      <div style="display: flex; gap: 3px; justify-content: center; margin-top: 4px;">
+                        <form method="POST" enctype="multipart/form-data" style="display: inline;">
+                          <input type="hidden" name="action" value="upload_bar_product_image">
+                          <input type="hidden" name="prod_id" value="<?= htmlspecialchars($bp['id']) ?>">
+                          <label class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.68rem; cursor: pointer;" title="Įkelti ar pakeisti nuotrauką">
+                            📷 <?= !empty($bp['image']) ? 'Keisti' : 'Įkelti' ?>
+                            <input type="file" name="prod_image" accept="image/*" onchange="this.form.submit()" style="display: none;">
+                          </label>
+                        </form>
+                        <?php if (!empty($bp['image'])): ?>
+                          <form method="POST" style="display: inline;" onsubmit="return confirm('Ar tikrai norite pašalinti šios prekės nuotrauką?');">
+                            <input type="hidden" name="action" value="upload_bar_product_image">
+                            <input type="hidden" name="prod_id" value="<?= htmlspecialchars($bp['id']) ?>">
+                            <input type="hidden" name="remove_image" value="1">
+                            <button type="submit" class="btn btn-secondary" style="padding: 2px 5px; font-size: 0.68rem; color: #f87171;" title="Pašalinti nuotrauką">✕</button>
+                          </form>
+                        <?php endif; ?>
+                      </div>
                     </td>
                     <td>
                       <strong style="color: #fff; font-size: 0.95rem;"><?= htmlspecialchars($bp['name']) ?></strong>

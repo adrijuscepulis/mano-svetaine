@@ -218,3 +218,50 @@ function saveBarOrders(array $orders) {
 function generateBarOrderNumber() {
     return 'TH-BAR-' . date('d') . strtoupper(substr(uniqid(), -4));
 }
+
+/**
+ * Apdoroja įkeltą prekės nuotrauką
+ * @param array $file $_FILES['prod_image']
+ * @return string|null Grąžina santykinį kelią arba null
+ */
+function handleBarProductImageUpload($file) {
+    if (empty($file) || empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return null;
+    }
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+
+    // Maksimalus dydis 8MB
+    if ($file['size'] > 8 * 1024 * 1024) {
+        return null;
+    }
+
+    $allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowedExts)) {
+        return null;
+    }
+
+    // Tikriname ar failas tikrai paveikslėlis
+    $imgInfo = @getimagesize($file['tmp_name']);
+    if ($imgInfo === false) {
+        return null;
+    }
+
+    $uploadDir = __DIR__ . '/uploads/baras/';
+    if (!is_dir($uploadDir)) {
+        @mkdir($uploadDir, 0777, true);
+    }
+
+    $fileName = 'prod_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+    $targetPath = $uploadDir . $fileName;
+
+    if (@move_uploaded_file($file['tmp_name'], $targetPath)) {
+        @chmod($targetPath, 0666);
+        return 'uploads/baras/' . $fileName;
+    }
+
+    return null;
+}

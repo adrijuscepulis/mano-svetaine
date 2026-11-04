@@ -236,6 +236,24 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       line-height: 1;
       margin-bottom: 0.35rem;
     }
+    .product-img-box {
+      width: 68px;
+      height: 68px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.35rem;
+      overflow: hidden;
+    }
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
     .product-category-tag {
       font-size: 0.68rem;
       font-weight: 700;
@@ -739,7 +757,13 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
         <div class="product-card" data-category="<?= htmlspecialchars($p['category']) ?>" id="card_<?= htmlspecialchars($p['id']) ?>">
           <div>
             <div class="product-badge-wrap">
-              <div class="product-icon"><?= htmlspecialchars($p['icon'] ?? '🥤') ?></div>
+              <?php if (!empty($p['image']) && file_exists(__DIR__ . '/' . $p['image'])): ?>
+                <div class="product-img-box">
+                  <img src="<?= htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>" class="product-img" loading="lazy">
+                </div>
+              <?php else: ?>
+                <div class="product-icon"><?= htmlspecialchars($p['icon'] ?? '🥤') ?></div>
+              <?php endif; ?>
               <span class="product-category-tag"><?= htmlspecialchars($p['category']) ?></span>
             </div>
             <div class="product-name"><?= htmlspecialchars($p['name']) ?></div>
@@ -1019,11 +1043,14 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
         if (!p) return;
         const qty = cart[id];
         const lineTotal = (p.price * qty).toFixed(2);
+        const iconOrImg = p.image 
+          ? `<img src="${p.image}" alt="${p.name}" style="width:36px; height:36px; object-fit:contain; border-radius:6px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);">`
+          : `<span class="c-item-icon">${p.icon || '🥤'}</span>`;
 
         html += `
           <div class="cart-item-row">
             <div class="c-item-left">
-              <span class="c-item-icon">${p.icon || '🥤'}</span>
+              ${iconOrImg}
               <div class="c-item-info">
                 <h4>${p.name}</h4>
                 <span>${p.price.toFixed(2)} € / vnt.</span>

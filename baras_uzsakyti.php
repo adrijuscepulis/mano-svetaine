@@ -80,6 +80,7 @@ foreach ($cartItems as $cItem) {
         'id'         => $prod['id'],
         'name'       => $prod['name'],
         'icon'       => $prod['icon'] ?? '🥤',
+        'image'      => $prod['image'] ?? '',
         'category'   => $prod['category'] ?? 'Gėrimai',
         'qty'        => $qty,
         'unit_price' => $unitPrice,
