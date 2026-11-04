@@ -129,7 +129,7 @@
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5.0",
-      "reviewCount": "28",
+      "reviewCount": "1",
       "bestRating": "5",
       "worstRating": "1"
     }
@@ -1379,242 +1379,92 @@
       }
     }
 
-    /* ATSILIEPIMŲ SEKCIJA */
-    .reviews-stats-card {
-      background: linear-gradient(135deg, rgba(28, 23, 19, 0.95), rgba(18, 14, 11, 0.95));
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 1.75rem 2rem;
-      margin-bottom: 2.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
+    /* ATSILIEPIMŲ SEKCIJA (APATYJE) */
+    .reviews-bottom-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
       gap: 1.5rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      align-items: stretch;
     }
-    .reviews-score-block {
+    .reviews-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 2.25rem 1.75rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 1.25rem;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s, border-color 0.2s;
     }
-    .reviews-google-icon {
-      width: 48px;
-      height: 48px;
+    .reviews-stat-card:hover {
+      border-color: rgba(229, 142, 38, 0.45);
+      transform: translateY(-2px);
+    }
+    .reviews-g-logo {
+      width: 52px;
+      height: 52px;
       background: #ffffff;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      flex-shrink: 0;
+      margin-bottom: 1rem;
     }
-    .reviews-score-num {
+    .reviews-rating-number {
       font-family: var(--font-head);
-      font-size: 3rem;
+      font-size: 3.4rem;
       font-weight: 800;
       color: #fff;
       line-height: 1;
     }
-    .reviews-score-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-    .reviews-stars {
+    .reviews-rating-stars {
       color: #f59e0b;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       letter-spacing: 2px;
-      display: flex;
-      align-items: center;
-      gap: 2px;
+      margin: 0.4rem 0 0.5rem 0;
     }
-    .reviews-score-text {
-      color: var(--text-gray);
-      font-size: 0.92rem;
-    }
-    .reviews-badges-row {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-    }
-    .review-stat-pill {
-      background: rgba(229, 142, 38, 0.08);
-      border: 1px solid rgba(229, 142, 38, 0.25);
-      border-radius: var(--radius-sm);
-      padding: 0.6rem 1rem;
+    .reviews-invite-card {
+      background: linear-gradient(135deg, rgba(28, 23, 19, 0.95), rgba(18, 14, 11, 0.95));
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 2.25rem 2rem;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s, border-color 0.2s;
     }
-    .review-stat-val {
-      font-family: var(--font-head);
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1.1;
-    }
-    .review-stat-lbl {
-      font-size: 0.76rem;
-      color: var(--text-gray);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .reviews-cta-btn {
-      background: linear-gradient(135deg, #e58e26 0%, #c2410c 100%);
-      color: #0c0a08;
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: 0.98rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      padding: 0.75rem 1.4rem;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 15px rgba(229, 142, 38, 0.35);
-    }
-    .reviews-cta-btn:hover {
+    .reviews-invite-card:hover {
+      border-color: var(--accent);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(229, 142, 38, 0.55);
-      color: #000;
     }
-    .reviews-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-    }
-    .review-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.6rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      transition: all 0.25s ease;
-    }
-    .review-card:hover {
-      border-color: rgba(229, 142, 38, 0.5);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-    }
-    .review-card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-    }
-    .review-author-wrap {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .review-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(229, 142, 38, 0.25), rgba(194, 65, 12, 0.45));
-      border: 1.5px solid rgba(229, 142, 38, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-head);
-      font-weight: 800;
-      color: var(--accent);
-      font-size: 1.05rem;
-      flex-shrink: 0;
-    }
-    .review-author-name {
-      font-weight: 700;
-      color: #fff;
-      font-size: 0.98rem;
-      line-height: 1.2;
-    }
-    .review-date {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-    }
-    .review-source-tag {
+    .reviews-tag-badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font-size: 0.74rem;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .review-badge-category {
-      display: inline-block;
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--accent);
+      gap: 6px;
       background: rgba(229, 142, 38, 0.12);
-      border: 1px solid rgba(229, 142, 38, 0.25);
-      padding: 0.2rem 0.65rem;
+      border: 1px solid rgba(229, 142, 38, 0.3);
       border-radius: 4px;
-      margin-bottom: 0.85rem;
-    }
-    .review-card-stars {
-      color: #f59e0b;
-      font-size: 1.05rem;
-      letter-spacing: 2px;
-      margin-bottom: 0.75rem;
-    }
-    .review-text {
-      color: #e2e8f0;
-      font-size: 0.94rem;
-      line-height: 1.6;
-      font-style: italic;
-      position: relative;
-      flex-grow: 1;
-    }
-    .reviews-bottom-action {
-      text-align: center;
-      background: rgba(20, 17, 14, 0.7);
-      border: 1px dashed rgba(229, 142, 38, 0.35);
-      border-radius: var(--radius-md);
-      padding: 1.75rem 1.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 1.25rem;
-    }
-    .reviews-bottom-action p {
-      color: #cbd5e1;
-      font-size: 1rem;
-      margin: 0;
+      padding: 0.25rem 0.65rem;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
     }
 
-    @media (max-width: 992px) {
-      .reviews-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .reviews-stats-card {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-    @media (max-width: 640px) {
-      .reviews-grid {
+    @media (max-width: 768px) {
+      .reviews-bottom-wrap {
         grid-template-columns: 1fr;
       }
-      .reviews-score-block {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .reviews-bottom-action {
-        flex-direction: column;
+      .reviews-invite-card, .reviews-stat-card {
+        padding: 1.6rem 1.25rem;
       }
     }
 
@@ -2439,10 +2289,10 @@
       <nav class="nav-links" id="navLinks">
         <a href="#pramogos" class="nav-item">Pramogos</a>
         <a href="#galerija" class="nav-item">Galerija</a>
-        <a href="#atsiliepimai" class="nav-item">Atsiliepimai</a>
         <a href="#kainos" class="nav-item">Kainos</a>
         <a href="#kuponai" class="nav-item">Dovanų kuponai</a>
         <a href="#duk" class="nav-item">D.U.K.</a>
+        <a href="#atsiliepimai" class="nav-item">Atsiliepimai</a>
         <a href="kontaktai.html" class="nav-item">Kontaktai</a>
         <a href="taisykles.html" class="nav-item">Taisyklės</a>
         <a href="#rezervacija" class="btn btn-primary nav-btn">Rezervuoti laiką</a>
@@ -2721,205 +2571,6 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
             <span>Facebook ThrowHouse</span>
           </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ATSILIEPIMŲ SEKCIJA -->
-  <section class="section" id="atsiliepimai" style="background: rgba(14, 11, 9, 0.65); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-    <div class="container">
-      <div class="section-head">
-        <span class="tag">Klientų patirtis & atsiliepimai</span>
-        <h2 class="title">Ką apie mus kalba lankytojai</h2>
-        <p class="subtitle">Tikros mūsų svečių emocijos po kirvių mėtymo takelių ir pykčio kambario sesijų Šiauliuose.</p>
-      </div>
-
-      <!-- GOOGLE RATING & STATISTIKOS SANTRAUKA -->
-      <div class="reviews-stats-card">
-        <div class="reviews-score-block">
-          <div class="reviews-google-icon" title="Google įvertinimas">
-            <svg width="26" height="26" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-            </svg>
-          </div>
-          <div>
-            <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-              <span class="reviews-score-num">5.0</span>
-              <span style="color: var(--text-muted); font-size: 1.1rem; font-weight: 700;">/ 5.0</span>
-            </div>
-            <div class="reviews-score-details">
-              <div class="reviews-stars">★★★★★</div>
-              <div class="reviews-score-text">100% teigiami atsiliepimai „Google Maps“</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="reviews-badges-row">
-          <div class="review-stat-pill">
-            <span class="review-stat-val">1000+</span>
-            <span class="review-stat-lbl">Laimingų lankytojų</span>
-          </div>
-          <div class="review-stat-pill">
-            <span class="review-stat-val">100%</span>
-            <span class="review-stat-lbl">Streso iškrova</span>
-          </div>
-          <div class="review-stat-pill">
-            <span class="review-stat-val">2</span>
-            <span class="review-stat-lbl">Unikalios erdvės</span>
-          </div>
-        </div>
-
-        <a href="https://www.google.com/maps/search/?api=1&query=ThrowHouse+Šiauliai+Pramonės+g.+15" target="_blank" rel="noopener noreferrer" class="reviews-cta-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-          <span>Palikti atsiliepimą Google</span>
-        </a>
-      </div>
-
-      <!-- ATSILIEPIMŲ KORTELIŲ TINKLELIS -->
-      <div class="reviews-grid">
-        <!-- 1 Kortelė -->
-        <div class="review-card">
-          <div>
-            <div class="review-card-top">
-              <div class="review-author-wrap">
-                <div class="review-avatar">DK</div>
-                <div>
-                  <div class="review-author-name">Dominykas K.</div>
-                  <div class="review-date">prieš 2 savaites</div>
-                </div>
-              </div>
-              <div class="review-source-tag">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google</span>
-              </div>
-            </div>
-            <div class="review-badge-category">🔥 Pykčio kambarys</div>
-            <div class="review-card-stars">★★★★★</div>
-            <p class="review-text">„Geriausia vieta Šiauliuose išsikrauti po įtemptos savaitės! Su draugais daužėme indus, monitorius ir butelius. Apsaugos nuo galvos iki kojų, viskas saugu, o jausmas nerealus. Išėjom su plačiausiomis šypsenomis ir be jokio streso. 10/10!“</p>
-          </div>
-        </div>
-
-        <!-- 2 Kortelė -->
-        <div class="review-card">
-          <div>
-            <div class="review-card-top">
-              <div class="review-author-wrap">
-                <div class="review-avatar">JR</div>
-                <div>
-                  <div class="review-author-name">Justina R.</div>
-                  <div class="review-date">prieš 3 savaites</div>
-                </div>
-              </div>
-              <div class="review-source-tag">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google</span>
-              </div>
-            </div>
-            <div class="review-badge-category">🎯 Kirvių mėtymas</div>
-            <div class="review-card-stars">★★★★★</div>
-            <p class="review-text">„Iš pradžių maniau, kad kirvių mėtymas labiau vyrams, bet pabandžiusi likau sužavėta! Instruktorius viską labai kantriai ir profesionaliai išaiškino. Kai pradėjo smigti į taikinio centrą – apėmė nerealus azartas. Būtinai rekomenduoju merginų kompanijoms!“</p>
-          </div>
-        </div>
-
-        <!-- 3 Kortelė -->
-        <div class="review-card">
-          <div>
-            <div class="review-card-top">
-              <div class="review-author-wrap">
-                <div class="review-avatar">MV</div>
-                <div>
-                  <div class="review-author-name">Mantas V.</div>
-                  <div class="review-date">prieš 1 mėnesį</div>
-                </div>
-              </div>
-              <div class="review-source-tag">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google</span>
-              </div>
-            </div>
-            <div class="review-badge-category">⚡ Bernvakario programa</div>
-            <div class="review-card-stars">★★★★★</div>
-            <p class="review-text">„Organizuojant brolio bernvakarį ieškojome kažko aktyvaus ir netikėto. ThrowHouse buvo geriausias pasirinkimas – kirviai ir po to pykčio kambarys buvo renginio kulminacija. Jaunikis ir visa kompanija liko pakylėti!“</p>
-          </div>
-        </div>
-
-        <!-- 4 Kortelė -->
-        <div class="review-card">
-          <div>
-            <div class="review-card-top">
-              <div class="review-author-wrap">
-                <div class="review-avatar">DB</div>
-                <div>
-                  <div class="review-author-name">Deividas B.</div>
-                  <div class="review-date">prieš 1 mėnesį</div>
-                </div>
-              </div>
-              <div class="review-source-tag">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google</span>
-              </div>
-            </div>
-            <div class="review-badge-category">🎯 Kirviai + 🔥 Pykčio kambarys</div>
-            <div class="review-card-stars">★★★★★</div>
-            <p class="review-text">„Labai džiaugiuosi, kad Šiauliuose atsirado tokia unikali vieta. Puiki erdvė, draugiški instruktoriai, kokybiškas inventorius. Puikus kainos ir kokybės santykis. Tikrai grįšime su dar didesne draugų kompanija!“</p>
-          </div>
-        </div>
-
-        <!-- 5 Kortelė -->
-        <div class="review-card">
-          <div>
-            <div class="review-card-top">
-              <div class="review-author-wrap">
-                <div class="review-avatar">VP</div>
-                <div>
-                  <div class="review-author-name">Viktorija ir Paulius</div>
-                  <div class="review-date">prieš 1 mėnesį</div>
-                </div>
-              </div>
-              <div class="review-source-tag">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google</span>
-              </div>
-            </div>
-            <div class="review-badge-category">💥 Netradicinis pasimatymas</div>
-            <div class="review-card-stars">★★★★★</div>
-            <p class="review-text">„Visiškai kitoks vakaras dviese! Vietoj eilinės vakarienės pasirinkome ThrowHouse ir tai buvo geriausias mūsų pasimatymas šiais metais. Prisijuokėme, pasivaržėme ir patyrėme daug adrenalino. Ačiū!“</p>
-          </div>
-        </div>
-
-        <!-- 6 Kortelė -->
-        <div class="review-card">
-          <div>
-            <div class="review-card-top">
-              <div class="review-author-wrap">
-                <div class="review-avatar">AG</div>
-                <div>
-                  <div class="review-author-name">Artūras G.</div>
-                  <div class="review-date">prieš 2 mėnesius</div>
-                </div>
-              </div>
-              <div class="review-source-tag">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google</span>
-              </div>
-            </div>
-            <div class="review-badge-category">🎉 Įmonės renginys</div>
-            <div class="review-card-stars">★★★★★</div>
-            <p class="review-text">„Buvo nepakartojamas komandinis vakaras su kolegomis. Instruktoriai surengė mini turnyrą, o emocijos virė iki paskutinės minutės. Visi kolegos iki šiol darbe aptarinėja taikliausius metimus!“</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- APATINĖ EILUTĖ / VEIKSMO KVIETIMAS -->
-      <div class="reviews-bottom-action">
-        <p>🎯 <strong>Norite patirti tokių pat įspūdžių?</strong> Rezervuokite laiką internetu arba palikite savo įvertinimą:</p>
-        <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; justify-content: center;">
-          <a href="#rezervacija" class="btn btn-primary" style="padding: 0.65rem 1.4rem; font-size: 0.92rem;">Rezervuoti laiką ➔</a>
-          <a href="https://www.google.com/maps/search/?api=1&query=ThrowHouse+Šiauliai+Pramonės+g.+15" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.65rem 1.4rem; font-size: 0.92rem;">Parašyti atsiliepimą Google</a>
         </div>
       </div>
     </div>
@@ -3644,6 +3295,54 @@
     </div>
   </section>
 
+  <!-- ATSILIEPIMŲ SEKCIJA (APATYJE) -->
+  <section class="section" id="atsiliepimai" style="background: rgba(14, 11, 9, 0.75); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+      <div class="section-head" style="margin-bottom: 2.25rem;">
+        <span class="tag">Klientų įvertinimai</span>
+        <h2 class="title">Google atsiliepimai</h2>
+        <p class="subtitle">Esame nauja pramogų erdvė Šiauliuose. Kiekvienas lankytojo įspūdis ir grįžtamasis ryšys mums yra nepaprastai svarbus!</p>
+      </div>
+
+      <div class="reviews-bottom-wrap">
+        <!-- Reitingo kortelė -->
+        <div class="reviews-stat-card">
+          <div class="reviews-g-logo" title="Google įvertinimas">
+            <svg width="28" height="28" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+          </div>
+          <div class="reviews-rating-number">5.0</div>
+          <div class="reviews-rating-stars">★★★★★</div>
+          <div style="color: #e2e8f0; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem;">Google įvertinimas</div>
+          <div style="color: var(--text-gray); font-size: 0.85rem;">100% teigiamas įvertinimas</div>
+        </div>
+
+        <!-- Kvietimas palikti atsiliepimą -->
+        <div class="reviews-invite-card">
+          <div>
+            <div class="reviews-tag-badge">
+              <span>⭐</span> Jūsų nuomonė svarbi
+            </div>
+            <h3 style="font-family: var(--font-head); font-size: 1.55rem; color: #fff; text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.02em;">Buvote ThrowHouse erdvėje?</h3>
+            <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Pasidalinkite savo tikromis emocijomis po kirvių mėtymo takelių ar pykčio kambario sesijos. Jūsų atsiliepimas padeda mums tobulėti, o kitiems lankytojams – atrasti šią pramogą Šiauliuose!
+            </p>
+          </div>
+          <div>
+            <a href="https://g.page/r/CSl4Ci9B6QHpEBM/review" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem 1.5rem; font-size: 0.98rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 18px rgba(229, 142, 38, 0.4);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span>Palikti atsiliepimą Google platformoje ➔</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
@@ -3651,10 +3350,10 @@
       <div style="margin-bottom: 1.25rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem 1.5rem;">
         <a href="#pramogos">Pramogos</a>
         <a href="#galerija">Galerija</a>
-        <a href="#atsiliepimai">Atsiliepimai</a>
         <a href="#kainos">Kainos</a>
         <a href="#kuponai">Dovanų kuponai</a>
         <a href="#duk">D.U.K.</a>
+        <a href="#atsiliepimai">Atsiliepimai</a>
         <a href="#rezervacija">Rezervacija</a>
         <a href="kontaktai.html">Kontaktai</a>
         <a href="taisykles.html" style="color: var(--accent); font-weight: 700;">📜 Taisyklės</a>
