@@ -66,23 +66,23 @@ function generateCanvaCouponPdf($templatePath, $code, $amount, $expiresAt, $buye
     $escRecipient = escapePdfText(mb_substr($cleanRecipient, 0, 36));
 
     // Teksto koordinatės ant Canva šablono linijų (MediaBox [0 7.5 595.5 288.0]):
-    // Vertė: linija X=107..324, Y=138. Reikšmė X=185, Y=142
-    // Kupono nr.: linija X=350..566, Y=137. Reikšmė X=435, Y=142
-    // Įsigijimo data: linija X=107..324, Y=100. Reikšmė X=205, Y=104
-    // Dovanoja: linija X=350..566, Y=100. Reikšmė X=425, Y=104
-    // Kam skirta: linija X=213..487, Y=67. Reikšmė X=300, Y=71
+    // Vertė: linija X=107..324, Y=138. Reikšmė X=185, Y=146, šriftas 17.5 pt
+    // Kupono nr.: linija X=350..566, Y=137. Reikšmė X=435, Y=146, šriftas 15.5 pt
+    // Įsigijimo data: linija X=107..324, Y=100. Reikšmė X=205, Y=108, šriftas 14.5 pt
+    // Dovanoja: linija X=350..566, Y=100. Reikšmė X=425, Y=108, šriftas 14.5 pt
+    // Kam skirta: linija X=213..487, Y=67. Reikšmė X=300, Y=75, šriftas 15.5 pt
 
     $stream = "/gsNormal gs\n";
     // Vertė
-    $stream .= "BT\n/F2 14 Tf\n0.08 0.12 0.14 rg\n1 0 0 1 185 142 Tm\n($escAmount) Tj\nET\n";
+    $stream .= "BT\n/F2 17.5 Tf\n0.08 0.12 0.14 rg\n1 0 0 1 185 146 Tm\n($escAmount) Tj\nET\n";
     // Kupono nr.
-    $stream .= "BT\n/F2 13 Tf\n0.08 0.12 0.14 rg\n1 0 0 1 435 142 Tm\n($escCode) Tj\nET\n";
+    $stream .= "BT\n/F2 15.5 Tf\n0.08 0.12 0.14 rg\n1 0 0 1 435 146 Tm\n($escCode) Tj\nET\n";
     // Įsigijimo data
-    $stream .= "BT\n/F2 11.5 Tf\n0.12 0.16 0.18 rg\n1 0 0 1 205 104 Tm\n($escDate) Tj\nET\n";
+    $stream .= "BT\n/F2 14.5 Tf\n0.09 0.13 0.15 rg\n1 0 0 1 205 108 Tm\n($escDate) Tj\nET\n";
     // Dovanoja
-    $stream .= "BT\n/F2 11.5 Tf\n0.12 0.16 0.18 rg\n1 0 0 1 425 104 Tm\n($escBuyer) Tj\nET\n";
+    $stream .= "BT\n/F2 14.5 Tf\n0.09 0.13 0.15 rg\n1 0 0 1 425 108 Tm\n($escBuyer) Tj\nET\n";
     // Kam skirta
-    $stream .= "BT\n/F2 12 Tf\n0.08 0.12 0.14 rg\n1 0 0 1 300 71 Tm\n($escRecipient) Tj\nET\n";
+    $stream .= "BT\n/F2 15.5 Tf\n0.08 0.12 0.14 rg\n1 0 0 1 300 75 Tm\n($escRecipient) Tj\nET\n";
 
     $streamLen = strlen($stream);
 

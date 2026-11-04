@@ -251,30 +251,31 @@ if (isset($_GET['download'])) {
       display: flex;
       align-items: baseline;
       border-bottom: 1.5px solid #2b3137;
-      padding-bottom: 3px;
+      padding-bottom: 6px;
     }
     .t-label {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 500;
       color: #1a1e22;
       white-space: nowrap;
-      margin-right: 0.6rem;
+      margin-right: 0.75rem;
     }
     .t-value {
       font-weight: 800;
       color: #101416;
-      font-size: 1.05rem;
+      font-size: 1.15rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .t-value-amount {
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       color: #101416;
       font-weight: 900;
     }
     .t-value-code {
       font-family: 'Space Mono', monospace;
+      font-size: 1.2rem;
       letter-spacing: 1px;
     }
 
@@ -283,7 +284,7 @@ if (isset($_GET['download'])) {
       display: flex;
       align-items: baseline;
       border-bottom: 1.5px solid #2b3137;
-      padding-bottom: 3px;
+      padding-bottom: 6px;
       width: 70%;
       margin: 0 auto;
     }
