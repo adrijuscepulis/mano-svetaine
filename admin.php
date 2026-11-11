@@ -1088,6 +1088,53 @@ if (!empty($_SESSION['admin_logged'])) {
         exit;
     }
 
+    // 11a. Išsiųsti abu oficialius šablonus (Patvirtinimas + Google atsiliepimas) į nurodytą paštą
+    if (isset($_POST['action']) && $_POST['action'] === 'send_sample_templates') {
+        require_once __DIR__ . '/email_helper.php';
+        $targetEmail = trim($_POST['sample_target_email'] ?? 'adrijus.cepulis@gmail.com');
+        if (!filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['admin_flash_error'] = "Neteisingas el. pašto adresas: $targetEmail";
+            header('Location: admin.php?tab=email');
+            exit;
+        }
+
+        $sampleRes = [
+            'id' => 'TH-TEST' . rand(100, 999),
+            'name' => 'Adrijus Čepulis',
+            'phone' => '+370 600 00000',
+            'email' => $targetEmail,
+            'activity' => 'KOMBO paketas (Kirviai + Pykčio kambarys)',
+            'lane' => 'Takelis 1',
+            'count' => 2,
+            'date' => date('Y-m-d', strtotime('+1 day')),
+            'time' => '18:00 - 20:00',
+            'price' => '45 €',
+            'payment' => 'Apmokėta internetu (OPAY)',
+            'status' => 'Patvirtinta'
+        ];
+
+        // 1. Patvirtinimo laiškas
+        $confHtml = renderNewReservationClientHtml($sampleRes);
+        $confSub = "Rezervacijos patvirtinimas [{$sampleRes['id']}] – ThrowHouse Šiauliai";
+        $confSent = sendThrowHouseMail($targetEmail, $confSub, $confHtml, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
+
+        // 2. Google atsiliepimo kvietimas
+        $revHtml = renderReviewRequestEmailHtml($sampleRes);
+        $revSub = "Ačiū, kad apsilankėte ThrowHouse Šiauliai! 🔥 Kaip sekėsi?";
+        $revSent = sendThrowHouseMail($targetEmail, $revSub, $revHtml, 'info@throwhouse.lt', 'ThrowHouse Šiauliai');
+
+        if ($confSent && $revSent) {
+            $_SESSION['admin_flash'] = "✓ SĖKMĖ: Abu oficialūs ThrowHouse el. laiškai (Patvirtinimas ir Google atsiliepimo kvietimas) sėkmingai išsiųsti į $targetEmail!";
+        } elseif ($confSent || $revSent) {
+            $_SESSION['admin_flash'] = "Vienas iš laiškų išsiųstas sėkmingai į $targetEmail, antrasis susidūrė su kliūtimi. Patikrinkite el. pašto nustatymus žemiau.";
+        } else {
+            $_SESSION['admin_flash_error'] = "Nepavyko išsiųsti laiškų į $targetEmail. Patikrinkite SMTP nustatymus (Gmail slaptažodį) žemiau.";
+        }
+
+        header('Location: admin.php?tab=email');
+        exit;
+    }
+
     // =====================================================================
     // BARO IR UŽKANDŽIŲ VEIKSMAI (POST)
     // =====================================================================
@@ -2761,6 +2808,24 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               <input type="email" name="test_email" class="form-input" style="flex: 1; min-width: 250px; margin-bottom: 0;" value="<?= htmlspecialchars($emailCfg['admin_email'] ?? 'info@throwhouse.lt') ?>" placeholder="Gavėjo el. paštas" required>
               <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem;">
                 🚀 Siųsti bandomąjį laišką
+              </button>
+            </form>
+          </div>
+
+          <!-- BANDOMŲJŲ ŠABLONŲ SIUNTIMAS (PATVIRTINIMAS IR ATSILIEPIMAS) -->
+          <div class="table-wrap" style="padding: 1.5rem; border: 1px solid rgba(229, 142, 38, 0.4); background: rgba(229, 142, 38, 0.05);">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #e58e26; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              📬 Išsiųsti oficialių laiškų pavyzdžius (Patvirtinimą ir Google atsiliepimą)
+            </h3>
+            <p style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 1rem;">
+              Išsiųskite abu sugeneruotus ThrowHouse el. laiškus į nurodytą paštą tiesioginei peržiūrai:
+            </p>
+
+            <form method="POST" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <input type="hidden" name="action" value="send_sample_templates">
+              <input type="email" name="sample_target_email" class="form-input" style="flex: 1; min-width: 250px; margin-bottom: 0;" value="adrijus.cepulis@gmail.com" placeholder="Jūsų Gmail adresas" required>
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem; background: #e58e26; border-color: #d97706;">
+                🚀 Išsiųsti abu laiškus į Gmail
               </button>
             </form>
           </div>
