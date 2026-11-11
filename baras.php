@@ -820,14 +820,43 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
 
       <!-- Užsakovo duomenys -->
       <form id="barCheckoutForm" onsubmit="submitBarOrder(event)">
-        <div class="form-group" style="margin-bottom: 0.5rem;">
+        <div class="form-group" style="margin-bottom: 0.85rem;">
           <label class="form-label" for="clientName" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem;">
             👤 Vardas ir pavardė <span class="req">*</span>
           </label>
           <input type="text" id="clientName" class="form-input" placeholder="Vardas ir pavardė (pvz. Mantas Petraitis)" required autocomplete="name" style="font-size: 1rem; padding: 0.85rem 1rem;">
-          <span style="display: block; font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4;">
-            Pagal šį vardą instruktorius paruoš ir atiduos Jūsų gėrimus bei užkandžius.
-          </span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label" style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.4rem;">
+            Mokėjimo būdas (OPAY el. bankininkystė):
+          </label>
+          <div class="bank-grid">
+            <label>
+              <input type="radio" name="bank_channel" value="" class="bank-radio" checked>
+              <span class="bank-btn">🏛️ Visi bankai</span>
+            </label>
+            <label>
+              <input type="radio" name="bank_channel" value="swedbank" class="bank-radio">
+              <span class="bank-btn">🟡 Swedbank</span>
+            </label>
+            <label>
+              <input type="radio" name="bank_channel" value="seb" class="bank-radio">
+              <span class="bank-btn">🟢 SEB</span>
+            </label>
+            <label>
+              <input type="radio" name="bank_channel" value="revolut" class="bank-radio">
+              <span class="bank-btn">🟣 Revolut</span>
+            </label>
+            <label>
+              <input type="radio" name="bank_channel" value="luminor" class="bank-radio">
+              <span class="bank-btn">🔵 Luminor</span>
+            </label>
+            <label>
+              <input type="radio" name="bank_channel" value="card" class="bank-radio">
+              <span class="bank-btn">💳 Kortelė / Pay</span>
+            </label>
+          </div>
         </div>
       </form>
     </div>
@@ -1016,6 +1045,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       e.preventDefault();
 
       const name = document.getElementById('clientName').value.trim();
+      const selectedBank = document.querySelector('input[name="bank_channel"]:checked')?.value || '';
 
       const cartArray = [];
       Object.keys(cart).forEach(id => {
@@ -1046,7 +1076,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
             client_location: 'Salėje',
             client_phone: '',
             client_notes: '',
-            opay_channel: '',
+            opay_channel: selectedBank,
             cart: cartArray
           })
         });
