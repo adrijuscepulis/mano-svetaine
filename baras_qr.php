@@ -223,9 +223,14 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
 </head>
 <body>
 
-  <div class="top-actions">
+  <div class="top-actions" style="max-width: 560px; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
     <a href="admin.php?tab=baras" class="btn btn-back">⬅️ Grįžti į Valdymą</a>
-    <button type="button" class="btn btn-print" onclick="window.print()">🖨️ Spausdinti stovelį</button>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="baras_qr.png" download="throwhouse_baras_qr.png" class="btn" style="background: rgba(229,142,38,0.2); color: #e58e26; border: 1px solid rgba(229,142,38,0.4);">
+        💾 Atsisiųsti tik QR kodą (PNG)
+      </a>
+      <button type="button" class="btn btn-print" onclick="window.print()">🖨️ Spausdinti stovelį</button>
+    </div>
   </div>
 
   <div class="stand-card">
@@ -236,7 +241,9 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
     <p class="sub-title">Užsisakykite be eilių tiesiai iš savo sofos ar takelio!</p>
 
     <div class="qr-box">
-      <img src="<?= htmlspecialchars($qrApiUrl) ?>" alt="QR kodas užsakymui" class="qr-img">
+      <a href="baras_qr.png" download="throwhouse_baras_qr.png" title="Paspauskite, kad atsisiųstumėte gryną QR kodą (PNG)">
+        <img src="<?= htmlspecialchars($qrApiUrl) ?>" alt="QR kodas užsakymui" class="qr-img">
+      </a>
     </div>
 
     <div>

@@ -2809,6 +2809,9 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             </p>
           </div>
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <a href="baras_qr.png" download="throwhouse_baras_qr.png" class="btn btn-secondary" style="border: 1px solid rgba(229,142,38,0.4); color: var(--accent);">
+              📥 Atsisiųsti QR kodą (PNG)
+            </a>
             <a href="baras_qr.php" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #e58e26, #f59e0b); font-weight: 800;">
               🖨️ Spausdinti QR stovelius salone ➔
             </a>
