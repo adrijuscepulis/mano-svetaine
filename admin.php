@@ -2846,8 +2846,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               <tr>
                 <th>Užsakymo Nr.</th>
                 <th>Data / Laikas</th>
-                <th>Klientas</th>
-                <th>Vieta erdvėje</th>
+                <th>Klientas (Vardas, pavardė)</th>
                 <th>Užsakytos prekės</th>
                 <th>Suma</th>
                 <th>Statusas</th>
@@ -2857,7 +2856,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             <tbody>
               <?php if (empty($barOrders)): ?>
                 <tr>
-                  <td colspan="8" style="text-align: center; padding: 3rem; color: var(--muted);">
+                  <td colspan="7" style="text-align: center; padding: 3rem; color: var(--muted);">
                     Kol kas baro užsakymų nėra. Atsispausdinkite QR stovelius ir pastatykite poilsio erdvėje bei prie takelių!
                   </td>
                 </tr>
@@ -2881,14 +2880,11 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                     </td>
                     <td>
                       <div style="font-weight: 700; color: #fff; font-size: 0.95rem;"><?= htmlspecialchars($ord['client_name'] ?? '—') ?></div>
-                      <?php if (!empty($ord['client_phone'])): ?>
-                        <div style="font-size: 0.8rem; color: var(--muted);"><?= htmlspecialchars($ord['client_phone']) ?></div>
+                      <?php if (!empty($ord['client_location']) && $ord['client_location'] !== 'Salėje'): ?>
+                        <span style="display: inline-block; background: rgba(229,142,38,0.15); border: 1px solid rgba(229,142,38,0.3); color: var(--accent); padding: 0.15rem 0.45rem; border-radius: 6px; font-weight: 700; font-size: 0.75rem; margin-top: 3px;">
+                          📍 <?= htmlspecialchars($ord['client_location']) ?>
+                        </span>
                       <?php endif; ?>
-                    </td>
-                    <td>
-                      <span style="display: inline-block; background: rgba(229,142,38,0.15); border: 1px solid rgba(229,142,38,0.4); color: var(--accent); padding: 0.35rem 0.65rem; border-radius: 8px; font-weight: 800; font-size: 0.9rem;">
-                        <?= htmlspecialchars($ord['client_location'] ?? '—') ?>
-                      </span>
                     </td>
                     <td>
                       <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.88rem;">

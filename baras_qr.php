@@ -250,11 +250,11 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       </div>
       <div class="step-item">
         <span class="step-num">2</span>
-        <span>Išsirinkite gėrimus / traškučius ir nurodykite savo vietą</span>
+        <span>Išsirinkite gėrimus / užkandžius ir įveskite savo vardą</span>
       </div>
       <div class="step-item">
         <span class="step-num">3</span>
-        <span>Apmokėkite per el. banką – instruktorius tuoj pat atneš!</span>
+        <span>Apmokėkite per el. banką – paruošime akimirksniu!</span>
       </div>
     </div>
 

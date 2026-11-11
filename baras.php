@@ -732,7 +732,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       <div class="banner-emoji">🥤</div>
       <div class="banner-text">
         <h1>Gėrimai ir Užkandžiai</h1>
-        <p>Išsirinkite, apmokėkite internetu ir instruktorius tuoj pat pristatys užsakymą tiesiai prie Jūsų takelio ar poilsio sofos!</p>
+        <p>Išsirinkite, apmokėkite internetu ir instruktorius tuoj pat paruoš Jūsų užsakymą!</p>
       </div>
     </div>
   </div>
@@ -820,61 +820,14 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
 
       <!-- Užsakovo duomenys -->
       <form id="barCheckoutForm" onsubmit="submitBarOrder(event)">
-        <div class="form-group">
-          <label class="form-label" for="clientName">Jūsų vardas <span class="req">*</span></label>
-          <input type="text" id="clientName" class="form-input" placeholder="Vardas (pvz. Mantas)" required autocomplete="name">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Kurioje erdvės vietoje esate? <span class="req">*</span></label>
-          <div class="pills-group" id="locationPills">
-            <button type="button" class="location-pill" onclick="selectLocation('🔥 Pykčio kambarys', this)">🔥 Pykčio kambarys</button>
-            <button type="button" class="location-pill" onclick="selectLocation('🎯 Kirvių 1 takelis', this)">🎯 Kirvių 1 takelis</button>
-            <button type="button" class="location-pill" onclick="selectLocation('🎯 Kirvių 2 takelis', this)">🎯 Kirvių 2 takelis</button>
-            <button type="button" class="location-pill" onclick="selectLocation('🛋️ Poilsio erdvė (sofos)', this)">🛋️ Poilsio erdvė</button>
-            <button type="button" class="location-pill" onclick="selectLocation('', this)">➕ Kita vieta</button>
-          </div>
-          <input type="text" id="clientLocation" class="form-input" placeholder="Nurodykite vietą (pvz., Poilsio zona ar 1 takelis)" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="clientPhone">Telefono numeris (nebūtina)</label>
-          <input type="tel" id="clientPhone" class="form-input" placeholder="+370 600 00000" autocomplete="tel">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="clientNotes">Pastaba instruktoriui (nebūtina)</label>
-          <input type="text" id="clientNotes" class="form-input" placeholder="Pvz., prašome šaltesnio gėrimo ar stiklinių">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Mokėjimo būdas (OPAY el. bankininkystė):</label>
-          <div class="bank-grid">
-            <label>
-              <input type="radio" name="bank_channel" value="" class="bank-radio" checked>
-              <span class="bank-btn">🏛️ Visi bankai</span>
-            </label>
-            <label>
-              <input type="radio" name="bank_channel" value="swedbank" class="bank-radio">
-              <span class="bank-btn">🟡 Swedbank</span>
-            </label>
-            <label>
-              <input type="radio" name="bank_channel" value="seb" class="bank-radio">
-              <span class="bank-btn">🟢 SEB</span>
-            </label>
-            <label>
-              <input type="radio" name="bank_channel" value="revolut" class="bank-radio">
-              <span class="bank-btn">🟣 Revolut</span>
-            </label>
-            <label>
-              <input type="radio" name="bank_channel" value="luminor" class="bank-radio">
-              <span class="bank-btn">🔵 Luminor</span>
-            </label>
-            <label>
-              <input type="radio" name="bank_channel" value="card" class="bank-radio">
-              <span class="bank-btn">💳 Kortelė / Pay</span>
-            </label>
-          </div>
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label" for="clientName" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem;">
+            👤 Vardas ir pavardė <span class="req">*</span>
+          </label>
+          <input type="text" id="clientName" class="form-input" placeholder="Vardas ir pavardė (pvz. Mantas Petraitis)" required autocomplete="name" style="font-size: 1rem; padding: 0.85rem 1rem;">
+          <span style="display: block; font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4;">
+            Pagal šį vardą instruktorius paruoš ir atiduos Jūsų gėrimus bei užkandžius.
+          </span>
         </div>
       </form>
     </div>
@@ -1016,18 +969,6 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       document.body.style.overflow = '';
     }
 
-    function selectLocation(locText, pillEl) {
-      document.querySelectorAll('.location-pill').forEach(p => p.classList.remove('selected'));
-      pillEl.classList.add('selected');
-      const input = document.getElementById('clientLocation');
-      if (locText) {
-        input.value = locText;
-      } else {
-        input.value = '';
-        input.focus();
-      }
-    }
-
     function renderDrawerCart() {
       const container = document.getElementById('drawerCartList');
       const keys = Object.keys(cart).filter(id => cart[id] > 0);
@@ -1075,11 +1016,6 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       e.preventDefault();
 
       const name = document.getElementById('clientName').value.trim();
-      const location = document.getElementById('clientLocation').value.trim();
-      const phone = document.getElementById('clientPhone').value.trim();
-      const notes = document.getElementById('clientNotes').value.trim();
-
-      const selectedBank = document.querySelector('input[name="bank_channel"]:checked')?.value || '';
 
       const cartArray = [];
       Object.keys(cart).forEach(id => {
@@ -1089,11 +1025,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       });
 
       if (!name) {
-        showToast('Prašome įvesti savo vardą.');
-        return;
-      }
-      if (!location) {
-        showToast('Prašome nurodyti, kurioje erdvės vietoje esate.');
+        showToast('Prašome įvesti savo vardą ir pavardę.');
         return;
       }
       if (cartArray.length === 0) {
@@ -1103,7 +1035,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
 
       const btn = document.getElementById('btnSubmitOrder');
       btn.disabled = true;
-      btn.innerHTML = '<span>Kraunamas bankas...</span> ⏳';
+      btn.innerHTML = '<span>Nukreipiama į banką...</span> ⏳';
 
       try {
         const resp = await fetch('baras_uzsakyti.php', {
@@ -1111,10 +1043,10 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             client_name: name,
-            client_location: location,
-            client_phone: phone,
-            client_notes: notes,
-            opay_channel: selectedBank,
+            client_location: 'Salėje',
+            client_phone: '',
+            client_notes: '',
+            opay_channel: '',
             cart: cartArray
           })
         });

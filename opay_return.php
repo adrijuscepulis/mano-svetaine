@@ -418,7 +418,7 @@ if ($isCoupon) {
         <div class="icon-badge icon-success">🥤</div>
         <h1>Užsakymas apmokėtas!</h1>
         <p class="subtitle">
-          Nuoširdžiai ačiū, <strong><?= htmlspecialchars($barOrder['client_name'] ?? 'Kliente') ?></strong>! Jūsų užsakymas sėkmingai priimtas ir apmokėtas. Mūsų instruktoriai tuoj pat atneš gėrimus ir užkandžius į Jūsų nurodytą vietą!
+          Nuoširdžiai ačiū, <strong><?= htmlspecialchars($barOrder['client_name'] ?? 'Kliente') ?></strong>! Jūsų užsakymas sėkmingai priimtas ir apmokėtas. Mūsų komanda tuoj pat paruoš Jūsų gėrimus bei užkandžius!
         </p>
 
         <?php if ($barOrder): ?>
@@ -428,9 +428,15 @@ if ($isCoupon) {
               <span class="info-val" style="color:var(--accent); font-family:monospace; font-size:1.15rem; font-weight:800;"><?= htmlspecialchars($barOrder['order_nr']) ?></span>
             </div>
             <div class="info-row">
-              <span class="info-label">Pristatymo vieta:</span>
-              <span class="info-val" style="color:#fff; font-weight:800;"><?= htmlspecialchars($barOrder['client_location']) ?></span>
+              <span class="info-label">Užsakovas:</span>
+              <span class="info-val" style="color:#fff; font-weight:800;"><?= htmlspecialchars($barOrder['client_name'] ?? '—') ?></span>
             </div>
+            <?php if (!empty($barOrder['client_location']) && $barOrder['client_location'] !== 'Salėje'): ?>
+              <div class="info-row">
+                <span class="info-label">Pristatymo vieta:</span>
+                <span class="info-val" style="color:#fff; font-weight:800;"><?= htmlspecialchars($barOrder['client_location']) ?></span>
+              </div>
+            <?php endif; ?>
             <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 0.35rem;">
               <span class="info-label">Užsakytos prekės:</span>
               <div style="width: 100%; font-size: 0.95rem; color: #fff; margin-top: 0.25rem;">

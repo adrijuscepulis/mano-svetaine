@@ -21,7 +21,7 @@ if (empty($postData)) {
 }
 
 $clientName     = trim($postData['client_name'] ?? '');
-$clientLocation = trim($postData['client_location'] ?? '');
+$clientLocation = trim($postData['client_location'] ?? 'Salėje');
 $clientPhone    = trim($postData['client_phone'] ?? '');
 $clientNotes    = trim($postData['client_notes'] ?? '');
 $cartItems      = $postData['cart'] ?? [];
@@ -32,12 +32,7 @@ if (is_string($cartItems)) {
 }
 
 if (empty($clientName)) {
-    echo json_encode(['success' => false, 'error' => 'Prašome nurodyti savo vardą.']);
-    exit;
-}
-
-if (empty($clientLocation)) {
-    echo json_encode(['success' => false, 'error' => 'Prašome nurodyti, kurioje erdvės vietoje esate (pvz., Pykčio kambarys, Takelis 1 ar Poilsio zona).']);
+    echo json_encode(['success' => false, 'error' => 'Prašome nurodyti savo vardą ir pavardę.']);
     exit;
 }
 
