@@ -1011,3 +1011,97 @@ function renderVoucherAdminHtml($coupon) {
 </body>
 </html>';
 }
+
+/**
+ * 7. Padėkos ir Google atsiliepimo (Review) kvietimo el. laiškas klientui
+ */
+function renderReviewRequestEmailHtml($res) {
+    $name = htmlspecialchars(trim($res['name'] ?? 'Kliente'));
+    $parts = preg_split('/\s+/', $name);
+    $firstName = !empty($parts[0]) ? $parts[0] : 'Kliente';
+
+    $reviewUrl = 'https://g.page/r/CSl4Ci9B6QHpEBM/review';
+
+    return '<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ačiū, kad apsilankėte ThrowHouse Šiauliai!</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 20px; color: #334155;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+    
+    <!-- HEADER -->
+    <div style="background-color: #0c0a09; color: #ffffff; padding: 30px 20px; text-align: center; border-bottom: 3px solid #e58e26;">
+      <h1 style="margin: 0 0 6px 0; font-size: 22px; color: #e58e26; letter-spacing: 1.5px; font-weight: 900;">THROW HOUSE ŠIAULIAI</h1>
+      <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px;">Pramogų erdvė · Pykčio kambarys · Kirvių mėtymas</p>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div style="padding: 28px 24px; line-height: 1.6; font-size: 15px; color: #334155;">
+      <p style="font-size: 19px; margin-top: 0; color: #0f172a;">
+        Sveiki, <strong>' . $firstName . '</strong>! 👋
+      </p>
+
+      <p style="font-size: 15px; color: #334155; margin-bottom: 16px;">
+        Nuoširdžiai dėkojame, kad apsilankėte <strong>„ThrowHouse Šiauliai“</strong> pramogų erdvėje! Tikimės, kad gerai praleidote laiką, iškrovėte susikaupusias emocijas ir pasikrovėte galingo adrenalino! 🔥
+      </p>
+
+      <p style="font-size: 15px; color: #334155; margin-bottom: 22px;">
+        Esame jauna ir nuolat tobulėjanti pramogų erdvė, todėl <strong>kiekvienas Jūsų atsiliepimas mums yra be galo svarbus</strong>, o kitiems šiauliečiams bei miesto svečiams padeda mus lengviau atrasti.
+      </p>
+
+      <!-- REVIEW CTA CARD -->
+      <div style="background-color: #fffbeb; border: 2px dashed #f59e0b; border-radius: 14px; padding: 26px 20px; text-align: center; margin: 26px 0;">
+        <div style="font-size: 30px; line-height: 1; margin-bottom: 12px; letter-spacing: 6px;">
+          ⭐⭐⭐⭐⭐
+        </div>
+        <p style="margin: 0 0 8px 0; font-size: 17px; font-weight: 800; color: #92400e;">
+          Būtume labai dėkingi už Jūsų įvertinimą Google:
+        </p>
+        <p style="margin: 0 0 20px 0; font-size: 13.5px; color: #78350f;">
+          Tai užtruks vos <strong>30 sekundžių</strong>, bet mūsų komandai reiškia labai daug!
+        </p>
+
+        <!-- BULLETPROOF BUTTON -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+          <tr>
+            <td align="center">
+              <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" bgcolor="#e58e26" style="border-radius: 8px;">
+                    <a href="' . $reviewUrl . '" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #e58e26; color: #ffffff !important; font-size: 16px; font-weight: 800; text-decoration: none; padding: 15px 32px; border-radius: 8px; text-align: center; letter-spacing: 0.5px; border: 1px solid #d97706; box-shadow: 0 4px 14px rgba(229,142,38,0.4);">
+                      ⭐ PALIKTI ATSILIEPIMĄ GOOGLE ➔
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="font-size: 13px; color: #64748b; margin-top: 20px; text-align: center;">
+        Tiesioginė nuoroda: <a href="' . $reviewUrl . '" target="_blank" rel="noopener noreferrer" style="color: #d97706; font-weight: bold; text-decoration: underline;">Atidaryti ThrowHouse Google atsiliepimų puslapį ➔</a>
+      </p>
+
+      <div style="margin-top: 28px; border-top: 1px solid #e2e8f0; padding-top: 18px; font-size: 14px;">
+        <p style="margin: 0 0 8px 0; color: #0f172a; font-weight: 600;">
+          Lauksime sugrįžtant kitoms taiklioms ir energingoms akimirkoms! 🎯
+        </p>
+        <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5;">
+          Pagarbiai,<br>
+          <strong style="color: #0f172a; font-size: 14px;">ThrowHouse Šiauliai komanda</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background-color: #f1f5f9; padding: 16px 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; line-height: 1.6;">
+      📍 Pramonės g. 15, Šiauliai (2-as a.) · 📞 <a href="tel:+37061988009" style="color: #64748b; text-decoration: none; font-weight: 600;">+370 619 88009</a> · 🌐 <a href="https://throwhouse.lt" style="color: #e58e26; text-decoration: none; font-weight: 600;">throwhouse.lt</a>
+    </div>
+  </div>
+</body>
+</html>';
+}

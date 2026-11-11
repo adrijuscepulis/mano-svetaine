@@ -373,6 +373,23 @@ if (!empty($_SESSION['admin_logged'])) {
             sendThrowHouseMail($adminTarget, "✕ Rezervacija atšaukta [{$updatedRes['id']}]: {$updatedRes['name']}", $cancelAdminHtml);
 
             $mailNotice = $sent ? " Pranešimas apie atšaukimą išsiųstas klientui į {$updatedRes['email']}." : " (El. pašto siuntimas klientui nepavyko – sukonfigūruokite SMTP skiltyje El. paštas).";
+        } elseif ($updatedRes && !empty($updatedRes['email']) && $newStatus === 'Patvirtinta' && ($prevStatus === 'Gauta' || empty($updatedRes['confirmation_sent']))) {
+            // Jei statusas pakeistas į „Patvirtinta“ (pvz., po mokėjimo vietoje ar administratoriaus patvirtinimo)
+            require_once __DIR__ . '/email_helper.php';
+            $confirmHtml = renderNewReservationClientHtml($updatedRes);
+            $confirmSub = "Rezervacijos patvirtinimas [{$updatedRes['id']}] – ThrowHouse Šiauliai";
+            $sent = sendThrowHouseMail($updatedRes['email'], $confirmSub, $confirmHtml);
+            if ($sent) {
+                $nowStr = date('Y-m-d H:i');
+                foreach ($reservations as &$r) {
+                    if ($r['id'] === $resId) {
+                        $r['confirmation_sent'] = $nowStr;
+                        break;
+                    }
+                }
+                saveReservationsData($resFile, $resDbFile, $reservations);
+                $mailNotice = " Patvirtinimo el. laiškas sėkmingai išsiųstas klientui į {$updatedRes['email']}.";
+            }
         }
 
         $_SESSION['admin_flash'] = "Rezervacijos ($resId) statusas sėkmingai atnaujintas į: $newStatus.$mailNotice";
@@ -416,7 +433,8 @@ if (!empty($_SESSION['admin_logged'])) {
             if (!$mLane) $mLane = 'Takelis 1';
         }
 
-        $reservations[] = [
+        $nowStr = date('Y-m-d H:i');
+        $newRes = [
             'id' => $newId,
             'created_at' => date('Y-m-d H:i:s'),
             'name' => $mName,
@@ -429,11 +447,98 @@ if (!empty($_SESSION['admin_logged'])) {
             'iso_date' => $mIsoDate,
             'time' => $mTime,
             'price' => $mPrice,
-            'status' => 'Patvirtinta'
+            'payment' => 'Užsakymas telefonu (Mokės vietoje)',
+            'status' => 'Patvirtinta',
+            'confirmation_sent' => !empty($mEmail) ? $nowStr : ''
         ];
+        $reservations[] = $newRes;
         saveReservationsData($resFile, $resDbFile, $reservations);
-        $_SESSION['admin_flash'] = "Nauja rezervacija ($newId) sėkmingai sukurta $mIsoDate $mTime!";
+
+        $mailNotice = '';
+        if (!empty($mEmail)) {
+            require_once __DIR__ . '/email_helper.php';
+            $clientHtml = renderNewReservationClientHtml($newRes);
+            $clientSub = "Rezervacijos patvirtinimas [$newId] – ThrowHouse Šiauliai";
+            $sent = sendThrowHouseMail($mEmail, $clientSub, $clientHtml);
+            $mailNotice = $sent ? " Patvirtinimo el. laiškas išsiųstas klientui į $mEmail!" : " (Pastaba: El. laiško išsiųsti nepavyko, patikrinkite SMTP nustatymus).";
+        }
+
+        $_SESSION['admin_flash'] = "Nauja rezervacija ($newId) sėkmingai sukurta $mIsoDate $mTime!$mailNotice";
         header('Location: admin.php?tab=kalendorius&date=' . urlencode($mIsoDate));
+        exit;
+    }
+
+    // 3a. Išsiųsti / pakartoti patvirtinimo el. laišką klientui
+    if (isset($_POST['action']) && $_POST['action'] === 'send_confirmation_email') {
+        $resId = $_POST['res_id'] ?? '';
+        $redirectTab = $_POST['redirect_tab'] ?? 'rezervacijos';
+        $redirectDate = $_POST['redirect_date'] ?? '';
+
+        $targetRes = null;
+        foreach ($reservations as &$r) {
+            if (($r['id'] ?? '') === $resId) {
+                $targetRes = &$r;
+                break;
+            }
+        }
+
+        if (!$targetRes) {
+            $_SESSION['admin_flash_error'] = "Rezervacija ($resId) nerasta!";
+        } elseif (empty($targetRes['email'])) {
+            $_SESSION['admin_flash_error'] = "Rezervacija ($resId) neturi kliento el. pašto! Paspauskite „✏️ Redaguoti“ ir įrašykite el. paštą.";
+        } else {
+            require_once __DIR__ . '/email_helper.php';
+            $confirmHtml = renderNewReservationClientHtml($targetRes);
+            $confirmSub = "Rezervacijos patvirtinimas [{$targetRes['id']}] – ThrowHouse Šiauliai";
+            $sent = sendThrowHouseMail($targetRes['email'], $confirmSub, $confirmHtml);
+            if ($sent) {
+                $nowStr = date('Y-m-d H:i');
+                $targetRes['confirmation_sent'] = $nowStr;
+                saveReservationsData($resFile, $resDbFile, $reservations);
+                $_SESSION['admin_flash'] = "✉️ Patvirtinimo el. laiškas sėkmingai išsiųstas klientui į {$targetRes['email']} (Užsakymas $resId)!";
+            } else {
+                $_SESSION['admin_flash_error'] = "Nepavyko išsiųsti patvirtinimo el. laiško į {$targetRes['email']}. Patikrinkite SMTP nustatymus skiltyje „El. paštas“.";
+            }
+        }
+
+        header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
+        exit;
+    }
+
+    // 3b. Išsiųsti padėkos ir Google atsiliepimo kvietimo el. laišką klientui
+    if (isset($_POST['action']) && $_POST['action'] === 'send_review_request_email') {
+        $resId = $_POST['res_id'] ?? '';
+        $redirectTab = $_POST['redirect_tab'] ?? 'rezervacijos';
+        $redirectDate = $_POST['redirect_date'] ?? '';
+
+        $targetRes = null;
+        foreach ($reservations as &$r) {
+            if (($r['id'] ?? '') === $resId) {
+                $targetRes = &$r;
+                break;
+            }
+        }
+
+        if (!$targetRes) {
+            $_SESSION['admin_flash_error'] = "Rezervacija ($resId) nerasta!";
+        } elseif (empty($targetRes['email'])) {
+            $_SESSION['admin_flash_error'] = "Rezervacija ($resId) neturi kliento el. pašto! Paspauskite „✏️ Redaguoti“ ir įrašykite el. paštą.";
+        } else {
+            require_once __DIR__ . '/email_helper.php';
+            $reviewHtml = renderReviewRequestEmailHtml($targetRes);
+            $reviewSub = "Ačiū, kad apsilankėte ThrowHouse Šiauliai! 🔥 Kaip sekėsi?";
+            $sent = sendThrowHouseMail($targetRes['email'], $reviewSub, $reviewHtml);
+            if ($sent) {
+                $nowStr = date('Y-m-d H:i');
+                $targetRes['review_email_sent'] = $nowStr;
+                saveReservationsData($resFile, $resDbFile, $reservations);
+                $_SESSION['admin_flash'] = "⭐ Padėkos ir atsiliepimo kvietimo el. laiškas sėkmingai išsiųstas į {$targetRes['email']} (Užsakymas $resId)!";
+            } else {
+                $_SESSION['admin_flash_error'] = "Nepavyko išsiųsti atsiliepimo el. laiško į {$targetRes['email']}. Patikrinkite SMTP nustatymus skiltyje „El. paštas“.";
+            }
+        }
+
+        header('Location: admin.php?tab=' . urlencode($redirectTab) . ($redirectDate ? '&date=' . urlencode($redirectDate) : ''));
         exit;
     }
 
@@ -1796,8 +1901,9 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             </div>
 
             <div style="margin-bottom: 0.75rem;">
-              <label style="display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">El. paštas (neprivaloma):</label>
-              <input type="email" name="m_email" class="form-input" placeholder="klientas@gmail.com" style="margin-bottom:0;">
+              <label style="display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">El. paštas (patvirtinimo siuntimui):</label>
+              <input type="email" name="m_email" class="form-input" placeholder="klientas@gmail.com" style="margin-bottom:0.25rem;">
+              <div style="font-size:0.75rem; color:#34d399; line-height:1.3;">✉️ Nurodžius el. paštą, klientas automatiškai gaus oficialų ThrowHouse patvirtinimo laišką.</div>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom: 0.75rem;">
@@ -1874,7 +1980,17 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                     <td><strong><?= htmlspecialchars($r['name'] ?? '') ?></strong></td>
                     <td>
                       <a href="tel:<?= htmlspecialchars($r['phone'] ?? '') ?>" style="color:#fff; font-weight:bold; text-decoration:none;">📞 <?= htmlspecialchars($r['phone'] ?? '') ?></a><br>
-                      <a href="mailto:<?= htmlspecialchars($r['email'] ?? '') ?>" style="color: var(--muted); font-size: 0.8rem; text-decoration:none;">✉️ <?= htmlspecialchars($r['email'] ?? '') ?></a>
+                      <?php if (!empty($r['email'])): ?>
+                        <a href="mailto:<?= htmlspecialchars($r['email'] ?? '') ?>" style="color: var(--muted); font-size: 0.8rem; text-decoration:none;">✉️ <?= htmlspecialchars($r['email'] ?? '') ?></a>
+                        <?php if (!empty($r['confirmation_sent'])): ?>
+                          <div style="font-size: 0.72rem; color: #34d399; margin-top: 2px;">✉️ Patvirtinta: <?= htmlspecialchars($r['confirmation_sent']) ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($r['review_email_sent'])): ?>
+                          <div style="font-size: 0.72rem; color: #fbbf24; margin-top: 1px;">⭐ Atsiliepimas: <?= htmlspecialchars($r['review_email_sent']) ?></div>
+                        <?php endif; ?>
+                      <?php else: ?>
+                        <span style="color: #64748b; font-size: 0.75rem; font-style: italic;">El. paštas nenurodytas</span>
+                      <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars($r['activity'] ?? '') ?> <?= !empty($r['lane']) ? '<br><small style="color:var(--accent);">('.htmlspecialchars($r['lane']).')</small>' : '' ?></td>
                     <td><?= htmlspecialchars($r['count'] ?? 1) ?> asm.</td>
@@ -1884,13 +2000,13 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                         <?= htmlspecialchars($r['status'] ?? 'Gauta') ?>
                       </span>
                     </td>
-                    <td>
-                      <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; margin-right:4px;" onclick='openEditModal(<?= htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES, "UTF-8") ?>)' title="Redaguoti rezervaciją">✏️</button>
+                    <td style="white-space: nowrap;">
+                      <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; margin-right:3px;" onclick='openEditModal(<?= htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES, "UTF-8") ?>)' title="Redaguoti rezervaciją">✏️</button>
                       <form method="POST" style="display: inline-block;">
                         <input type="hidden" name="action" value="update_res_status">
                         <input type="hidden" name="redirect_tab" value="rezervacijos">
                         <input type="hidden" name="res_id" value="<?= htmlspecialchars($r['id'] ?? '') ?>">
-                        <select name="new_status" onchange="this.form.submit()" style="background:#090a0f; color:#fff; border:1px solid var(--border); padding:0.3rem 0.5rem; border-radius:6px; font-size:0.8rem; cursor:pointer;">
+                        <select name="new_status" onchange="this.form.submit()" style="background:#090a0f; color:#fff; border:1px solid var(--border); padding:0.3rem 0.45rem; border-radius:6px; font-size:0.8rem; cursor:pointer;">
                           <option value="Gauta" <?= ($r['status'] ?? '') === 'Gauta' ? 'selected' : '' ?>>Gauta</option>
                           <option value="Patvirtinta" <?= ($r['status'] ?? '') === 'Patvirtinta' ? 'selected' : '' ?>>Patvirtinta</option>
                           <option value="Įvykusi" <?= ($r['status'] ?? '') === 'Įvykusi' ? 'selected' : '' ?>>Įvykusi</option>
@@ -1898,6 +2014,35 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                           <option value="Uždaryta" <?= ($r['status'] ?? '') === 'Uždaryta' ? 'selected' : '' ?>>Uždaryta</option>
                         </select>
                       </form>
+
+                      <!-- SIŪSTI PATVIRTINIMĄ -->
+                      <?php if (!empty($r['email'])): ?>
+                        <form method="POST" style="display: inline-block; margin-left: 3px;" onsubmit="return confirm('Ar išsiųsti rezervacijos patvirtinimo el. laišką klientui (<?= htmlspecialchars($r['email'] ?? '') ?>)?')">
+                          <input type="hidden" name="action" value="send_confirmation_email">
+                          <input type="hidden" name="redirect_tab" value="rezervacijos">
+                          <input type="hidden" name="res_id" value="<?= htmlspecialchars($r['id'] ?? '') ?>">
+                          <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); color:#34d399;" title="<?= !empty($r['confirmation_sent']) ? 'Patvirtinimas jau išsiųstas (' . htmlspecialchars($r['confirmation_sent']) . '). Paspauskite, jei norite išsiųsti pakartotinai.' : 'Išsiųsti patvirtinimo el. laišką klientui' ?>">
+                            ✉️<?= !empty($r['confirmation_sent']) ? '✓' : '' ?>
+                          </button>
+                        </form>
+                      <?php else: ?>
+                        <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; margin-left:3px; opacity:0.35; cursor:not-allowed;" title="El. paštas nenurodytas. Paspauskite ✏️ Redaguoti ir įrašykite el. paštą." disabled>✉️</button>
+                      <?php endif; ?>
+
+                      <!-- SIŪSTI ATSILIEPIMO KVIETIMĄ -->
+                      <?php if (!empty($r['email'])): ?>
+                        <form method="POST" style="display: inline-block; margin-left: 3px;" onsubmit="return confirm('Ar išsiųsti padėkos ir Google atsiliepimo kvietimo el. laišką klientui (<?= htmlspecialchars($r['email'] ?? '') ?>)?')">
+                          <input type="hidden" name="action" value="send_review_request_email">
+                          <input type="hidden" name="redirect_tab" value="rezervacijos">
+                          <input type="hidden" name="res_id" value="<?= htmlspecialchars($r['id'] ?? '') ?>">
+                          <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; background:rgba(229,142,38,0.15); border-color:rgba(229,142,38,0.4); color:#fbbf24;" title="<?= !empty($r['review_email_sent']) ? 'Atsiliepimo kvietimas jau išsiųstas (' . htmlspecialchars($r['review_email_sent']) . '). Paspauskite, jei norite pakartoti.' : 'Išsiųsti padėkos ir Google atsiliepimo kvietimo el. laišką' ?>">
+                            ⭐<?= !empty($r['review_email_sent']) ? '✓' : '' ?>
+                          </button>
+                        </form>
+                      <?php else: ?>
+                        <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; margin-left:3px; opacity:0.35; cursor:not-allowed;" title="El. paštas nenurodytas. Paspauskite ✏️ Redaguoti ir įrašykite el. paštą." disabled>⭐</button>
+                      <?php endif; ?>
+
                       <form method="POST" style="display: inline-block; margin-left: 4px;" onsubmit="return confirm('Ar tikrai norite pašalinti šią rezervaciją?')">
                         <input type="hidden" name="action" value="delete_res">
                         <input type="hidden" name="redirect_tab" value="rezervacijos">
@@ -3716,27 +3861,54 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                 
                 <div style="font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem;">
                   • <strong>Pramoga:</strong> ${r.activity} ${r.lane ? '(' + r.lane + ')' : ''} (${r.count || 1} asm., ${r.activity.includes('KOMBO') ? '2 val. sesija' : '1 val.'})<br>
-                  • <strong>Kontaktai:</strong> <a href="tel:${r.phone}" style="color:#34d399; font-weight:bold; text-decoration:none;">📞 ${r.phone}</a> | <a href="mailto:${r.email}" style="color:#60a5fa; text-decoration:none;">✉️ ${r.email}</a><br>
+                  • <strong>Kontaktai:</strong> <a href="tel:${r.phone}" style="color:#34d399; font-weight:bold; text-decoration:none;">📞 ${r.phone}</a> | ${r.email ? `<a href="mailto:${r.email}" style="color:#60a5fa; text-decoration:none;">✉️ ${r.email}</a>` : '<span style="color:#64748b; font-style:italic;">El. paštas nenurodytas</span>'}<br>
                   • <strong>Mokėtina suma:</strong> <strong style="color:var(--accent);">${r.price}</strong>
+                  ${r.confirmation_sent ? `<div style="font-size:0.75rem; color:#34d399; margin-top:3px;">✉️ Patvirtinimo laiškas išsiųstas: <strong>${r.confirmation_sent}</strong></div>` : ''}
+                  ${r.review_email_sent ? `<div style="font-size:0.75rem; color:#fbbf24; margin-top:2px;">⭐ Atsiliepimo kvietimas išsiųstas: <strong>${r.review_email_sent}</strong></div>` : ''}
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.6rem; flex-wrap:wrap; gap:0.4rem;">
-                  <div>
-                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.6rem; margin-right:4px;" onclick='openEditModal(${JSON.stringify(r)})'>
+                  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick='openEditModal(${JSON.stringify(r)})'>
                       ✏️ Redaguoti
                     </button>
-                    <form method="POST" style="display:inline-block;">
+                    <form method="POST" style="display:inline-block; margin:0;">
                       <input type="hidden" name="action" value="update_res_status">
                       <input type="hidden" name="redirect_tab" value="kalendorius">
                       <input type="hidden" name="redirect_date" value="${iso}">
                       <input type="hidden" name="res_id" value="${r.id}">
-                      <select name="new_status" onchange="this.form.submit()" style="background:#090a0f; color:#fff; border:1px solid var(--border); padding:0.25rem 0.5rem; border-radius:6px; font-size:0.8rem;">
+                      <select name="new_status" onchange="this.form.submit()" style="background:#090a0f; color:#fff; border:1px solid var(--border); padding:0.25rem 0.5rem; border-radius:6px; font-size:0.8rem; cursor:pointer;">
                         <option value="Gauta" ${r.status === 'Gauta' ? 'selected' : ''}>Gauta</option>
                         <option value="Patvirtinta" ${r.status === 'Patvirtinta' ? 'selected' : ''}>Patvirtinta</option>
                         <option value="Įvykusi" ${r.status === 'Įvykusi' ? 'selected' : ''}>Įvykusi</option>
                         <option value="Atšaukta" ${r.status === 'Atšaukta' ? 'selected' : ''}>Atšaukta (atlaisvina laiką)</option>
+                        <option value="Uždaryta" ${r.status === 'Uždaryta' ? 'selected' : ''}>Uždaryta</option>
                       </select>
                     </form>
+
+                    ${r.email ? `
+                      <form method="POST" style="display:inline-block; margin:0;" onsubmit="return confirm('Ar išsiųsti rezervacijos patvirtinimo el. laišką klientui (' + ${JSON.stringify(r.email)} + ')?')">
+                        <input type="hidden" name="action" value="send_confirmation_email">
+                        <input type="hidden" name="redirect_tab" value="kalendorius">
+                        <input type="hidden" name="redirect_date" value="${iso}">
+                        <input type="hidden" name="res_id" value="${r.id}">
+                        <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.55rem; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); color:#34d399;" title="${r.confirmation_sent ? 'Patvirtinimas siųstas (' + r.confirmation_sent + '). Spauskite norint pakartoti.' : 'Išsiųsti patvirtinimo el. laišką'}">
+                          ✉️ ${r.confirmation_sent ? 'Patvirtinta ✓' : 'Siųsti patvirtinimą'}
+                        </button>
+                      </form>
+
+                      <form method="POST" style="display:inline-block; margin:0;" onsubmit="return confirm('Ar išsiųsti padėkos ir Google atsiliepimo kvietimo el. laišką klientui (' + ${JSON.stringify(r.email)} + ')?')">
+                        <input type="hidden" name="action" value="send_review_request_email">
+                        <input type="hidden" name="redirect_tab" value="kalendorius">
+                        <input type="hidden" name="redirect_date" value="${iso}">
+                        <input type="hidden" name="res_id" value="${r.id}">
+                        <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.55rem; background:rgba(229,142,38,0.15); border-color:rgba(229,142,38,0.4); color:#fbbf24;" title="${r.review_email_sent ? 'Atsiliepimas siųstas (' + r.review_email_sent + '). Spauskite norint pakartoti.' : 'Išsiųsti padėkos ir Google atsiliepimo kvietimą'}">
+                          ⭐ ${r.review_email_sent ? 'Atsiliepimas siųstas ✓' : 'Siųsti atsiliepimą'}
+                        </button>
+                      </form>
+                    ` : `
+                      <span style="font-size:0.72rem; color:#64748b; font-style:italic;" title="Norėdami siųsti laišką, įrašykite el. paštą per Redaguoti">(Reikia el. pašto)</span>
+                    `}
                   </div>
 
                   <form method="POST" style="display:inline-block;" onsubmit="return confirm('Ar tikrai norite visam laikui ištrinti šią rezervaciją?')">
