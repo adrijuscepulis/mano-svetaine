@@ -40,7 +40,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Oswald:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Permanent+Marker&family=Sedgwick+Ave+Display&display=swap" rel="stylesheet">
   <script src="site-settings.js?v=20261104-v5"></script>
   <style>
     :root {
@@ -64,6 +64,7 @@
 
       --font-display: 'Cinzel', serif;
       --font-head: 'Oswald', sans-serif;
+      --font-logo: 'Permanent Marker', cursive, sans-serif;
       --font-sub: 'Space Grotesk', sans-serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
 
@@ -126,15 +127,18 @@
     }
 
     .brand-title {
-      font-family: var(--font-head);
+      font-family: var(--font-logo);
       font-size: 1.85rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #ffffff;
+      display: inline-block;
+      transform: rotate(-1.5deg);
+      line-height: 1;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
     }
 
-    .brand-title span { color: var(--accent); }
+    .brand-title span { color: var(--accent); margin-left: 2px; }
     .brand-city {
       font-family: var(--font-sub);
       font-size: 0.65rem;

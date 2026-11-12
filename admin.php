@@ -1388,12 +1388,13 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       margin-bottom: 2rem;
     }
     .brand {
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Permanent Marker', cursive, sans-serif;
       font-size: 1.5rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.04em;
+      display: inline-block;
+      transform: rotate(-1.5deg);
     }
-    .brand span { color: var(--accent); }
+    .brand span { color: var(--accent); margin-left: 2px; }
 
     /* STATISTIKOS KORTELĖS */
     .stats-grid {
