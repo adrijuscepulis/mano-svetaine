@@ -219,12 +219,12 @@ if ($isCoupon) {
     :root {
       --bg: #0c0a09;
       --card-bg: #14110e;
-      --card-border: rgba(233, 28, 37, 0.28);
-      --accent: #e91c25;
-      --accent-hover: #ff2e38;
+      --card-border: rgba(184, 20, 27, 0.28);
+      --accent: #b8141b;
+      --accent-hover: #d31b23;
       --text: #fdfaf6;
       --muted: #94a3b8;
-      --success: #e91c25;
+      --success: #b8141b;
       --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -239,7 +239,7 @@ if ($isCoupon) {
       justify-content: center;
       padding: 1.5rem;
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(233, 28, 37, 0.18), transparent),
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(184, 20, 27, 0.18), transparent),
         radial-gradient(circle at 80% 80%, rgba(185, 28, 28, 0.08), transparent);
     }
     .container {
@@ -265,7 +265,7 @@ if ($isCoupon) {
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
     .icon-success {
-      background: rgba(233, 28, 37, 0.15);
+      background: rgba(184, 20, 27, 0.15);
       border: 2px solid var(--success);
       color: var(--success);
     }
@@ -338,17 +338,17 @@ if ($isCoupon) {
       border: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg, #b91c1c 0%, #e91c25 50%, #ff2e38 100%);
+      background: linear-gradient(135deg, #7f1d1d 0%, #b8141b 50%, #d31b23 100%);
       color: #ffffff;
       font-weight: 800;
-      box-shadow: 0 4px 15px rgba(233, 28, 37, 0.35);
+      box-shadow: 0 4px 15px rgba(184, 20, 27, 0.35);
       border: 1px solid rgba(255, 237, 213, 0.25);
     }
     .btn-primary:hover {
       background: linear-gradient(135deg, #9a3412 0%, #dc2626 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(233, 28, 37, 0.45);
-      color: #0c0a08;
+      box-shadow: 0 6px 20px rgba(184, 20, 27, 0.45);
+      color: #ffffff;
     }
     .btn-secondary {
       background: rgba(255, 255, 255, 0.06);

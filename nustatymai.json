@@ -1,4 +1,4 @@
-{
+﻿{
   "promo": {
     "enabled": false,
     "discount": 5,
@@ -12,7 +12,7 @@
     "text": "🔥 Dėmesio: Šį savaitgalį dirbame ilgiau! Rezervuokite laiką iš anksto.",
     "btn_text": "Rezervuoti laiką ➔",
     "btn_link": "#rezervacija",
-    "bg_color": "#ff6a00",
+    "bg_color": "#b8141b",
     "text_color": "#08050e"
   },
   "contacts": {

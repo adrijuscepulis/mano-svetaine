@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header('Content-Type: application/json; charset=utf-8');
 
 // Jei užklausa atėjo per naršyklę įprastu GET būdu, nukreipiame į kontaktai.html
@@ -46,8 +46,8 @@ $adminHtmlBody = '<!DOCTYPE html>
   <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
     
     <!-- HEADER -->
-    <div style="background-color: #0c0a09; color: #ffffff; padding: 24px; text-align: center; border-bottom: 4px solid #e58e26;">
-      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #e58e26; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+    <div style="background-color: #0c0a09; color: #ffffff; padding: 24px; text-align: center; border-bottom: 4px solid #b8141b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #b8141b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
       <p style="margin: 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Gauta nauja kontaktų formos užklausa</p>
     </div>
 
@@ -61,7 +61,7 @@ $adminHtmlBody = '<!DOCTYPE html>
         <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
           <tr>
             <td style="padding: 6px 0; color: #6b7280; width: 140px;">Užklausos tema:</td>
-            <td style="padding: 6px 0; font-weight: bold; color: #c2410c;">' . $subject . '</td>
+            <td style="padding: 6px 0; font-weight: bold; color: #b8141b;">' . $subject . '</td>
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #6b7280;">Kliento vardas:</td>
@@ -69,11 +69,11 @@ $adminHtmlBody = '<!DOCTYPE html>
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #6b7280;">Telefono numeris:</td>
-            <td style="padding: 6px 0; font-weight: bold;"><a href="tel:' . $phone . '" style="color: #c2410c; text-decoration: none;">' . $phone . '</a></td>
+            <td style="padding: 6px 0; font-weight: bold;"><a href="tel:' . $phone . '" style="color: #b8141b; text-decoration: none;">' . $phone . '</a></td>
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #6b7280;">El. pašto adresas:</td>
-            <td style="padding: 6px 0; font-weight: bold;"><a href="mailto:' . $email . '" style="color: #c2410c; text-decoration: none;">' . $email . '</a></td>
+            <td style="padding: 6px 0; font-weight: bold;"><a href="mailto:' . $email . '" style="color: #b8141b; text-decoration: none;">' . $email . '</a></td>
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #6b7280;">Gavimo laikas:</td>
@@ -82,13 +82,13 @@ $adminHtmlBody = '<!DOCTYPE html>
         </table>
       </div>
 
-      <div style="background-color: #fffbeb; border: 1px solid #fed7aa; border-left: 4px solid #e58e26; padding: 14px 18px; margin: 18px 0; border-radius: 0 10px 10px 0;">
-        <strong style="color: #c2410c; display: block; margin-bottom: 6px; font-size: 14px;">Kliento žinutė:</strong>
+      <div style="background-color: #fffbeb; border: 1px solid rgba(184, 20, 27, 0.25); border-left: 4px solid #b8141b; padding: 14px 18px; margin: 18px 0; border-radius: 0 10px 10px 0;">
+        <strong style="color: #b8141b; display: block; margin-bottom: 6px; font-size: 14px;">Kliento žinutė:</strong>
         <div style="color: #7c2d12; font-size: 15px; white-space: pre-line;">' . nl2br($message) . '</div>
       </div>
 
       <div style="text-align: center; margin-top: 24px;">
-        <a href="tel:' . $phone . '" style="display: inline-block; background-color: #e58e26; color: #0c0a08; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px; margin-right: 10px; box-shadow: 0 4px 14px rgba(229, 142, 38, 0.4);">
+        <a href="tel:' . $phone . '" style="display: inline-block; background-color: #b8141b; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px; margin-right: 10px; box-shadow: 0 4px 14px rgba(184, 20, 27, 0.4);">
           📞 Skambinti klientui
         </a>
         <a href="mailto:' . $email . '?subject=Atsakymas:%20' . rawurlencode($subject) . '" style="display: inline-block; background-color: #0f172a; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px;">
@@ -119,8 +119,8 @@ $clientHtml = '<!DOCTYPE html>
 <head><meta charset="utf-8"></head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background-color: #0c0a09; margin: 0; padding: 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-    <div style="background-color: #0c0a09; color: #ffffff; padding: 24px; text-align: center; border-bottom: 4px solid #e58e26;">
-      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #e58e26; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
+    <div style="background-color: #0c0a09; color: #ffffff; padding: 24px; text-align: center; border-bottom: 4px solid #b8141b;">
+      <h1 style="margin: 0 0 6px 0; font-size: 20px; color: #b8141b; letter-spacing: 1px;">THROW HOUSE ŠIAULIAI</h1>
       <p style="margin: 0; font-size: 13px; color: #94a3b8;">Užklausos patvirtinimas</p>
     </div>
     <div style="padding: 24px; line-height: 1.6; font-size: 15px; color: #334155;">

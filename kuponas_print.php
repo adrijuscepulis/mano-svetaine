@@ -55,16 +55,16 @@ if (!$coupon) {
       text-align: center;
     }
     .card {
-      background: #181b20; border: 1px solid rgba(233, 28, 37, 0.3);
+      background: #181b20; border: 1px solid rgba(184, 20, 27, 0.3);
       border-radius: 16px; padding: 2.5rem 2rem; max-width: 520px; width: 100%;
       box-shadow: 0 15px 35px rgba(0,0,0,0.5);
     }
-    h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; color: #e91c25; margin: 0 0 1rem; }
+    h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; color: #b8141b; margin: 0 0 1rem; }
     p { color: #94a3b8; font-size: 1rem; line-height: 1.6; margin: 0 0 1.5rem; }
     .code-badge { font-family: monospace; background: #23272f; color: #f87171; padding: 0.3rem 0.75rem; border-radius: 6px; }
     .btn {
-      display: inline-block; background: linear-gradient(135deg, #b91c1c 0%, #e91c25 100%);
-      color: #0c0a08; font-weight: 800; padding: 0.85rem 1.6rem; border-radius: 8px;
+      display: inline-block; background: linear-gradient(135deg, #7f1d1d 0%, #b8141b 100%);
+      color: #ffffff; font-weight: 800; padding: 0.85rem 1.6rem; border-radius: 8px;
       text-decoration: none; transition: transform 0.2s; margin: 0.35rem;
     }
     .btn:hover { transform: translateY(-2px); }
@@ -117,15 +117,15 @@ if (stripos($cStatus, 'Laukiama') !== false || stripos($cStatus, 'Atsaukta') !==
       text-align: center;
     }
     .card {
-      background: #181b20; border: 1px solid rgba(233, 28, 37, 0.3);
+      background: #181b20; border: 1px solid rgba(184, 20, 27, 0.3);
       border-radius: 16px; padding: 2.5rem 2rem; max-width: 520px; width: 100%;
       box-shadow: 0 15px 35px rgba(0,0,0,0.5);
     }
-    h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; color: #ff2e38; margin: 0 0 1rem; }
+    h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; color: #d31b23; margin: 0 0 1rem; }
     p { color: #94a3b8; font-size: 1rem; line-height: 1.6; margin: 0 0 1.5rem; }
     .btn {
-      display: inline-block; background: linear-gradient(135deg, #b91c1c 0%, #e91c25 100%);
-      color: #0c0a08; font-weight: 800; padding: 0.85rem 1.6rem; border-radius: 8px;
+      display: inline-block; background: linear-gradient(135deg, #7f1d1d 0%, #b8141b 100%);
+      color: #ffffff; font-weight: 800; padding: 0.85rem 1.6rem; border-radius: 8px;
       text-decoration: none; transition: transform 0.2s; margin: 0.35rem;
     }
     .btn-secondary { background: #23272f; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
@@ -213,7 +213,7 @@ if (isset($_GET['download'])) {
     .action-bar {
       width: 100%;
       background: #181b20;
-      border-bottom: 2px solid #e91c25;
+      border-bottom: 2px solid #b8141b;
       padding: 0.9rem 1.75rem;
       display: flex;
       align-items: center;
@@ -226,8 +226,8 @@ if (isset($_GET['download'])) {
     }
 
     .action-btn {
-      background: linear-gradient(135deg, #b91c1c 0%, #e91c25 50%, #ff2e38 100%);
-      color: #0c0a08;
+      background: linear-gradient(135deg, #7f1d1d 0%, #b8141b 50%, #d31b23 100%);
+      color: #ffffff;
       font-weight: 800;
       font-size: 0.95rem;
       padding: 0.75rem 1.4rem;
@@ -238,13 +238,13 @@ if (isset($_GET['download'])) {
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
-      box-shadow: 0 4px 14px rgba(233, 28, 37, 0.35);
+      box-shadow: 0 4px 14px rgba(184, 20, 27, 0.35);
       transition: all 0.2s ease;
     }
     .action-btn:hover {
       background: linear-gradient(135deg, #9a3412 0%, #dc2626 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(233, 28, 37, 0.45);
+      box-shadow: 0 6px 18px rgba(184, 20, 27, 0.45);
     }
 
     .action-btn-secondary {
@@ -271,8 +271,8 @@ if (isset($_GET['download'])) {
     .notice-card {
       width: 100%;
       background: #1e222b;
-      border: 1px solid rgba(233, 28, 37, 0.3);
-      border-left: 4px solid #e91c25;
+      border: 1px solid rgba(184, 20, 27, 0.3);
+      border-left: 4px solid #b8141b;
       border-radius: 8px;
       padding: 1rem 1.25rem;
       color: #e2e8f0;
@@ -528,7 +528,7 @@ if (isset($_GET['download'])) {
   <div class="action-bar no-print">
     <div>
       <div style="font-weight: 800; font-size: 1.05rem; color: #fff;">
-        ThrowHouse Dovanų Kuponas: <span style="color: #e91c25;"><?= $cCode ?></span>
+        ThrowHouse Dovanų Kuponas: <span style="color: #b8141b;"><?= $cCode ?></span>
       </div>
       <div style="font-size: 0.78rem; color: #94a3b8;">
         Oficialus Canva šablonas su automatiniu duomenų užpildymu
@@ -561,7 +561,7 @@ if (isset($_GET['download'])) {
         Šis dovanų kuponas yra užpildytas pagal oficialų ThrowHouse Canva 2-jų pusių šabloną. Galite bet kada atsisiųsti PDF failą arba atsispausdinti.
       </div>
       <div>
-        <a href="kuponas_print.php?code=<?= urlencode($cCode) ?>&download=1" style="color: #e91c25; font-weight: 700; text-decoration: underline;">
+        <a href="kuponas_print.php?code=<?= urlencode($cCode) ?>&download=1" style="color: #b8141b; font-weight: 700; text-decoration: underline;">
           Atsisiųsti PDF &rarr;
         </a>
       </div>

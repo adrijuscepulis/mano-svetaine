@@ -34,9 +34,9 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
     :root {
       --bg: #0c0a09;
       --card-bg: #14110e;
-      --card-border: rgba(233, 28, 37, 0.25);
-      --accent: #e91c25;
-      --accent-hover: #ff2e38;
+      --card-border: rgba(184, 20, 27, 0.25);
+      --accent: #b8141b;
+      --accent-hover: #d31b23;
       --text: #fdfaf6;
       --muted: #94a3b8;
       --surface: #1a1612;
@@ -51,7 +51,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       min-height: 100vh;
       padding-bottom: 110px;
       background-image: 
-        radial-gradient(ellipse 90% 40% at 50% -10%, rgba(233, 28, 37, 0.15), transparent),
+        radial-gradient(ellipse 90% 40% at 50% -10%, rgba(184, 20, 27, 0.15), transparent),
         radial-gradient(circle at 80% 90%, rgba(185, 28, 28, 0.06), transparent);
       background-attachment: fixed;
     }
@@ -80,7 +80,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
     .brand-icon {
       font-size: 1.8rem;
       line-height: 1;
-      filter: drop-shadow(0 2px 6px rgba(233,28,37,0.4));
+      filter: drop-shadow(0 2px 6px rgba(184,20,27,0.4));
     }
     .brand-title {
       font-family: 'Oswald', sans-serif;
@@ -101,8 +101,8 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       font-weight: 600;
     }
     .header-badge {
-      background: rgba(233, 28, 37, 0.12);
-      border: 1px solid rgba(233, 28, 37, 0.3);
+      background: rgba(184, 20, 27, 0.12);
+      border: 1px solid rgba(184, 20, 27, 0.3);
       color: var(--accent);
       font-size: 0.75rem;
       font-weight: 700;
@@ -127,7 +127,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       padding: 0 1rem;
     }
     .banner-card {
-      background: linear-gradient(135deg, rgba(233, 28, 37, 0.12) 0%, rgba(26, 22, 18, 0.85) 100%);
+      background: linear-gradient(135deg, rgba(184, 20, 27, 0.12) 0%, rgba(26, 22, 18, 0.85) 100%);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 1.15rem 1.25rem;
@@ -186,7 +186,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       color: #0c0a09;
       border-color: var(--accent);
       font-weight: 800;
-      box-shadow: 0 4px 14px rgba(233, 28, 37, 0.35);
+      box-shadow: 0 4px 14px rgba(184, 20, 27, 0.35);
     }
 
     /* Products Grid */
@@ -229,7 +229,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       position: relative;
     }
     .product-card:hover {
-      border-color: rgba(233, 28, 37, 0.45);
+      border-color: rgba(184, 20, 27, 0.45);
     }
     .product-badge-wrap {
       display: flex;
@@ -286,8 +286,8 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
     
     /* Quantity Controls */
     .btn-add-item {
-      background: rgba(233, 28, 37, 0.12);
-      border: 1.5px solid rgba(233, 28, 37, 0.4);
+      background: rgba(184, 20, 27, 0.12);
+      border: 1.5px solid rgba(184, 20, 27, 0.4);
       color: var(--accent);
       width: 100%;
       padding: 0.55rem;
@@ -352,7 +352,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       background: rgba(18, 15, 12, 0.95);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid rgba(233, 28, 37, 0.35);
+      border-top: 1px solid rgba(184, 20, 27, 0.35);
       padding: 0.85rem 1rem;
       z-index: 100;
       box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7);
@@ -387,7 +387,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       line-height: 1;
     }
     .btn-checkout {
-      background: linear-gradient(135deg, #e91c25 0%, #dc2626 100%);
+      background: linear-gradient(135deg, #b8141b 0%, #7f1d1d 100%);
       border: none;
       color: #0c0a09;
       padding: 0.85rem 1.5rem;
@@ -399,7 +399,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      box-shadow: 0 4px 16px rgba(233, 28, 37, 0.4);
+      box-shadow: 0 4px 16px rgba(184, 20, 27, 0.4);
       transition: all 0.15s;
     }
     .btn-checkout:active {
@@ -591,7 +591,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       transition: all 0.15s;
     }
     .location-pill.selected {
-      background: rgba(233, 28, 37, 0.15);
+      background: rgba(184, 20, 27, 0.15);
       border-color: var(--accent);
       color: var(--accent);
       font-weight: 700;
@@ -626,7 +626,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
     }
     .bank-radio:checked + .bank-btn {
       border-color: var(--accent);
-      background: rgba(233, 28, 37, 0.12);
+      background: rgba(184, 20, 27, 0.12);
       color: var(--accent);
       font-weight: 700;
     }
@@ -656,7 +656,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
     }
     .btn-pay-now {
       width: 100%;
-      background: linear-gradient(135deg, #e91c25 0%, #dc2626 100%);
+      background: linear-gradient(135deg, #b8141b 0%, #7f1d1d 100%);
       border: none;
       color: #0c0a09;
       padding: 0.95rem;
@@ -665,7 +665,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       font-weight: 800;
       letter-spacing: 0.5px;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(233, 28, 37, 0.45);
+      box-shadow: 0 4px 18px rgba(184, 20, 27, 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
