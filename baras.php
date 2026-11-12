@@ -29,7 +29,7 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
   <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0c0a09;
@@ -83,17 +83,15 @@ $categories = ['Visi', 'Gėrimai', 'Užkandžiai'];
       filter: drop-shadow(0 2px 6px rgba(184,20,27,0.4));
     }
     .brand-title {
-      font-family: 'Permanent Marker', cursive, sans-serif;
-      font-size: 1.3rem;
-      letter-spacing: 0.04em;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
       line-height: 1.1;
       text-transform: uppercase;
-      display: inline-block;
-      transform: rotate(-1.5deg);
     }
     .brand-title span {
       color: var(--accent);
-      margin-left: 2px;
     }
     .brand-sub {
       font-size: 0.72rem;
