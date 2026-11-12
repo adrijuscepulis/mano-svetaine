@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="lt">
 <head>
   <meta charset="UTF-8">
@@ -251,15 +251,15 @@
       --bg-surface: #14110e;
       --bg-card: #1c1713;
       --bg-card-hover: #241e19;
-      --border-color: rgba(229, 142, 38, 0.22);
-      --border-strong: rgba(229, 142, 38, 0.45);
+      --border-color: rgba(233, 28, 37, 0.22);
+      --border-strong: rgba(233, 28, 37, 0.45);
       
-      --accent: #e58e26;
-      --accent-hover: #f59e0b;
-      --accent-glow: rgba(229, 142, 38, 0.35);
-      --accent-flame: #b45309;
-      --copper: #c2410c;
-      --amber-glow: rgba(245, 158, 11, 0.16);
+      --accent: #e91c25;
+      --accent-hover: #ff2e38;
+      --accent-glow: rgba(233, 28, 37, 0.35);
+      --accent-flame: #991b1b;
+      --copper: #b91c1c;
+      --amber-glow: rgba(233, 28, 37, 0.16);
 
       --text-white: #fdfaf6;
       --text-gray: #a8a29e;
@@ -280,9 +280,9 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 15% 12%, rgba(229, 142, 38, 0.08) 0%, transparent 55%),
-        radial-gradient(circle at 85% 65%, rgba(194, 65, 12, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.05) 0%, transparent 60%);
+        radial-gradient(circle at 15% 12%, rgba(233, 28, 37, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 85% 65%, rgba(185, 28, 28, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(233, 28, 37, 0.05) 0%, transparent 60%);
       background-attachment: fixed;
       color: var(--text-white);
       font-family: var(--font-body);
@@ -322,17 +322,17 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #c2410c 0%, #e58e26 50%, #f59e0b 100%);
-      color: #0c0a08;
+      background: linear-gradient(135deg, #b91c1c 0%, #e91c25 50%, #ff2e38 100%);
+      color: #ffffff;
       font-weight: 800;
-      box-shadow: 0 6px 20px rgba(229, 142, 38, 0.35);
+      box-shadow: 0 6px 20px rgba(233, 28, 37, 0.35);
       border: 1px solid rgba(255, 237, 213, 0.25);
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, #9a3412 0%, #d97706 50%, #fbbf24 100%);
+      background: linear-gradient(135deg, #9a3412 0%, #dc2626 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 10px 28px rgba(233, 28, 37, 0.45);
       color: #0c0a08;
     }
 
@@ -344,11 +344,11 @@
     }
 
     .btn-secondary:hover {
-      background: rgba(229, 142, 38, 0.12);
+      background: rgba(233, 28, 37, 0.12);
       border-color: var(--accent);
       color: var(--accent-hover);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(229, 142, 38, 0.25);
+      box-shadow: 0 6px 20px rgba(233, 28, 37, 0.25);
     }
 
     .btn-sm {
@@ -367,7 +367,7 @@
       z-index: 100;
       background: rgba(12, 10, 9, 0.95);
       backdrop-filter: blur(14px);
-      border-bottom: 1.5px solid rgba(229, 142, 38, 0.25);
+      border-bottom: 1.5px solid rgba(233, 28, 37, 0.25);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
       padding: 0.9rem 0;
     }
@@ -393,7 +393,7 @@
       color: #ffffff;
     }
 
-    .brand-title span { color: #ffffff; }
+    .brand-title span { color: var(--accent); }
     .brand-city {
       font-family: var(--font-sub);
       font-size: 0.65rem;
@@ -442,7 +442,7 @@
       background: linear-gradient(180deg, rgba(12, 10, 9, 0.45) 0%, rgba(12, 10, 9, 0.72) 45%, rgba(12, 10, 9, 0.95) 100%),
                   url('hero-bg.jpg?v=2') center top / cover no-repeat;
       text-align: center;
-      border-bottom: 2px solid rgba(229, 142, 38, 0.25);
+      border-bottom: 2px solid rgba(233, 28, 37, 0.25);
       overflow: hidden;
     }
 
@@ -450,9 +450,9 @@
       display: inline-flex;
       align-items: center;
       gap: 0.6rem;
-      background: rgba(229, 142, 38, 0.12);
-      border: 1.5px solid rgba(229, 142, 38, 0.45);
-      color: #f59e0b;
+      background: rgba(233, 28, 37, 0.12);
+      border: 1.5px solid rgba(233, 28, 37, 0.45);
+      color: #ff2e38;
       padding: 0.45rem 1.35rem;
       border-radius: var(--radius-sm);
       font-size: 0.85rem;
@@ -461,7 +461,7 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-bottom: 1.35rem;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(229, 142, 38, 0.15);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(233, 28, 37, 0.15);
     }
 
     .badge-dot {
@@ -483,10 +483,10 @@
     }
 
     .hero-h1 .gradient {
-      background: linear-gradient(135deg, #ffffff 0%, #fbbf24 35%, #e58e26 70%, #c2410c 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #ff6b72 35%, #e91c25 70%, #991b1b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 4px 20px rgba(229, 142, 38, 0.45));
+      filter: drop-shadow(0 4px 20px rgba(233, 28, 37, 0.45));
     }
 
     .hero-lead {
@@ -528,7 +528,7 @@
     .feat-card:hover { 
       border-color: var(--accent); 
       border-left-color: var(--accent-hover);
-      box-shadow: 0 10px 30px rgba(229, 142, 38, 0.2); 
+      box-shadow: 0 10px 30px rgba(233, 28, 37, 0.2); 
       transform: translateY(-2px); 
     }
     .feat-icon { font-size: 1.8rem; }
@@ -554,8 +554,8 @@
       text-transform: uppercase;
       letter-spacing: 0.16em;
       color: var(--accent-hover);
-      background: rgba(229, 142, 38, 0.14);
-      border: 1.5px solid rgba(229, 142, 38, 0.4);
+      background: rgba(233, 28, 37, 0.14);
+      border: 1.5px solid rgba(233, 28, 37, 0.4);
       padding: 0.35rem 1.1rem;
       border-radius: var(--radius-sm);
       margin-bottom: 0.85rem;
@@ -599,7 +599,7 @@
     .act-card:hover {
       transform: translateY(-5px);
       border-color: var(--accent);
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(229, 142, 38, 0.2);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(233, 28, 37, 0.2);
     }
 
     .act-img {
@@ -620,7 +620,7 @@
 
     .act-pill {
       background: rgba(12, 10, 9, 0.88);
-      border: 1px solid rgba(229, 142, 38, 0.4);
+      border: 1px solid rgba(233, 28, 37, 0.4);
       padding: 0.35rem 0.9rem;
       border-radius: var(--radius-sm);
       font-size: 0.825rem;
@@ -688,7 +688,7 @@
       font-family: var(--font-head);
       font-weight: 700;
       color: var(--accent-hover);
-      background: rgba(229, 142, 38, 0.14);
+      background: rgba(233, 28, 37, 0.14);
       padding: 0.2rem 0.65rem;
       border-radius: var(--radius-sm);
       margin-top: 0.2rem;
@@ -713,11 +713,11 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .p-card:hover { border-color: rgba(229, 142, 38, 0.5); transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6); }
+    .p-card:hover { border-color: rgba(233, 28, 37, 0.5); transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6); }
     .p-card.popular {
       border: 2px solid var(--accent);
-      background: linear-gradient(180deg, rgba(229, 142, 38, 0.12) 0%, var(--bg-surface) 100%);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(229, 142, 38, 0.25);
+      background: linear-gradient(180deg, rgba(233, 28, 37, 0.12) 0%, var(--bg-surface) 100%);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(233, 28, 37, 0.25);
     }
 
     .pop-badge {
@@ -725,8 +725,8 @@
       top: -13px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(135deg, #c2410c, #e58e26);
-      color: #0c0a08;
+      background: linear-gradient(135deg, #b91c1c, #e91c25);
+      color: #ffffff;
       font-family: var(--font-head);
       font-weight: 800;
       font-size: 0.85rem;
@@ -734,7 +734,7 @@
       text-transform: uppercase;
       padding: 0.35rem 1.25rem;
       border-radius: var(--radius-sm);
-      box-shadow: 0 4px 15px rgba(229, 142, 38, 0.45);
+      box-shadow: 0 4px 15px rgba(233, 28, 37, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
@@ -809,7 +809,7 @@
       max-width: 860px;
       margin: 0 auto;
       background: var(--bg-surface);
-      border: 1.5px solid rgba(229, 142, 38, 0.35);
+      border: 1.5px solid rgba(233, 28, 37, 0.35);
       border-radius: var(--radius-md);
       padding: 2.75rem 2.5rem;
       box-shadow: 0 16px 45px rgba(0, 0, 0, 0.55);
@@ -873,7 +873,7 @@
     .act-opt input { display: none; }
     .act-box {
       background: #14110e;
-      border: 1px solid rgba(229, 142, 38, 0.25);
+      border: 1px solid rgba(233, 28, 37, 0.25);
       padding: 0.75rem 0.4rem;
       border-radius: var(--radius-sm);
       text-align: center;
@@ -882,16 +882,16 @@
 
     .act-opt input:checked + .act-box {
       border-color: var(--accent);
-      background: rgba(229, 142, 38, 0.16);
-      box-shadow: 0 0 15px rgba(229, 142, 38, 0.3);
+      background: rgba(233, 28, 37, 0.16);
+      box-shadow: 0 0 15px rgba(233, 28, 37, 0.3);
     }
 
     .act-box strong { display: block; font-size: 0.8rem; color: #fff; margin-top: 0.25rem; }
     .act-box small { display: block; font-size: 0.7rem; color: var(--accent-hover); margin-top: 2px; }
 
     .lane-selector-box, .extra-dishes-box {
-      background: rgba(229, 142, 38, 0.08);
-      border: 1px dashed rgba(229, 142, 38, 0.45);
+      background: rgba(233, 28, 37, 0.08);
+      border: 1px dashed rgba(233, 28, 37, 0.45);
       padding: 0.85rem 1rem;
       border-radius: var(--radius-sm);
       margin-bottom: 1.25rem;
@@ -902,7 +902,7 @@
       width: 100%;
       padding: 0.8rem 1rem;
       background: #14110e;
-      border: 1px solid rgba(229, 142, 38, 0.3);
+      border: 1px solid rgba(233, 28, 37, 0.3);
       border-radius: var(--radius-sm);
       color: #fff;
       font-size: 0.95rem;
@@ -925,7 +925,7 @@
       background: #181410;
       border: 1.5px solid var(--accent);
       border-radius: var(--radius-md);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.85), 0 0 25px rgba(229, 142, 38, 0.25);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.85), 0 0 25px rgba(233, 28, 37, 0.25);
       padding: 1.25rem;
       margin-top: 0.5rem;
     }
@@ -986,9 +986,9 @@
       transition: all 0.15s ease;
     }
 
-    .cal-day:hover:not(.disabled):not(.unavailable) { background: rgba(229, 142, 38, 0.25); color: #fff; }
-    .cal-day.today { border: 1px solid rgba(229, 142, 38, 0.6); font-weight: 700; }
-    .cal-day.selected { background: var(--accent) !important; color: #0c0a08 !important; font-weight: 800; box-shadow: 0 0 12px rgba(229, 142, 38, 0.6); }
+    .cal-day:hover:not(.disabled):not(.unavailable) { background: rgba(233, 28, 37, 0.25); color: #fff; }
+    .cal-day.today { border: 1px solid rgba(233, 28, 37, 0.6); font-weight: 700; }
+    .cal-day.selected { background: var(--accent) !important; color: #0c0a08 !important; font-weight: 800; box-shadow: 0 0 12px rgba(233, 28, 37, 0.6); }
     .cal-day.disabled { color: #4b5563; background: transparent; cursor: not-allowed; opacity: 0.4; }
 
     /* Raudonu X užbrauktos dienos: kai nedirbame arba pilnai užimta */
@@ -1040,7 +1040,7 @@
       align-items: center;
       gap: 0.6rem;
       background: #14110e;
-      border: 1px solid rgba(229, 142, 38, 0.25);
+      border: 1px solid rgba(233, 28, 37, 0.25);
       padding: 0.85rem 1rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
@@ -1083,7 +1083,7 @@
     }
     .opay-bank-btn.active {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(229, 142, 38, 0.4), 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 0 0 2px rgba(233, 28, 37, 0.4), 0 4px 10px rgba(0,0,0,0.3);
       background: #ffffff;
     }
     .opay-bank-btn.active::after {
@@ -1145,7 +1145,7 @@
     }
     .gift-opay-bank-btn.active {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(229, 142, 38, 0.4), 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 0 0 2px rgba(233, 28, 37, 0.4), 0 4px 10px rgba(0,0,0,0.3);
       background: #ffffff;
     }
     .gift-opay-bank-btn.active::after {
@@ -1243,7 +1243,7 @@
     .gallery-card:hover {
       transform: translateY(-6px);
       border-color: var(--accent);
-      box-shadow: 0 15px 35px rgba(229, 142, 38, 0.3);
+      box-shadow: 0 15px 35px rgba(233, 28, 37, 0.3);
     }
     .gallery-card-bg {
       position: absolute;
@@ -1285,13 +1285,13 @@
       transform: translate(-50%, -50%);
       width: 52px;
       height: 52px;
-      background: linear-gradient(135deg, #c2410c 0%, #e58e26 100%);
+      background: linear-gradient(135deg, #b91c1c 0%, #e91c25 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #0c0a08;
-      box-shadow: 0 0 20px rgba(229, 142, 38, 0.55);
+      box-shadow: 0 0 20px rgba(233, 28, 37, 0.55);
       z-index: 3;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
@@ -1300,7 +1300,7 @@
     }
     .gallery-card:hover .gallery-play-btn {
       transform: translate(-50%, -50%) scale(1.15);
-      box-shadow: 0 0 30px rgba(229, 142, 38, 0.85);
+      box-shadow: 0 0 30px rgba(233, 28, 37, 0.85);
     }
     .gallery-card-info {
       position: relative;
@@ -1412,7 +1412,7 @@
       transition: transform 0.2s, border-color 0.2s;
     }
     .reviews-stat-card:hover {
-      border-color: rgba(229, 142, 38, 0.45);
+      border-color: rgba(233, 28, 37, 0.45);
       transform: translateY(-2px);
     }
     .reviews-g-logo {
@@ -1434,7 +1434,7 @@
       line-height: 1;
     }
     .reviews-rating-stars {
-      color: #f59e0b;
+      color: #ff2e38;
       font-size: 1.35rem;
       letter-spacing: 2px;
       margin: 0.4rem 0 0.5rem 0;
@@ -1458,8 +1458,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(229, 142, 38, 0.12);
-      border: 1px solid rgba(229, 142, 38, 0.3);
+      background: rgba(233, 28, 37, 0.12);
+      border: 1px solid rgba(233, 28, 37, 0.3);
       border-radius: 4px;
       padding: 0.25rem 0.65rem;
       color: var(--accent);
@@ -1494,7 +1494,7 @@
       overflow: hidden;
     }
 
-    .faq-row.open { border-color: rgba(229, 142, 38, 0.45); }
+    .faq-row.open { border-color: rgba(233, 28, 37, 0.45); }
     .faq-btn {
       width: 100%;
       background: none;
@@ -1555,8 +1555,8 @@
     .c-box a:hover { color: var(--accent); }
 
     .entrance-instruction-box {
-      background: rgba(229, 142, 38, 0.08);
-      border: 1.5px solid rgba(229, 142, 38, 0.4);
+      background: rgba(233, 28, 37, 0.08);
+      border: 1.5px solid rgba(233, 28, 37, 0.4);
       border-radius: var(--radius-md);
       padding: 1.25rem 1.5rem;
       margin-top: 1.25rem;
@@ -1700,16 +1700,16 @@
         width: 36px;
         height: 36px;
         border-radius: 6px;
-        background: rgba(229, 142, 38, 0.12);
-        border: 1.5px solid rgba(229, 142, 38, 0.4);
-        color: #e58e26;
+        background: rgba(233, 28, 37, 0.12);
+        border: 1.5px solid rgba(233, 28, 37, 0.4);
+        color: #e91c25;
         font-size: 1.2rem;
         cursor: pointer;
         transition: all 0.2s;
       }
       .nav-toggle:active {
         transform: scale(0.95);
-        background: rgba(229, 142, 38, 0.25);
+        background: rgba(233, 28, 37, 0.25);
       }
 
       .nav-links {
@@ -1740,7 +1740,7 @@
       }
       .nav-links .nav-item:active,
       .nav-links .nav-item:hover {
-        background: rgba(229, 142, 38, 0.15);
+        background: rgba(233, 28, 37, 0.15);
         color: var(--accent);
       }
       .nav-links .nav-btn {
@@ -2189,28 +2189,28 @@
 
     /* INFORMACINĖ AKCIJOS LENTELĖ */
     .promo-notice-box {
-      background: linear-gradient(135deg, rgba(229, 142, 38, 0.12) 0%, rgba(20, 17, 14, 0.95) 100%);
-      border: 2px solid #e58e26;
+      background: linear-gradient(135deg, rgba(233, 28, 37, 0.12) 0%, rgba(20, 17, 14, 0.95) 100%);
+      border: 2px solid #e91c25;
       border-radius: var(--radius-md);
       padding: 1.25rem 1.4rem;
       margin-bottom: 1.5rem;
       position: relative;
-      box-shadow: 0 0 25px rgba(229, 142, 38, 0.25), 0 10px 20px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 25px rgba(233, 28, 37, 0.25), 0 10px 20px rgba(0, 0, 0, 0.5);
       animation: promoGlow 3s ease-in-out infinite alternate;
     }
 
     @keyframes promoGlow {
-      from { box-shadow: 0 0 15px rgba(229, 142, 38, 0.2); border-color: #e58e26; }
-      to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.45); border-color: #f59e0b; }
+      from { box-shadow: 0 0 15px rgba(233, 28, 37, 0.2); border-color: #e91c25; }
+      to { box-shadow: 0 0 30px rgba(233, 28, 37, 0.45); border-color: #ff2e38; }
     }
 
     .promo-notice-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      background: rgba(229, 142, 38, 0.2);
-      border: 1px solid #e58e26;
-      color: #f59e0b;
+      background: rgba(233, 28, 37, 0.2);
+      border: 1px solid #e91c25;
+      color: #ff2e38;
       font-size: 0.8rem;
       font-family: var(--font-sub);
       font-weight: 800;
@@ -2224,9 +2224,9 @@
     .promo-notice-badge .pulse-dot {
       width: 8px;
       height: 8px;
-      background: #f59e0b;
+      background: #ff2e38;
       border-radius: 50%;
-      box-shadow: 0 0 10px #f59e0b;
+      box-shadow: 0 0 10px #ff2e38;
       display: inline-block;
       animation: pulseDot 1.5s infinite;
     }
@@ -2271,7 +2271,7 @@
       font-family: 'Space Mono', monospace, monospace;
       font-size: 1.05rem;
       font-weight: 800;
-      color: #f59e0b;
+      color: #ff2e38;
       letter-spacing: 0.5px;
     }
   </style>
@@ -2279,11 +2279,11 @@
 <body>
 
   <!-- VIRŠUTINĖ PRANEŠIMŲ JUOSTA -->
-  <div id="topAnnouncementBanner" style="display:none; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, #b45309 0%, #e58e26 50%, #f59e0b 100%); color:#0c0a08; padding:10px 16px; font-size:0.92rem; font-weight:800; text-align:center; position:sticky; top:0; z-index:1000; box-shadow:0 4px 20px rgba(229, 142, 38, 0.4);">
+  <div id="topAnnouncementBanner" style="display:none; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, #991b1b 0%, #e91c25 50%, #ff2e38 100%); color:#0c0a08; padding:10px 16px; font-size:0.92rem; font-weight:800; text-align:center; position:sticky; top:0; z-index:1000; box-shadow:0 4px 20px rgba(233, 28, 37, 0.4);">
     <span style="display:inline-flex; align-items:center; gap:6px;">
       <span>⚡</span> <strong>ŽAIBIŠKA AKCIJA: -5 € VISOMS REZERVACIJOMS IR KUPONAMS!</strong>
     </span>
-    <a href="#rezervacija" style="background:#0c0a08; color:#ffffff; padding:4px 14px; border-radius:6px; font-size:0.84rem; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:4px; border:1px solid rgba(229, 142, 38, 0.4);">
+    <a href="#rezervacija" style="background:#0c0a08; color:#ffffff; padding:4px 14px; border-radius:6px; font-size:0.84rem; text-decoration:none; font-weight:800; display:inline-flex; align-items:center; gap:4px; border:1px solid rgba(233, 28, 37, 0.4);">
       Rezervuoti su nuolaida ➔
     </a>
   </div>
@@ -2677,7 +2677,7 @@
       </div>
 
       <!-- DOVANŲ KUPONAS (LAISVA SUMA) -->
-      <div style="max-width: 680px; margin: 0 auto; background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius-md); padding: 2.25rem 2rem; box-shadow: 0 0 35px rgba(229, 142, 38, 0.2); text-align: center; position: relative;">
+      <div style="max-width: 680px; margin: 0 auto; background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius-md); padding: 2.25rem 2rem; box-shadow: 0 0 35px rgba(233, 28, 37, 0.2); text-align: center; position: relative;">
         <div class="pop-badge" style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap;">Laisvai pasirenkama suma</div>
         <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎁 🪓</div>
         <h3 style="font-family: var(--font-head); font-size: 1.85rem; color: #fff; margin-bottom: 0.6rem; letter-spacing: 0.5px;">Dovanų Kuponas</h3>
@@ -2704,7 +2704,7 @@
       </div>
 
       <!-- KUPONO PIRKIMO MODALAS / FORMA -->
-      <div id="giftModal" class="form-wrap" style="display: none; max-width: 680px; margin: 2.5rem auto 0 auto; border: 2px solid var(--accent); box-shadow: 0 0 35px rgba(229, 142, 38, 0.25); border-radius: var(--radius-md); position: relative; background: var(--bg-surface);">
+      <div id="giftModal" class="form-wrap" style="display: none; max-width: 680px; margin: 2.5rem auto 0 auto; border: 2px solid var(--accent); box-shadow: 0 0 35px rgba(233, 28, 37, 0.25); border-radius: var(--radius-md); position: relative; background: var(--bg-surface);">
         
         <!-- Antraštė ir Uždarymo mygtukas -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
@@ -2902,7 +2902,7 @@
       </div>
 
       <!-- FIZINIS KUPONAS ARBA KONSULTACIJA -->
-      <div style="max-width: 680px; margin: 2.5rem auto 0 auto; background: linear-gradient(135deg, rgba(229, 142, 38, 0.08) 0%, rgba(20, 17, 14, 0.95) 100%); border: 1.5px solid rgba(229, 142, 38, 0.35); border-radius: var(--radius-md); padding: 1.75rem 1.6rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.45);">
+      <div style="max-width: 680px; margin: 2.5rem auto 0 auto; background: linear-gradient(135deg, rgba(233, 28, 37, 0.08) 0%, rgba(20, 17, 14, 0.95) 100%); border: 1.5px solid rgba(233, 28, 37, 0.35); border-radius: var(--radius-md); padding: 1.75rem 1.6rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.45);">
         <div style="font-size: 2rem; margin-bottom: 0.4rem;">🎁 🏢</div>
         <h3 style="font-family: var(--font-head); font-size: 1.35rem; margin-bottom: 0.5rem; color: #ffffff;">Fizinis kuponas arba sąskaita įmonei</h3>
         <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.25rem;">
@@ -2982,7 +2982,7 @@
                 <option value="Takelis 1">1 takelis</option>
                 <option value="Takelis 2">2 takelis</option>
               </select>
-              <div id="laneNotice" style="display:none; font-size:0.83rem; margin-top:0.45rem; padding:0.45rem 0.75rem; border-radius:6px; background:rgba(229,142,38,0.12); border:1px solid rgba(229,142,38,0.35); color:#f59e0b; line-height: 1.4;"></div>
+              <div id="laneNotice" style="display:none; font-size:0.83rem; margin-top:0.45rem; padding:0.45rem 0.75rem; border-radius:6px; background:rgba(233,28,37,0.12); border:1px solid rgba(233,28,37,0.35); color:#ff2e38; line-height: 1.4;"></div>
             </div>
 
             <!-- PAPILDOMI INDAI DAUŽYMUI (TIK PYKČIO KAMBARIUI IR KOMBO) -->
@@ -3083,7 +3083,7 @@
               <div class="pay-methods" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 
                 <!-- 1. Elektroninė bankininkystė su bankų pasirinkimu -->
-                <div id="payBankCardWrapper" style="border: 1.5px solid var(--accent); background: rgba(229, 142, 38, 0.05); border-radius: var(--radius-sm); padding: 1rem; transition: all 0.2s;">
+                <div id="payBankCardWrapper" style="border: 1.5px solid var(--accent); background: rgba(233, 28, 37, 0.05); border-radius: var(--radius-sm); padding: 1rem; transition: all 0.2s;">
                   <label class="pay-lbl" id="payLblBank" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-bottom: 0.85rem; padding: 0; background: none; border: none;">
                     <input type="radio" name="resPay" value="banklink" checked style="accent-color: var(--accent); width: 18px; height: 18px; margin: 0;">
                     <strong style="color: #ffffff; font-size: 0.98rem;">💳 Elektroninė bankininkystė</strong>
@@ -3343,7 +3343,7 @@
             </p>
           </div>
           <div>
-            <a href="https://g.page/r/CSl4Ci9B6QHpEBM/review" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem 1.5rem; font-size: 0.98rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 18px rgba(229, 142, 38, 0.4);">
+            <a href="https://g.page/r/CSl4Ci9B6QHpEBM/review" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem 1.5rem; font-size: 0.98rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 18px rgba(233, 28, 37, 0.4);">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
               <span>Palikti atsiliepimą Google platformoje ➔</span>
             </a>
@@ -3356,7 +3356,7 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
-      <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROWHOUSE ŠIAULIAI</p>
+      <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROW<span style="color:var(--accent);">HOUSE</span> ŠIAULIAI</p>
       <div style="margin-bottom: 1.25rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem 1.5rem;">
         <a href="#pramogos">Pramogos</a>
         <a href="#galerija">Galerija</a>
@@ -3679,7 +3679,7 @@
           <strong>Galiojimas:</strong> 6 mėnesiai nuo pirkimo datos<br><br>
           <span style="color:#4ade80; font-weight:700;">✓ Dovanų kuponas sėkmingai paruoštas ir išsiųstas į el. paštą <strong>${finalEmail}</strong>!</span><br><br>
           <div style="margin-top: 12px; margin-bottom: 8px;">
-            <a href="kuponas_print.php?code=${encodeURIComponent(code)}" target="_blank" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; padding:0.85rem 1.6rem; font-weight:800; border-radius:var(--radius-sm); box-shadow:0 4px 15px rgba(229,142,38,0.35);">
+            <a href="kuponas_print.php?code=${encodeURIComponent(code)}" target="_blank" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; padding:0.85rem 1.6rem; font-weight:800; border-radius:var(--radius-sm); box-shadow:0 4px 15px rgba(233,28,37,0.35);">
               🖨️ Atsisiųsti / Spausdinti PDF kuponą ➔
             </a>
           </div>
@@ -4103,7 +4103,7 @@
             opt.textContent = isKombo
               ? `${hourStr} - ${endHourStr} val. (Liko 1 kirvių takelis 🔥)`
               : `${hourStr} - ${endHourStr} val. (Liko 1 takelis 🔥)`;
-            opt.style.color = '#f59e0b';
+            opt.style.color = '#ff2e38';
           } else {
             opt.textContent = isKombo
               ? `${hourStr} - ${endHourStr} val. (2 val.: Kirviai ➔ Pyktis)`
@@ -4274,7 +4274,7 @@
         if (selected === 'cash') {
           if (lblCash) {
             lblCash.style.borderColor = 'var(--accent)';
-            lblCash.style.background = 'rgba(229, 142, 38, 0.12)';
+            lblCash.style.background = 'rgba(233, 28, 37, 0.12)';
           }
           if (cardBankWrapper) {
             cardBankWrapper.style.borderColor = 'rgba(255, 255, 255, 0.15)';
@@ -4287,7 +4287,7 @@
         } else {
           if (cardBankWrapper) {
             cardBankWrapper.style.borderColor = 'var(--accent)';
-            cardBankWrapper.style.background = 'rgba(229, 142, 38, 0.08)';
+            cardBankWrapper.style.background = 'rgba(233, 28, 37, 0.08)';
           }
           if (bankSelectorBox) {
             bankSelectorBox.style.display = 'block';
@@ -4484,7 +4484,7 @@
           ${extraDishes > 0 ? '<strong>Papildomi indai:</strong> +' + extraDishes + ' vnt.<br>' : ''}
           <strong>Data ir laikas:</strong> ${dateText}, ${timeOptionText}<br>
           <strong>Apmokėjimo būdas:</strong> ${payLabel}<br>
-          <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong> ${isCash ? '<span style="color:#f59e0b; font-size:0.85rem;">(Mokėsite atvykus)</span>' : ''}<br>
+          <strong>Suma:</strong> <strong style="color:var(--accent); font-size:1.15rem;">${prc}</strong> ${isCash ? '<span style="color:#ff2e38; font-size:0.85rem;">(Mokėsite atvykus)</span>' : ''}<br>
           ${cashNoticeHtml}
           <span style="color:#4ade80;">✓ Rezervacijos patvirtinimas sėkmingai išsiųstas į <strong>${email}</strong>!</span>
         `;
@@ -4631,7 +4631,7 @@
         vy: -0.25 - Math.random() * 0.55,
         size: 1 + Math.random() * 2.2,
         alpha: 0.2 + Math.random() * 0.65,
-        color: Math.random() > 0.4 ? '#f59e0b' : (Math.random() > 0.5 ? '#e58e26' : '#fbbf24')
+        color: Math.random() > 0.4 ? '#ff2e38' : (Math.random() > 0.5 ? '#e91c25' : '#fbbf24')
       });
     }
 
@@ -4751,7 +4751,7 @@
       ctx.quadraticCurveTo(-size * 1.25, -size * 0.62, -size * 0.9, -size * 0.2);
       ctx.lineWidth = 2.2;
       ctx.strokeStyle = '#ffffff';
-      ctx.shadowColor = '#f59e0b';
+      ctx.shadowColor = '#ff2e38';
       ctx.shadowBlur = 10;
       ctx.stroke();
 
@@ -4836,8 +4836,8 @@
         ctx.moveTo(-sl.length * 0.5, 0);
         ctx.quadraticCurveTo(0, -14 * sl.life, sl.length * 0.5, 0);
         ctx.lineWidth = 4 * sl.life;
-        ctx.strokeStyle = '#e58e26';
-        ctx.shadowColor = '#f59e0b';
+        ctx.strokeStyle = '#e91c25';
+        ctx.shadowColor = '#ff2e38';
         ctx.shadowBlur = 18;
         ctx.stroke();
 
@@ -4857,7 +4857,7 @@
           if (sp.life > 0) {
             ctx.beginPath();
             ctx.arc(sp.x, sp.y, sp.size * sp.life, 0, Math.PI * 2);
-            ctx.fillStyle = '#f59e0b';
+            ctx.fillStyle = '#ff2e38';
             ctx.globalAlpha = sp.life;
             ctx.shadowColor = '#fbbf24';
             ctx.shadowBlur = 8;
@@ -4962,7 +4962,7 @@
         media.innerHTML = `
           <div style="width:100%;height:100%;background-image:url('${item.bg}');background-size:cover;background-position:center;position:relative;display:flex;align-items:center;justify-content:center;">
             <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);"></div>
-            <a href="${item.socialUrl}" target="_blank" rel="noopener noreferrer" style="position:relative;z-index:2;width:74px;height:74px;background:linear-gradient(135deg, #c2410c, #e58e26);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0c0a08;box-shadow:0 0 35px rgba(229,142,38,0.75);text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+            <a href="${item.socialUrl}" target="_blank" rel="noopener noreferrer" style="position:relative;z-index:2;width:74px;height:74px;background:linear-gradient(135deg, #b91c1c, #e91c25);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0c0a08;box-shadow:0 0 35px rgba(233,28,37,0.75);text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" style="margin-left:3px;"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
             </a>
           </div>

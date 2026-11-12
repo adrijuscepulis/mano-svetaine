@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Griežtas talpyklos (cache) draudimas naršyklei ir Hostinger LiteSpeed serveriui
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -144,7 +144,7 @@ function getDefaultSettings() {
             'text' => '🔥 Dėmesio: Šį savaitgalį dirbame ilgiau! Rezervuokite laiką iš anksto.',
             'btn_text' => 'Rezervuoti laiką ➔',
             'btn_link' => '#rezervacija',
-            'bg_color' => '#ff6a00',
+            'bg_color' => '#e91c25',
             'text_color' => '#08050e'
         ],
         'contacts' => [
@@ -922,7 +922,7 @@ if (!empty($_SESSION['admin_logged'])) {
         $settings['banner']['text'] = trim($_POST['banner_text'] ?? '');
         $settings['banner']['btn_text'] = trim($_POST['banner_btn_text'] ?? '');
         $settings['banner']['btn_link'] = trim($_POST['banner_btn_link'] ?? '#rezervacija');
-        $settings['banner']['bg_color'] = trim($_POST['banner_bg_color'] ?? '#ff6a00');
+        $settings['banner']['bg_color'] = trim($_POST['banner_bg_color'] ?? '#e91c25');
         $settings['banner']['text_color'] = trim($_POST['banner_text_color'] ?? '#08050e');
 
         // Kainos
@@ -1045,8 +1045,8 @@ if (!empty($_SESSION['admin_logged'])) {
         $targetEmail = trim($_POST['test_email'] ?? $cfg['admin_email'] ?? 'info@throwhouse.lt');
 
         $testHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif; background:#0b0f19; padding:20px; color:#fff;">
-          <div style="max-width:550px; margin:0 auto; background:#18102a; border:2px solid #ff6a00; border-radius:12px; padding:25px; text-align:center;">
-            <h1 style="color:#ff6a00; margin:0 0 10px 0;">THROW HOUSE ŠIAULIAI</h1>
+          <div style="max-width:550px; margin:0 auto; background:#18102a; border:2px solid #e91c25; border-radius:12px; padding:25px; text-align:center;">
+            <h1 style="color:#e91c25; margin:0 0 10px 0;">THROW HOUSE ŠIAULIAI</h1>
             <p style="font-size:16px; color:#4ade80; font-weight:bold;">✓ El. pašto sistema veikia sėkmingai!</p>
             <p style="color:#e2e8f0; font-size:14px; line-height:1.5;">
               Šis laiškas patvirtina, kad Jūsų serverio el. pašto siuntimas yra pilnai sukonfigūruotas. Klientai ir Jūs gausite visus reprezentatyvius laiškus.
@@ -1312,9 +1312,9 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       --bg: #0c0a09;
       --surface: #14110e;
       --surface-2: #1c1713;
-      --border: rgba(229, 142, 38, 0.25);
-      --accent: #e58e26;
-      --accent-hover: #f59e0b;
+      --border: rgba(233, 28, 37, 0.25);
+      --accent: #e91c25;
+      --accent-hover: #ff2e38;
       --text: #fdfaf6;
       --muted: #94a3b8;
       --danger: #ef4444;
@@ -1431,7 +1431,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       transition: all 0.2s;
     }
     .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.04); }
-    .tab-btn.active { background: rgba(229, 142, 38, 0.18); color: var(--accent); border: 1px solid rgba(229, 142, 38, 0.4); }
+    .tab-btn.active { background: rgba(233, 28, 37, 0.18); color: var(--accent); border: 1px solid rgba(233, 28, 37, 0.4); }
 
     /* LENTELĖS */
     .table-card {
@@ -1462,7 +1462,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
       font-weight: 700;
     }
     .badge-success { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-    .badge-pending { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-pending { background: rgba(233,28,37,0.15); color: #fbbf24; border: 1px solid rgba(233,28,37,0.3); }
     .badge-canceled { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
     .badge-opay { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
 
@@ -1547,12 +1547,12 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     }
     .cal-day-cell:hover {
       border-color: var(--accent);
-      background: rgba(229, 142, 38, 0.1);
+      background: rgba(233, 28, 37, 0.1);
     }
     .cal-day-cell.active {
       border-color: var(--accent);
-      background: rgba(229, 142, 38, 0.18);
-      box-shadow: 0 0 12px rgba(229, 142, 38, 0.3);
+      background: rgba(233, 28, 37, 0.18);
+      box-shadow: 0 0 12px rgba(233, 28, 37, 0.3);
     }
     .cal-day-cell.today {
       border-color: #3b82f6;
@@ -1589,7 +1589,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     .pill-rage { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
     .pill-axe { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
     .pill-kombo { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
-    .pill-total { background: rgba(229, 142, 38, 0.25); color: var(--accent); font-weight: 800; }
+    .pill-total { background: rgba(233, 28, 37, 0.25); color: var(--accent); font-weight: 800; }
 
     /* DEŠINYSIS DIENOS SKYDELIS */
     .day-schedule-card {
@@ -1819,7 +1819,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             <button class="cal-nav-btn" onclick="adminPrevMonth()">◄</button>
             <h3 class="cal-header-title" id="adminCalMonthLabel">Spalis 2026</h3>
             <button class="cal-nav-btn" onclick="adminNextMonth()">►</button>
-            <button class="cal-nav-btn" onclick="adminGoToday()" style="background:rgba(229, 142, 38, 0.2); color:var(--accent);">Šiandien</button>
+            <button class="cal-nav-btn" onclick="adminGoToday()" style="background:rgba(233, 28, 37, 0.2); color:var(--accent);">Šiandien</button>
           </div>
 
           <div class="cal-grid-head">
@@ -1852,7 +1852,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
           </div>
 
           <!-- ŠIOS DIENOS DARBO LAIKAS IR VALANDŲ KEITIMAS -->
-          <div style="background: rgba(255, 106, 0, 0.07); border: 1.5px solid var(--accent); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+          <div style="background: rgba(233, 28, 37, 0.07); border: 1.5px solid var(--accent); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.65rem; margin-bottom: 0.65rem;">
               <div style="display: flex; align-items: center; gap: 0.45rem;">
                 <span style="font-size: 1.15rem;">🕒</span>
@@ -2087,7 +2087,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                           <input type="hidden" name="action" value="send_review_request_email">
                           <input type="hidden" name="redirect_tab" value="rezervacijos">
                           <input type="hidden" name="res_id" value="<?= htmlspecialchars($r['id'] ?? '') ?>">
-                          <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; background:rgba(229,142,38,0.15); border-color:rgba(229,142,38,0.4); color:#fbbf24;" title="<?= !empty($r['review_email_sent']) ? 'Atsiliepimo kvietimas jau išsiųstas (' . htmlspecialchars($r['review_email_sent']) . '). Paspauskite, jei norite pakartoti.' : 'Išsiųsti padėkos ir Google atsiliepimo kvietimo el. laišką' ?>">
+                          <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem; background:rgba(233,28,37,0.15); border-color:rgba(233,28,37,0.4); color:#fbbf24;" title="<?= !empty($r['review_email_sent']) ? 'Atsiliepimo kvietimas jau išsiųstas (' . htmlspecialchars($r['review_email_sent']) . '). Paspauskite, jei norite pakartoti.' : 'Išsiųsti padėkos ir Google atsiliepimo kvietimo el. laišką' ?>">
                             ⭐<?= !empty($r['review_email_sent']) ? '✓' : '' ?>
                           </button>
                         </form>
@@ -2127,7 +2127,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 0.5;">🔍</span>
             </div>
           </div>
-          <div id="couponSearchSummary" style="display: none; padding: 0.5rem 1.5rem; font-size: 0.8rem; background: rgba(255, 106, 0, 0.08); border-bottom: 1px solid rgba(255, 106, 0, 0.2); color: var(--accent);"></div>
+          <div id="couponSearchSummary" style="display: none; padding: 0.5rem 1.5rem; font-size: 0.8rem; background: rgba(233, 28, 37, 0.08); border-bottom: 1px solid rgba(233, 28, 37, 0.2); color: var(--accent);"></div>
           <div style="overflow-x: auto;">
             <table>
               <thead>
@@ -2333,7 +2333,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     ?>
       <div style="max-width: 980px; margin: 0 auto;">
         
-        <div style="background: rgba(229, 142, 38, 0.08); border: 1px solid rgba(229, 142, 38, 0.35); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
+        <div style="background: rgba(233, 28, 37, 0.08); border: 1px solid rgba(233, 28, 37, 0.35); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
           <div style="font-size: 2rem; line-height: 1;">⚙️</div>
           <div>
             <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">Svetainės Turinio Valdymas (TVS)</h2>
@@ -2348,7 +2348,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
           <input type="hidden" name="action" value="save_site_settings">
 
           <!-- 0. ŽAIBIŠKA AKCIJA (PROMO / NUOLAIDOS VALDYMAS) -->
-          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid <?= $isPromoActive ? '#22c55e' : 'var(--accent)' ?>; box-shadow: 0 0 25px <?= $isPromoActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 106, 0, 0.15)' ?>;">
+          <div class="table-wrap" style="padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid <?= $isPromoActive ? '#22c55e' : 'var(--accent)' ?>; box-shadow: 0 0 25px <?= $isPromoActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(233, 28, 37, 0.15)' ?>;">
             <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
               <div>
                 <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
@@ -2431,7 +2431,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
               </div>
               <div>
                 <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin-bottom: 0.3rem;">Fono spalva:</label>
-                <input type="color" name="banner_bg_color" value="<?= htmlspecialchars($b['bg_color'] ?? '#ff6a00') ?>" style="width: 100%; height: 42px; border: 1px solid var(--border); border-radius: 8px; background: transparent; cursor: pointer;">
+                <input type="color" name="banner_bg_color" value="<?= htmlspecialchars($b['bg_color'] ?? '#e91c25') ?>" style="width: 100%; height: 42px; border: 1px solid var(--border); border-radius: 8px; background: transparent; cursor: pointer;">
               </div>
             </div>
           </div>
@@ -2721,7 +2721,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
     ?>
       <div style="max-width: 900px; margin: 0 auto;">
         
-        <div style="background: rgba(255, 106, 0, 0.08); border: 1px solid rgba(255, 106, 0, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
+        <div style="background: rgba(233, 28, 37, 0.08); border: 1px solid rgba(233, 28, 37, 0.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem;">
           <div style="font-size: 2rem; line-height: 1;">📧</div>
           <div>
             <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">El. pašto siuntimo ir SMTP nustatymai</h2>
@@ -2787,12 +2787,12 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
           </div>
 
           <!-- GMAIL APP PASSWORD INSTRUKCIJA -->
-          <div style="background: rgba(30, 20, 50, 0.6); border: 1px solid rgba(255,106,0,0.25); border-radius: 12px; padding: 1.25rem 1.5rem;">
-            <h4 style="color: #ff6a00; font-size: 0.95rem; font-weight: 700; margin-top: 0; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <div style="background: rgba(30, 20, 50, 0.6); border: 1px solid rgba(233,28,37,0.25); border-radius: 12px; padding: 1.25rem 1.5rem;">
+            <h4 style="color: #e91c25; font-size: 0.95rem; font-weight: 700; margin-top: 0; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
               💡 Kaip gauti Gmail programos slaptažodį (užtruks 1 minutę):
             </h4>
             <ol style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
-              <li>Prisijunkite prie savo <strong>throwhousee@gmail.com</strong> Google paskyros ir atidarykite nuorodą: <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #ff6a00; text-decoration: underline; font-weight: 600;">myaccount.google.com/apppasswords</a></li>
+              <li>Prisijunkite prie savo <strong>throwhousee@gmail.com</strong> Google paskyros ir atidarykite nuorodą: <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #e91c25; text-decoration: underline; font-weight: 600;">myaccount.google.com/apppasswords</a></li>
               <li>Jei prašo, įjunkite 2 žingsnių patvirtinimą (2-Step Verification).</li>
               <li>Lauke „App name“ (programos pavadinimas) įrašykite pvz. <strong>ThrowHouse Svetainė</strong> ir spauskite <strong>Create</strong>.</li>
               <li>Google parodys 16-os raidžių slaptažodį (pvz.: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #4ade80;">abcd efgh ijkl mnop</code>). Nukopijuokite jį, įklijuokite į viršuje esantį lauką <strong>SMTP Slaptažodis</strong> ir paspauskite „Išsaugoti SMTP nustatymus“.</li>
@@ -2818,8 +2818,8 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
           </div>
 
           <!-- BANDOMŲJŲ ŠABLONŲ SIUNTIMAS (PATVIRTINIMAS IR ATSILIEPIMAS) -->
-          <div class="table-wrap" style="padding: 1.5rem; border: 1px solid rgba(229, 142, 38, 0.4); background: rgba(229, 142, 38, 0.05);">
-            <h3 style="font-size: 1.1rem; font-weight: 800; color: #e58e26; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <div class="table-wrap" style="padding: 1.5rem; border: 1px solid rgba(233, 28, 37, 0.4); background: rgba(233, 28, 37, 0.05);">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #e91c25; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
               📬 Išsiųsti oficialių laiškų pavyzdžius (Patvirtinimą ir Google atsiliepimą)
             </h3>
             <p style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 1rem;">
@@ -2829,7 +2829,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             <form method="POST" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
               <input type="hidden" name="action" value="send_sample_templates">
               <input type="email" name="sample_target_email" class="form-input" style="flex: 1; min-width: 250px; margin-bottom: 0;" value="adrijus.cepulis@gmail.com" placeholder="Jūsų Gmail adresas" required>
-              <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem; background: #e58e26; border-color: #d97706;">
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem; background: #e91c25; border-color: #dc2626;">
                 🚀 Išsiųsti abu laiškus į Gmail
               </button>
             </form>
@@ -2901,7 +2901,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                 <input type="checkbox" name="opay_enabled" value="1" <?= !empty($opayCfg['opay_enabled']) ? 'checked' : '' ?> style="width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer;">
               </div>
 
-              <div style="margin-bottom: 1.25rem; background: rgba(229, 142, 38, 0.08); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid rgba(229, 142, 38, 0.3); display: flex; align-items: center; justify-content: space-between;">
+              <div style="margin-bottom: 1.25rem; background: rgba(233, 28, 37, 0.08); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid rgba(233, 28, 37, 0.3); display: flex; align-items: center; justify-content: space-between;">
                 <div>
                   <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">Testavimo režimas (Sandbox)</div>
                   <div style="font-size: 0.8rem; color: var(--muted);">Pažymėkite TIK jei naudojate OPAY bandomąją aplinką (sandbox-api.opay.eu)</div>
@@ -3024,10 +3024,10 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
             </p>
           </div>
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-            <a href="baras_qr.png" download="throwhouse_baras_qr.png" class="btn btn-secondary" style="border: 1px solid rgba(229,142,38,0.4); color: var(--accent);">
+            <a href="baras_qr.png" download="throwhouse_baras_qr.png" class="btn btn-secondary" style="border: 1px solid rgba(233,28,37,0.4); color: var(--accent);">
               📥 Atsisiųsti QR kodą (PNG)
             </a>
-            <a href="baras_qr.php" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #e58e26, #f59e0b); font-weight: 800;">
+            <a href="baras_qr.php" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #e91c25, #ff2e38); font-weight: 800;">
               🖨️ Spausdinti QR stovelius salone ➔
             </a>
             <a href="baras.php" target="_blank" class="btn btn-secondary">
@@ -3099,7 +3099,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                     <td>
                       <div style="font-weight: 700; color: #fff; font-size: 0.95rem;"><?= htmlspecialchars($ord['client_name'] ?? '—') ?></div>
                       <?php if (!empty($ord['client_location']) && $ord['client_location'] !== 'Salėje'): ?>
-                        <span style="display: inline-block; background: rgba(229,142,38,0.15); border: 1px solid rgba(229,142,38,0.3); color: var(--accent); padding: 0.15rem 0.45rem; border-radius: 6px; font-weight: 700; font-size: 0.75rem; margin-top: 3px;">
+                        <span style="display: inline-block; background: rgba(233,28,37,0.15); border: 1px solid rgba(233,28,37,0.3); color: var(--accent); padding: 0.15rem 0.45rem; border-radius: 6px; font-weight: 700; font-size: 0.75rem; margin-top: 3px;">
                           📍 <?= htmlspecialchars($ord['client_location']) ?>
                         </span>
                       <?php endif; ?>
@@ -3118,7 +3118,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                           </div>
                         <?php endforeach; ?>
                         <?php if (!empty($ord['client_notes'])): ?>
-                          <div style="margin-top: 0.35rem; font-size: 0.8rem; color: #fbbf24; background: rgba(245,158,11,0.1); border-left: 2px solid #fbbf24; padding: 0.2rem 0.45rem; border-radius: 4px;">
+                          <div style="margin-top: 0.35rem; font-size: 0.8rem; color: #fbbf24; background: rgba(233,28,37,0.1); border-left: 2px solid #fbbf24; padding: 0.2rem 0.45rem; border-radius: 4px;">
                             💬 Pastaba: <?= htmlspecialchars($ord['client_notes']) ?>
                           </div>
                         <?php endif; ?>
@@ -3972,7 +3972,7 @@ $adminPromoDiscount = $adminPromoActive ? floatval($adminSiteSettings['promo']['
                         <input type="hidden" name="redirect_tab" value="kalendorius">
                         <input type="hidden" name="redirect_date" value="${iso}">
                         <input type="hidden" name="res_id" value="${r.id}">
-                        <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.55rem; background:rgba(229,142,38,0.15); border-color:rgba(229,142,38,0.4); color:#fbbf24;" title="${r.review_email_sent ? 'Atsiliepimas siųstas (' + r.review_email_sent + '). Spauskite norint pakartoti.' : 'Išsiųsti padėkos ir Google atsiliepimo kvietimą'}">
+                        <button type="submit" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.55rem; background:rgba(233,28,37,0.15); border-color:rgba(233,28,37,0.4); color:#fbbf24;" title="${r.review_email_sent ? 'Atsiliepimas siųstas (' + r.review_email_sent + '). Spauskite norint pakartoti.' : 'Išsiųsti padėkos ir Google atsiliepimo kvietimą'}">
                           ⭐ ${r.review_email_sent ? 'Atsiliepimas siųstas ✓' : 'Siųsti atsiliepimą'}
                         </button>
                       </form>

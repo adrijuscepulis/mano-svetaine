@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // =========================================================================
 // ThrowHouse Šiauliai - Spausdinamas QR stovelis / skrajutė barui
 // =========================================================================
@@ -48,7 +48,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       border: none;
     }
     .btn-print {
-      background: #e58e26;
+      background: #e91c25;
       color: #0c0a09;
     }
     .btn-back {
@@ -61,7 +61,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       width: 100%;
       max-width: 440px;
       background: #000;
-      border: 4px solid #e58e26;
+      border: 4px solid #e91c25;
       border-radius: 20px;
       padding: 2.25rem 2rem;
       text-align: center;
@@ -73,7 +73,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; height: 8px;
-      background: linear-gradient(90deg, #e58e26, #f59e0b, #e58e26);
+      background: linear-gradient(90deg, #e91c25, #ff2e38, #e91c25);
     }
     .brand {
       font-family: 'Oswald', sans-serif;
@@ -83,7 +83,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       text-transform: uppercase;
       margin-bottom: 0.2rem;
     }
-    .brand span { color: #e58e26; }
+    .brand span { color: #e91c25; }
     .tagline {
       font-size: 0.85rem;
       color: #94a3b8;
@@ -102,7 +102,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       margin-bottom: 0.4rem;
     }
     .main-title span {
-      color: #e58e26;
+      color: #e91c25;
     }
     .sub-title {
       font-size: 0.95rem;
@@ -118,7 +118,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       border-radius: 16px;
       display: inline-block;
       margin-bottom: 1.25rem;
-      box-shadow: 0 10px 30px rgba(229, 142, 38, 0.35);
+      box-shadow: 0 10px 30px rgba(233, 28, 37, 0.35);
     }
     .qr-img {
       width: 220px;
@@ -128,9 +128,9 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
 
     .qr-url-badge {
       display: inline-block;
-      background: rgba(229, 142, 38, 0.15);
-      border: 1px solid rgba(229, 142, 38, 0.35);
-      color: #e58e26;
+      background: rgba(233, 28, 37, 0.15);
+      border: 1px solid rgba(233, 28, 37, 0.35);
+      color: #e91c25;
       font-family: 'Oswald', sans-serif;
       font-size: 1.15rem;
       font-weight: 700;
@@ -162,7 +162,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #e58e26;
+      background: #e91c25;
       color: #000;
       font-weight: 800;
       font-size: 0.8rem;
@@ -200,7 +200,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
         color: #000 !important;
       }
       .brand span, .main-title span {
-        color: #d97706 !important;
+        color: #dc2626 !important;
       }
       .tagline, .sub-title, .card-footer {
         color: #4b5563 !important;
@@ -226,7 +226,7 @@ $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=' . u
   <div class="top-actions" style="max-width: 560px; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
     <a href="admin.php?tab=baras" class="btn btn-back">⬅️ Grįžti į Valdymą</a>
     <div style="display: flex; gap: 0.5rem;">
-      <a href="baras_qr.png" download="throwhouse_baras_qr.png" class="btn" style="background: rgba(229,142,38,0.2); color: #e58e26; border: 1px solid rgba(229,142,38,0.4);">
+      <a href="baras_qr.png" download="throwhouse_baras_qr.png" class="btn" style="background: rgba(233,28,37,0.2); color: #e91c25; border: 1px solid rgba(233,28,37,0.4);">
         💾 Atsisiųsti tik QR kodą (PNG)
       </a>
       <button type="button" class="btn btn-print" onclick="window.print()">🖨️ Spausdinti stovelį</button>

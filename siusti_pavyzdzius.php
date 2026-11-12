@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * ThrowHouse Šiauliai – Bandomųjų laiškų išsiuntimo skriptas
  * Naudojimas: atidaryti per naršyklę https://throwhouse.lt/siusti_pavyzdzius.php
@@ -42,10 +42,10 @@ header('Content-Type: text/html; charset=utf-8');
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f8fafc; padding: 40px 20px; line-height: 1.6; }
     .card { max-width: 600px; margin: 0 auto; background: #131722; border: 1px solid #2d3748; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    h1 { color: #e58e26; margin-top: 0; font-size: 22px; }
+    h1 { color: #e91c25; margin-top: 0; font-size: 22px; }
     .status-ok { color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.1); padding: 4px 10px; border-radius: 6px; }
     .status-fail { color: #f87171; font-weight: bold; background: rgba(248, 113, 113, 0.1); padding: 4px 10px; border-radius: 6px; }
-    .btn { display: inline-block; background: #e58e26; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+    .btn { display: inline-block; background: #e91c25; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; margin-top: 20px; }
   </style>
 </head>
 <body>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="lt">
 <head>
   <meta charset="UTF-8">
@@ -48,15 +48,15 @@
       --bg-surface: #14110e;
       --bg-card: #1c1713;
       --bg-card-hover: #241e19;
-      --border-color: rgba(229, 142, 38, 0.22);
-      --border-strong: rgba(229, 142, 38, 0.45);
+      --border-color: rgba(233, 28, 37, 0.22);
+      --border-strong: rgba(233, 28, 37, 0.45);
       
-      --accent: #e58e26;
-      --accent-hover: #f59e0b;
-      --accent-glow: rgba(229, 142, 38, 0.35);
-      --accent-flame: #b45309;
-      --copper: #c2410c;
-      --amber-glow: rgba(245, 158, 11, 0.16);
+      --accent: #e91c25;
+      --accent-hover: #ff2e38;
+      --accent-glow: rgba(233, 28, 37, 0.35);
+      --accent-flame: #991b1b;
+      --copper: #b91c1c;
+      --amber-glow: rgba(233, 28, 37, 0.16);
 
       --text-white: #fdfaf6;
       --text-gray: #a8a29e;
@@ -77,9 +77,9 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 15% 12%, rgba(229, 142, 38, 0.08) 0%, transparent 55%),
-        radial-gradient(circle at 85% 65%, rgba(194, 65, 12, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.05) 0%, transparent 60%);
+        radial-gradient(circle at 15% 12%, rgba(233, 28, 37, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 85% 65%, rgba(185, 28, 28, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(233, 28, 37, 0.05) 0%, transparent 60%);
       background-attachment: fixed;
       color: var(--text-white);
       font-family: var(--font-body);
@@ -134,7 +134,7 @@
       color: #ffffff;
     }
 
-    .brand-title span { color: #ffffff; }
+    .brand-title span { color: var(--accent); }
     .brand-city {
       font-family: var(--font-sub);
       font-size: 0.65rem;
@@ -180,17 +180,17 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #c2410c 0%, #e58e26 50%, #f59e0b 100%);
-      color: #0c0a08;
+      background: linear-gradient(135deg, #b91c1c 0%, #e91c25 50%, #ff2e38 100%);
+      color: #ffffff;
       font-weight: 800;
-      box-shadow: 0 6px 20px rgba(229, 142, 38, 0.35);
+      box-shadow: 0 6px 20px rgba(233, 28, 37, 0.35);
       border: 1px solid rgba(255, 237, 213, 0.25);
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, #9a3412 0%, #d97706 50%, #fbbf24 100%);
+      background: linear-gradient(135deg, #9a3412 0%, #dc2626 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 10px 28px rgba(233, 28, 37, 0.45);
       color: #0c0a08;
     }
 
@@ -214,9 +214,9 @@
       display: inline-flex;
       align-items: center;
       gap: 0.6rem;
-      background: rgba(229, 142, 38, 0.12);
-      border: 1.5px solid rgba(229, 142, 38, 0.45);
-      color: #f59e0b;
+      background: rgba(233, 28, 37, 0.12);
+      border: 1.5px solid rgba(233, 28, 37, 0.45);
+      color: #ff2e38;
       padding: 0.45rem 1.35rem;
       border-radius: var(--radius-sm);
       font-size: 0.85rem;
@@ -225,7 +225,7 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-bottom: 1.35rem;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(229, 142, 38, 0.15);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(233, 28, 37, 0.15);
     }
 
     .legal-title {
@@ -239,10 +239,10 @@
     }
 
     .legal-title span {
-      background: linear-gradient(135deg, #ffffff 0%, #fbbf24 35%, #e58e26 70%, #c2410c 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #ff6b72 35%, #e91c25 70%, #991b1b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 4px 20px rgba(229, 142, 38, 0.45));
+      filter: drop-shadow(0 4px 20px rgba(233, 28, 37, 0.45));
     }
 
     .legal-meta {
@@ -271,7 +271,7 @@
       margin-top: 2.5rem;
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 1.5px solid rgba(229, 142, 38, 0.25);
+      border-bottom: 1.5px solid rgba(233, 28, 37, 0.25);
     }
 
     .legal-box h2:first-of-type {
@@ -286,7 +286,7 @@
 
     .provider-card {
       background: #14110e;
-      border: 1px solid rgba(229, 142, 38, 0.25);
+      border: 1px solid rgba(233, 28, 37, 0.25);
       border-radius: var(--radius-sm);
       padding: 1.5rem;
       margin-bottom: 2rem;
@@ -317,7 +317,7 @@
     .footer {
       padding: 3.5rem 0 2rem 0;
       text-align: center;
-      border-top: 1.5px solid rgba(229, 142, 38, 0.25);
+      border-top: 1.5px solid rgba(233, 28, 37, 0.25);
       color: var(--text-muted);
       font-size: 0.9rem;
     }
@@ -388,16 +388,16 @@
         width: 36px;
         height: 36px;
         border-radius: 6px;
-        background: rgba(229, 142, 38, 0.12);
-        border: 1.5px solid rgba(229, 142, 38, 0.4);
-        color: #e58e26;
+        background: rgba(233, 28, 37, 0.12);
+        border: 1.5px solid rgba(233, 28, 37, 0.4);
+        color: #e91c25;
         font-size: 1.2rem;
         cursor: pointer;
         transition: all 0.2s;
       }
       .nav-toggle:active {
         transform: scale(0.95);
-        background: rgba(229, 142, 38, 0.25);
+        background: rgba(233, 28, 37, 0.25);
       }
 
       .nav-links {
@@ -428,7 +428,7 @@
       }
       .nav-links .nav-item:active,
       .nav-links .nav-item:hover {
-        background: rgba(229, 142, 38, 0.18);
+        background: rgba(233, 28, 37, 0.18);
         color: var(--accent);
       }
       .nav-links .nav-btn, .nav-links .btn {
@@ -649,7 +649,7 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
-      <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROWHOUSE ŠIAULIAI</p>
+      <p style="margin-bottom: 0.75rem; font-weight: 700; color: #fff;">THROW<span style="color:var(--accent);">HOUSE</span> ŠIAULIAI</p>
       <div style="margin-bottom: 1.5rem;">
         <a href="index.html#pramogos">Pramogos</a>
         <a href="index.html#galerija">Galerija</a>

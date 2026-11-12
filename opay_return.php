@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // =========================================================================
 // OPAY Grįžtamasis Puslapis Klientui (opay_return.php)
 // ThrowHouse Šiauliai
@@ -219,12 +219,12 @@ if ($isCoupon) {
     :root {
       --bg: #0c0a09;
       --card-bg: #14110e;
-      --card-border: rgba(229, 142, 38, 0.28);
-      --accent: #e58e26;
-      --accent-hover: #f59e0b;
+      --card-border: rgba(233, 28, 37, 0.28);
+      --accent: #e91c25;
+      --accent-hover: #ff2e38;
       --text: #fdfaf6;
       --muted: #94a3b8;
-      --success: #e58e26;
+      --success: #e91c25;
       --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -239,8 +239,8 @@ if ($isCoupon) {
       justify-content: center;
       padding: 1.5rem;
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(229, 142, 38, 0.18), transparent),
-        radial-gradient(circle at 80% 80%, rgba(194, 65, 12, 0.08), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(233, 28, 37, 0.18), transparent),
+        radial-gradient(circle at 80% 80%, rgba(185, 28, 28, 0.08), transparent);
     }
     .container {
       max-width: 620px;
@@ -265,7 +265,7 @@ if ($isCoupon) {
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
     .icon-success {
-      background: rgba(229, 142, 38, 0.15);
+      background: rgba(233, 28, 37, 0.15);
       border: 2px solid var(--success);
       color: var(--success);
     }
@@ -338,16 +338,16 @@ if ($isCoupon) {
       border: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg, #c2410c 0%, #e58e26 50%, #f59e0b 100%);
-      color: #0c0a08;
+      background: linear-gradient(135deg, #b91c1c 0%, #e91c25 50%, #ff2e38 100%);
+      color: #ffffff;
       font-weight: 800;
-      box-shadow: 0 4px 15px rgba(229, 142, 38, 0.35);
+      box-shadow: 0 4px 15px rgba(233, 28, 37, 0.35);
       border: 1px solid rgba(255, 237, 213, 0.25);
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #9a3412 0%, #d97706 50%, #fbbf24 100%);
+      background: linear-gradient(135deg, #9a3412 0%, #dc2626 50%, #fbbf24 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 6px 20px rgba(233, 28, 37, 0.45);
       color: #0c0a08;
     }
     .btn-secondary {
