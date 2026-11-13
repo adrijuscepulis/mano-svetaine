@@ -555,24 +555,28 @@
               <td><strong>307625192</strong></td>
             </tr>
             <tr>
-              <td>PVM kodas:</td>
+              <td>PVM mokėtojo kodas:</td>
               <td><strong>Ne PVM mokėtojas</strong></td>
             </tr>
             <tr>
-              <td>Registruotas adresas:</td>
-              <td><strong>Architektų g. 32-18, Šiauliai, Lietuva</strong></td>
+              <td>Buveinės (registruotas) adresas:</td>
+              <td><strong>Architektų g. 32-18, LT-78284 Šiauliai, Lietuva</strong></td>
             </tr>
             <tr>
               <td>Veiklos vykdymo vieta:</td>
-              <td><strong>Pramonės g. 15 (2-as aukštas), Šiauliai</strong></td>
+              <td><strong>Pramonės g. 15 (2-as aukštas), LT-78137 Šiauliai, Lietuva</strong></td>
             </tr>
             <tr>
-              <td>El. paštas:</td>
+              <td>Kontaktinis el. paštas:</td>
               <td><a href="mailto:info@throwhouse.lt" style="color:var(--accent);">info@throwhouse.lt</a></td>
             </tr>
             <tr>
-              <td>Telefonas:</td>
+              <td>Telefono numeris:</td>
               <td><a href="tel:+37061988009" style="color:var(--accent);">+370 619 88009</a></td>
+            </tr>
+            <tr>
+              <td>Interneto svetainė:</td>
+              <td><a href="https://throwhouse.lt" target="_blank" style="color:var(--accent);">https://throwhouse.lt</a></td>
             </tr>
           </table>
         </div>
@@ -586,6 +590,7 @@
         <ul>
           <li><strong>Atliekant rezervaciją:</strong> Užsakovo vardas, pavardė, telefono numeris, el. pašto adresas, pasirinkta pramoga, apsilankymo data ir laikas, dalyvių skaičius, mokėjimo būdas bei suteiktas unikalus užsakymo kodas.</li>
           <li><strong>Perkant dovanų kuponą:</strong> Pirkėjo vardas, pavardė, telefono numeris, el. pašto adresas, kupono vertė, apmokėjimo informacija. Jeigu kuponas perkamas dovanų draugui – papildomai renkamas gavėjo vardas, gavėjo el. paštas bei asmeninis pirkėjo sveikinimo tekstas.</li>
+          <li><strong>Mokėjimų ir atsiskaitymų duomenys:</strong> Pasirinktas atsiskaitymo būdas, mokėjimo operacijos data ir laikas, suma, operacijos unikalus identifikatorius bei mokėjimo statusas. Atsiskaitymams internetu pasitelkiamas licencijuotas mokėjimų partneris OPAY (UAB „OPAY solutions“). Mokėjimo kortelių numeriai, galiojimo terminai ar CVV/CVC kodai Duomenų valdytojo serveriuose nėra renkami ir nėra saugomi – juos tiesiogiai saugiu šifruotu kanalu apdoroja mokėjimų surinkimo partneris ir atitinkami bankai pagal PCI-DSS 1 lygio reikalavimus.</li>
           <li><strong>Siunčiant žinutę kontaktų formoje:</strong> Vardas, telefono numeris, el. pašto adresas, užklausos tema ir žinutės tekstas.</li>
           <li><strong>Techniniai naršymo duomenys:</strong> IP adresas, naršyklės tipas, apsilankymo data ir laikas, siekiant užtikrinti svetainės saugumą ir sklandų veikimą.</li>
         </ul>
@@ -598,6 +603,9 @@
           </li>
           <li>
             <strong>Dovanų kuponų administravimas ir pristatymas (BDAR 6 str. 1 d. b punktas):</strong> Unikalaus kupono sugeneravimui, išsiuntimui gavėjui bei pirkimo patvirtinimo pateikimui pirkėjui.
+          </li>
+          <li>
+            <strong>Mokėjimų administravimas ir pinigų grąžinimas (BDAR 6 str. 1 d. b ir c punktai):</strong> Atsiskaitymų surinkimui, autorizavimui, apskaitai ir lėšų grąžinimui į tą pačią mokėjimo priemonę sutarties atsisakymo atveju.
           </li>
           <li>
             <strong>Teisinių prievolių vykdymas (BDAR 6 str. 1 d. c punktas):</strong> Sąskaitų išrašymui, atsiskaitymų fiksavimui bei buhalterinės apskaitos reikalavimų vykdymui pagal LR teisės aktus.
@@ -614,11 +622,12 @@
           <li>Kontaktų formos užklausos ir susirašinėjimas saugomi ne ilgiau kaip <strong>1 metus</strong> po atsakymo pateikimo.</li>
         </ul>
 
-        <h2>5. Duomenų perdavimas tretiesiems asmenims</h2>
+        <h2>5. Duomenų perdavimas tretiesiems asmenims (Duomenų tvarkytojai)</h2>
         <p>
           Mes neparduodame ir neperduodame Jūsų duomenų tretiesiems asmenims rinkodaros tikslais. Duomenys gali būti teikiami tik patikimiems paslaugų teikėjams (duomenų tvarkytojams), kiek tai būtina mūsų paslaugoms užtikrinti:
         </p>
         <ul>
+          <li><strong>Licencijuotam mokėjimo paslaugų teikėjui UAB „OPAY solutions“</strong> (įm. k. 302664558) ir atitinkamiems bankams partneriams bei tarptautinėms mokėjimo schemoms („Visa“, „Mastercard“, „Apple Pay“, „Google Pay“) – mokėjimų autorizavimo, vykdymo, operacijų saugumo užtikrinimo bei pinigų grąžinimo ta pačia mokėjimo priemone tikslais;</li>
           <li>Serverio prieglobos (hostingo) paslaugų teikėjui;</li>
           <li>Elektroninio pašto siuntimo ir pranešimų pristatymo sistemoms;</li>
           <li>Buhalterines paslaugas teikiančiai įmonei ar specialistui;</li>
@@ -689,7 +698,7 @@
       <p style="margin-bottom: 0.6rem; font-size: 0.85rem; color: #94a3b8;" data-cms="hours_summary">
         🕒 <strong>Darbo laikas:</strong> I–IV: Nedirbame | V–VI: 09:00–24:00 | VII: 09:00–20:00
       </p>
-      <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009</p>
+      <p>© 2026 ThrowHouse Šiauliai | MB „Tomadra“ (įm. k. 307625192) | Buveinė: Architektų g. 32-18, Šiauliai | Veiklos vieta: Pramonės g. 15 (2 a.), Šiauliai | Tel. +370 619 88009 | El. p. info@throwhouse.lt</p>
     </div>
   </footer>
 
